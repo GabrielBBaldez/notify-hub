@@ -52,7 +52,7 @@ notify.to(user)
 - [Running the Demo](#running-the-demo)
 - [Testing with Real Services](#testing-with-real-services)
 - [Architecture](#architecture)
-- [Publishing to Maven Central](#publishing-to-maven-central)
+- [Maven Central](#maven-central)
 - [Roadmap](#roadmap)
 - [License](#license)
 
@@ -64,7 +64,7 @@ notify.to(user)
 
 ```xml
 <dependency>
-    <groupId>io.notifyhub</groupId>
+    <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-spring-boot-starter</artifactId>
     <version>0.1.0</version>
 </dependency>
@@ -73,7 +73,7 @@ notify.to(user)
 > **SMS/WhatsApp?** Add the Twilio channel too:
 > ```xml
 > <dependency>
->     <groupId>io.notifyhub</groupId>
+>     <groupId>io.github.gabrielbbaldez</groupId>
 >     <artifactId>notify-sms</artifactId>
 >     <version>0.1.0</version>
 > </dependency>
@@ -522,58 +522,25 @@ notify-hub/
 
 ---
 
-## Publishing to Maven Central
+## Maven Central
 
-> Currently, NotifyHub is available via source/local install. To use it in other projects:
-
-### Option 1: Local Install (development)
-
-```bash
-git clone https://github.com/GabrielBBaldez/notify-hub.git
-cd notify-hub
-mvn clean install
-```
-
-Then add the dependency in your project's `pom.xml`:
+NotifyHub is published on **Maven Central**. No extra repositories needed — just add the dependency:
 
 ```xml
 <dependency>
-    <groupId>io.notifyhub</groupId>
+    <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-spring-boot-starter</artifactId>
     <version>0.1.0</version>
 </dependency>
 ```
 
-### Option 2: JitPack (easiest for public GitHub repos)
-
-Add the JitPack repository:
-
-```xml
-<repositories>
-    <repository>
-        <id>jitpack.io</id>
-        <url>https://jitpack.io</url>
-    </repository>
-</repositories>
-
-<dependency>
-    <groupId>com.github.GabrielBBaldez</groupId>
-    <artifactId>notify-hub</artifactId>
-    <version>master-SNAPSHOT</version>
-</dependency>
-```
-
-### Option 3: Maven Central (for production)
-
-See the [Roadmap](#roadmap) — Maven Central publishing is planned for a future release.
+Search on Maven Central: [io.github.gabrielbbaldez](https://central.sonatype.com/namespace/io.github.gabrielbbaldez)
 
 ---
 
 ## Roadmap
 
-- [x] **v0.1.0** — Core API, Email (SMTP), Mustache templates, Spring Boot starter, 30 tests
-- [x] **v0.1.1** — SMS (Twilio), WhatsApp (Twilio), Slack (custom channel example), Demo with real service testing
-- [ ] **v0.2.0** — Maven Central publishing, Push notifications (Firebase)
+- [x] **v0.1.0** — Core API, Email, SMS, WhatsApp, Mustache templates, Spring Boot starter, 30 tests, **published on Maven Central**
 - [ ] **v0.3.0** — Async sending, scheduled notifications
 - [ ] **v0.4.0** — Broadcast (send to multiple recipients), delivery tracking
 

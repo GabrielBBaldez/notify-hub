@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>io.notifyhub</groupId>
+        <groupId>io.github.gabrielbbaldez</groupId>
         <artifactId>notify-hub-parent</artifactId>
         <version>0.1.0</version>
     </parent>
@@ -17,7 +17,7 @@
     <dependencies>
         <!-- NotifyHub starter — the whole point -->
         <dependency>
-            <groupId>io.notifyhub</groupId>
+            <groupId>io.github.gabrielbbaldez</groupId>
             <artifactId>notify-spring-boot-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -30,7 +30,7 @@
 
         <!-- SMS via Twilio (optional — only active when Twilio SDK is on classpath) -->
         <dependency>
-            <groupId>io.notifyhub</groupId>
+            <groupId>io.github.gabrielbbaldez</groupId>
             <artifactId>notify-sms</artifactId>
             <version>${project.version}</version>
         </dependency>

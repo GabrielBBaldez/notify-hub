@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>io.notifyhub</groupId>
+        <groupId>io.github.gabrielbbaldez</groupId>
         <artifactId>notify-hub-parent</artifactId>
         <version>0.1.0</version>
     </parent>
@@ -16,15 +16,15 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.notifyhub</groupId>
+            <groupId>io.github.gabrielbbaldez</groupId>
             <artifactId>notify-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.notifyhub</groupId>
+            <groupId>io.github.gabrielbbaldez</groupId>
             <artifactId>notify-email</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.notifyhub</groupId>
+            <groupId>io.github.gabrielbbaldez</groupId>
             <artifactId>notify-sms</artifactId>
             <optional>true</optional>
         </dependency>

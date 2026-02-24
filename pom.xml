@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.notifyhub</groupId>
+    <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-hub-parent</artifactId>
     <version>0.1.0</version>
     <packaging>pom</packaging>
@@ -27,6 +27,12 @@
             <url>https://github.com/GabrielBBaldez</url>
         </developer>
     </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/GabrielBBaldez/notify-hub.git</connection>
+        <developerConnection>scm:git:ssh://github.com:GabrielBBaldez/notify-hub.git</developerConnection>
+        <url>https://github.com/GabrielBBaldez/notify-hub</url>
+    </scm>
 
     <modules>
         <module>notify-core</module>
@@ -55,17 +61,17 @@
         <dependencies>
             <!-- Internal modules -->
             <dependency>
-                <groupId>io.notifyhub</groupId>
+                <groupId>io.github.gabrielbbaldez</groupId>
                 <artifactId>notify-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.notifyhub</groupId>
+                <groupId>io.github.gabrielbbaldez</groupId>
                 <artifactId>notify-email</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.notifyhub</groupId>
+                <groupId>io.github.gabrielbbaldez</groupId>
                 <artifactId>notify-sms</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -152,4 +158,67 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Release profile: mvn clean deploy -P release -->
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <!-- Attach sources -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.3.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals><goal>jar-no-fork</goal></goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Attach javadoc -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.6.3</version>
+                        <configuration>
+                            <doclint>none</doclint>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals><goal>jar</goal></goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- GPG sign -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals><goal>sign</goal></goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Publish to Maven Central -->
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.7.0</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <autoPublish>false</autoPublish>
+                            <waitUntil>validated</waitUntil>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

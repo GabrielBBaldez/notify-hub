@@ -1,0 +1,11 @@
+notify:
+  channels:
+    email:
+      host: localhost
+      port: 3025
+      from: noreply@notifyhub.io
+      from-name: NotifyHub Test
+      tls: false
+  retry:
+    max-attempts: 3
+    strategy: exponential

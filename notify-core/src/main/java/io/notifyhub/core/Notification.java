@@ -17,7 +17,7 @@ public final class Notification {
     private final String rawContent;
     private final Map<String, Object> params;
 
-    Notification(String recipient, String channelName, String subject,
+    public Notification(String recipient, String channelName, String subject,
                  String templateName, String rawContent, Map<String, Object> params) {
         this.recipient = recipient;
         this.channelName = channelName;

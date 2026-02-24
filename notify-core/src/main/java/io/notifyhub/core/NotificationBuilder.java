@@ -2,20 +2,42 @@ package io.notifyhub.core;
 
 import io.notifyhub.core.retry.RetryPolicy;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Fluent builder for constructing and sending notifications.
  *
  * <pre>{@code
+ * // Simple send
  * notify.to(user)
  *     .via(Channel.EMAIL)
  *     .fallback(Channel.SMS)
  *     .subject("Order confirmed")
  *     .template("order-confirmed")
  *     .param("orderId", order.getId())
- *     .param("total", order.getTotal())
  *     .send();
+ *
+ * // Tracked send
+ * DeliveryReceipt receipt = notify.to(user)
+ *     .via(Channel.EMAIL)
+ *     .content("Hello!")
+ *     .sendTracked();
+ *
+ * // Scheduled send (fires in 30 minutes)
+ * ScheduledNotification scheduled = notify.to(user)
+ *     .via(Channel.EMAIL)
+ *     .content("Reminder!")
+ *     .schedule(Duration.ofMinutes(30));
+ *
+ * // Scheduled for specific date/time
+ * ScheduledNotification scheduled = notify.to(user)
+ *     .via(Channel.EMAIL)
+ *     .content("Happy Birthday!")
+ *     .scheduleAt(LocalDateTime.of(2024, 12, 25, 9, 0));
  * }</pre>
  */
 public class NotificationBuilder {
@@ -165,6 +187,127 @@ public class NotificationBuilder {
         hub.executeAll(this);
     }
 
+    /**
+     * Asynchronously send the notification through the first specified channel.
+     * If it fails and fallbacks are configured, tries each fallback in order.
+     *
+     * @return CompletableFuture that completes when the notification is sent (or all fallbacks fail)
+     */
+    public CompletableFuture<Void> sendAsync() {
+        validate();
+        return hub.executeAsync(this);
+    }
+
+    /**
+     * Asynchronously send through ALL specified channels.
+     * Failures on individual channels don't block others.
+     *
+     * @return CompletableFuture that completes when all channels have been attempted
+     */
+    public CompletableFuture<Void> sendAllAsync() {
+        validate();
+        return hub.executeAllAsync(this);
+    }
+
+    // ===================== TRACKED SEND =====================
+
+    /**
+     * Send the notification and return a delivery receipt with tracking information.
+     * The receipt contains the delivery status, channel, recipient, and timestamp.
+     *
+     * <p>If a {@link NotificationTracker} is configured on the hub, the receipt
+     * is automatically recorded for later querying.</p>
+     *
+     * @return a {@link DeliveryReceipt} with the delivery outcome
+     * @throws io.notifyhub.core.channel.NotificationSendException if all channels fail
+     */
+    public DeliveryReceipt sendTracked() {
+        validate();
+        return hub.executeTracked(this);
+    }
+
+    /**
+     * Send through ALL specified channels and return delivery receipts for each.
+     * Each channel gets its own receipt (SENT or FAILED).
+     *
+     * @return list of {@link DeliveryReceipt} — one per channel
+     * @throws io.notifyhub.core.channel.NotificationSendException if ALL channels fail
+     */
+    public List<DeliveryReceipt> sendAllTracked() {
+        validate();
+        return hub.executeAllTracked(this);
+    }
+
+    // ===================== SCHEDULED SEND =====================
+
+    /**
+     * Schedule the notification to be sent after a delay.
+     *
+     * <pre>{@code
+     * ScheduledNotification scheduled = notify.to("user@test.com")
+     *     .via(Channel.EMAIL)
+     *     .content("Reminder: meeting in 30 minutes!")
+     *     .schedule(Duration.ofMinutes(30));
+     *
+     * // Cancel if needed
+     * scheduled.cancel();
+     * }</pre>
+     *
+     * @param delay how long to wait before sending
+     * @return a {@link ScheduledNotification} handle to inspect or cancel
+     */
+    public ScheduledNotification schedule(Duration delay) {
+        validate();
+        if (delay == null || delay.isNegative()) {
+            throw new IllegalArgumentException("Delay must be a positive duration");
+        }
+        return hub.executeScheduled(this, delay);
+    }
+
+    /**
+     * Schedule the notification to be sent at a specific date and time.
+     * Uses the system default timezone.
+     *
+     * <pre>{@code
+     * ScheduledNotification scheduled = notify.to("user@test.com")
+     *     .via(Channel.EMAIL)
+     *     .content("Happy Birthday!")
+     *     .scheduleAt(LocalDateTime.of(2024, 12, 25, 9, 0));
+     * }</pre>
+     *
+     * @param dateTime when to send the notification
+     * @return a {@link ScheduledNotification} handle to inspect or cancel
+     * @throws IllegalArgumentException if dateTime is in the past
+     */
+    public ScheduledNotification scheduleAt(LocalDateTime dateTime) {
+        return scheduleAt(dateTime, ZoneId.systemDefault());
+    }
+
+    /**
+     * Schedule the notification to be sent at a specific date and time in a given timezone.
+     *
+     * @param dateTime when to send the notification
+     * @param zoneId   the timezone for the dateTime
+     * @return a {@link ScheduledNotification} handle to inspect or cancel
+     * @throws IllegalArgumentException if dateTime is in the past
+     */
+    public ScheduledNotification scheduleAt(LocalDateTime dateTime, ZoneId zoneId) {
+        validate();
+        if (dateTime == null) {
+            throw new IllegalArgumentException("DateTime must not be null");
+        }
+
+        java.time.Instant target = dateTime.atZone(zoneId).toInstant();
+        Duration delay = Duration.between(java.time.Instant.now(), target);
+
+        if (delay.isNegative()) {
+            throw new IllegalArgumentException(
+                    "Cannot schedule in the past. Provided: " + dateTime + " (zone: " + zoneId + ")");
+        }
+
+        return hub.executeScheduled(this, delay);
+    }
+
     // ===================== INTERNAL =====================
 
     private void validate() {
@@ -182,6 +325,7 @@ public class NotificationBuilder {
             case "email" -> recipientEmail;
             case "sms", "whatsapp" -> recipientPhone;
             case "push" -> recipientPushToken;
+            case "slack", "telegram", "discord" -> recipientEmail;
             default -> recipientEmail != null ? recipientEmail : recipientPhone;
         };
     }

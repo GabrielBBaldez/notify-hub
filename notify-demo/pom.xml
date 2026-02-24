@@ -7,7 +7,7 @@
     <parent>
         <groupId>io.github.gabrielbbaldez</groupId>
         <artifactId>notify-hub-parent</artifactId>
-        <version>0.1.0</version>
+        <version>0.2.0</version>
     </parent>
 
     <artifactId>notify-demo</artifactId>
@@ -28,10 +28,31 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- SMS via Twilio (optional — only active when Twilio SDK is on classpath) -->
+        <!-- SMS via Twilio -->
         <dependency>
             <groupId>io.github.gabrielbbaldez</groupId>
             <artifactId>notify-sms</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Slack channel -->
+        <dependency>
+            <groupId>io.github.gabrielbbaldez</groupId>
+            <artifactId>notify-slack</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Telegram channel -->
+        <dependency>
+            <groupId>io.github.gabrielbbaldez</groupId>
+            <artifactId>notify-telegram</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Discord channel -->
+        <dependency>
+            <groupId>io.github.gabrielbbaldez</groupId>
+            <artifactId>notify-discord</artifactId>
             <version>${project.version}</version>
         </dependency>
 

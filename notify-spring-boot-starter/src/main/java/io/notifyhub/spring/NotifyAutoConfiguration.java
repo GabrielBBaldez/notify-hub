@@ -3,7 +3,9 @@ package io.notifyhub.spring;
 import io.notifyhub.channel.email.SmtpConfig;
 import io.notifyhub.channel.email.SmtpEmailChannel;
 import io.notifyhub.core.NotifyHub;
+import io.notifyhub.core.InMemoryNotificationTracker;
 import io.notifyhub.core.NotificationListener;
+import io.notifyhub.core.NotificationTracker;
 import io.notifyhub.core.channel.NotificationChannel;
 import io.notifyhub.core.retry.RetryPolicy;
 import io.notifyhub.core.template.MustacheTemplateEngine;
@@ -20,6 +22,9 @@ import org.springframework.context.annotation.Import;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Spring Boot auto-configuration for NotifyHub.
@@ -28,8 +33,13 @@ import java.util.List;
  * <ul>
  *   <li>Email channel (when {@code notify.channels.email.host} is set)</li>
  *   <li>SMS channel (when Twilio is on classpath and {@code notify.channels.sms.account-sid} is set)</li>
+ *   <li>Slack channel (when notify-slack is on classpath and {@code notify.channels.slack.webhook-url} is set)</li>
+ *   <li>Telegram channel (when notify-telegram is on classpath and {@code notify.channels.telegram.bot-token} is set)</li>
+ *   <li>Discord channel (when notify-discord is on classpath and {@code notify.channels.discord.webhook-url} is set)</li>
  *   <li>Mustache template engine (default)</li>
  *   <li>Retry policy (when {@code notify.retry} is configured)</li>
+ *   <li>Scheduled notifications (when {@code notify.scheduling.enabled=true}, default)</li>
+ *   <li>Delivery tracking (when {@code notify.tracking.enabled=true})</li>
  * </ul>
  *
  * <p>Custom channels implementing {@link NotificationChannel} are automatically
@@ -37,7 +47,12 @@ import java.util.List;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(NotifyProperties.class)
-@Import(NotifySmsAutoConfiguration.class)
+@Import({
+    NotifySmsAutoConfiguration.class,
+    NotifySlackAutoConfiguration.class,
+    NotifyTelegramAutoConfiguration.class,
+    NotifyDiscordAutoConfiguration.class
+})
 public class NotifyAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(NotifyAutoConfiguration.class);
@@ -49,6 +64,31 @@ public class NotifyAutoConfiguration {
     public TemplateEngine notifyTemplateEngine() {
         log.info("NotifyHub: Using Mustache template engine");
         return new MustacheTemplateEngine();
+    }
+
+    // ===================== SCHEDULING =====================
+
+    @Bean
+    @ConditionalOnMissingBean(ScheduledExecutorService.class)
+    @ConditionalOnProperty(prefix = "notify.scheduling", name = "enabled", matchIfMissing = true)
+    public ScheduledExecutorService notifyScheduler(NotifyProperties properties) {
+        int poolSize = properties.getScheduling().getPoolSize();
+        log.info("NotifyHub: Scheduler configured with pool size {}", poolSize);
+        return Executors.newScheduledThreadPool(poolSize, r -> {
+            Thread t = new Thread(r, "notifyhub-scheduler");
+            t.setDaemon(true);
+            return t;
+        });
+    }
+
+    // ===================== DELIVERY TRACKING =====================
+
+    @Bean
+    @ConditionalOnMissingBean(NotificationTracker.class)
+    @ConditionalOnProperty(prefix = "notify.tracking", name = "enabled", havingValue = "true")
+    public NotificationTracker notifyTracker() {
+        log.info("NotifyHub: In-memory delivery tracking enabled");
+        return new InMemoryNotificationTracker();
     }
 
     // ===================== EMAIL CHANNEL =====================
@@ -80,6 +120,9 @@ public class NotifyAutoConfiguration {
             TemplateEngine templateEngine,
             ObjectProvider<List<NotificationChannel>> channelsProvider,
             ObjectProvider<List<NotificationListener>> listenersProvider,
+            ObjectProvider<ExecutorService> executorProvider,
+            ObjectProvider<ScheduledExecutorService> schedulerProvider,
+            ObjectProvider<NotificationTracker> trackerProvider,
             NotifyProperties properties) {
 
         NotifyHub.Builder builder = NotifyHub.builder()
@@ -107,6 +150,27 @@ public class NotifyAutoConfiguration {
             builder.defaultRetryPolicy(policy);
             log.info("NotifyHub: Retry policy set to {} (max {} attempts)",
                     retry.getStrategy(), retry.getMaxAttempts());
+        }
+
+        // Configure async executor if available
+        ExecutorService executor = executorProvider.getIfAvailable();
+        if (executor != null) {
+            builder.executor(executor);
+            log.info("NotifyHub: Using provided ExecutorService for async operations");
+        }
+
+        // Configure scheduler for scheduled notifications
+        ScheduledExecutorService scheduler = schedulerProvider.getIfAvailable();
+        if (scheduler != null) {
+            builder.scheduler(scheduler);
+            log.info("NotifyHub: Scheduler configured for scheduled notifications");
+        }
+
+        // Configure delivery tracker
+        NotificationTracker tracker = trackerProvider.getIfAvailable();
+        if (tracker != null) {
+            builder.tracker(tracker);
+            log.info("NotifyHub: Delivery tracking enabled");
         }
 
         return builder.build();

@@ -25,6 +25,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *       account-sid: ${TWILIO_SID}
  *       auth-token: ${TWILIO_TOKEN}
  *       from-number: "+14155238886"
+ *     slack:
+ *       webhook-url: https://hooks.slack.com/services/XXX/YYY/ZZZ
+ *     telegram:
+ *       bot-token: "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
+ *       chat-id: "123456789"
+ *     discord:
+ *       webhook-url: https://discord.com/api/webhooks/123/abc
+ *       username: NotifyHub Bot
  *   retry:
  *     max-attempts: 3
  *     strategy: exponential
@@ -35,17 +43,26 @@ public class NotifyProperties {
 
     private Channels channels = new Channels();
     private Retry retry = new Retry();
+    private Scheduling scheduling = new Scheduling();
+    private Tracking tracking = new Tracking();
 
     public Channels getChannels() { return channels; }
     public void setChannels(Channels channels) { this.channels = channels; }
     public Retry getRetry() { return retry; }
     public void setRetry(Retry retry) { this.retry = retry; }
+    public Scheduling getScheduling() { return scheduling; }
+    public void setScheduling(Scheduling scheduling) { this.scheduling = scheduling; }
+    public Tracking getTracking() { return tracking; }
+    public void setTracking(Tracking tracking) { this.tracking = tracking; }
 
     public static class Channels {
 
         private Email email;
         private Sms sms;
         private WhatsApp whatsapp;
+        private Slack slack;
+        private Telegram telegram;
+        private Discord discord;
 
         public Email getEmail() { return email; }
         public void setEmail(Email email) { this.email = email; }
@@ -53,6 +70,12 @@ public class NotifyProperties {
         public void setSms(Sms sms) { this.sms = sms; }
         public WhatsApp getWhatsapp() { return whatsapp; }
         public void setWhatsapp(WhatsApp whatsapp) { this.whatsapp = whatsapp; }
+        public Slack getSlack() { return slack; }
+        public void setSlack(Slack slack) { this.slack = slack; }
+        public Telegram getTelegram() { return telegram; }
+        public void setTelegram(Telegram telegram) { this.telegram = telegram; }
+        public Discord getDiscord() { return discord; }
+        public void setDiscord(Discord discord) { this.discord = discord; }
     }
 
     public static class Email {
@@ -109,6 +132,36 @@ public class NotifyProperties {
         public void setFromNumber(String fromNumber) { this.fromNumber = fromNumber; }
     }
 
+    public static class Slack {
+        private String webhookUrl;
+
+        public String getWebhookUrl() { return webhookUrl; }
+        public void setWebhookUrl(String webhookUrl) { this.webhookUrl = webhookUrl; }
+    }
+
+    public static class Telegram {
+        private String botToken;
+        private String chatId;
+
+        public String getBotToken() { return botToken; }
+        public void setBotToken(String botToken) { this.botToken = botToken; }
+        public String getChatId() { return chatId; }
+        public void setChatId(String chatId) { this.chatId = chatId; }
+    }
+
+    public static class Discord {
+        private String webhookUrl;
+        private String username;
+        private String avatarUrl;
+
+        public String getWebhookUrl() { return webhookUrl; }
+        public void setWebhookUrl(String webhookUrl) { this.webhookUrl = webhookUrl; }
+        public String getUsername() { return username; }
+        public void setUsername(String username) { this.username = username; }
+        public String getAvatarUrl() { return avatarUrl; }
+        public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
+    }
+
     public static class Retry {
         private int maxAttempts = 1;
         private String strategy = "none"; // none, fixed, exponential
@@ -117,5 +170,22 @@ public class NotifyProperties {
         public void setMaxAttempts(int maxAttempts) { this.maxAttempts = maxAttempts; }
         public String getStrategy() { return strategy; }
         public void setStrategy(String strategy) { this.strategy = strategy; }
+    }
+
+    public static class Scheduling {
+        private boolean enabled = true;
+        private int poolSize = 2;
+
+        public boolean isEnabled() { return enabled; }
+        public void setEnabled(boolean enabled) { this.enabled = enabled; }
+        public int getPoolSize() { return poolSize; }
+        public void setPoolSize(int poolSize) { this.poolSize = poolSize; }
+    }
+
+    public static class Tracking {
+        private boolean enabled = false;
+
+        public boolean isEnabled() { return enabled; }
+        public void setEnabled(boolean enabled) { this.enabled = enabled; }
     }
 }

@@ -9,6 +9,15 @@ notify:
       from: noreply@notifyhub.io
       from-name: NotifyHub Demo
       tls: false
+    telegram:
+      bot-token: ${TELEGRAM_BOT_TOKEN:your-bot-token}
+    discord:
+      webhook-url: ${DISCORD_WEBHOOK_URL:https://discord.com/api/webhooks/your/webhook-url}
   retry:
     max-attempts: 3
     strategy: exponential
+  scheduling:
+    enabled: true
+    pool-size: 2
+  tracking:
+    enabled: true

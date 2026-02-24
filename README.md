@@ -4,9 +4,11 @@
 
 [![Java 17+](https://img.shields.io/badge/Java-17%2B-blue)](https://openjdk.org/)
 [![Spring Boot 3.x](https://img.shields.io/badge/Spring%20Boot-3.x-green)](https://spring.io/projects/spring-boot)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.gabrielbbaldez/notify-spring-boot-starter)](https://central.sonatype.com/namespace/io.github.gabrielbbaldez)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![CI](https://github.com/GabrielBBaldez/notify-hub/actions/workflows/ci.yml/badge.svg)](https://github.com/GabrielBBaldez/notify-hub/actions/workflows/ci.yml)
 
-Stop writing different code for each notification channel. NotifyHub gives you a single fluent API to send notifications via Email, SMS, WhatsApp, Slack — or any custom channel you create.
+Stop writing different code for each notification channel. NotifyHub gives you a single fluent API to send notifications via Email, SMS, WhatsApp, Slack, Telegram, Discord — or any custom channel you create.
 
 ```java
 notify.to(user)
@@ -27,9 +29,13 @@ notify.to(user)
 | Email | JavaMail config, MIME types, Session... | `.via(EMAIL)` |
 | SMS | Twilio SDK, different API entirely | `.via(SMS)` |
 | WhatsApp | Another Twilio setup, prefix logic | `.via(WHATSAPP)` |
+| Slack | Webhook HTTP, JSON payload | `.via(SLACK)` |
+| Telegram | Bot API, HTTP client setup | `.via(TELEGRAM)` |
+| Discord | Webhook HTTP, JSON payload | `.via(DISCORD)` |
 | Multiple channels | Completely different code for each | Same fluent API |
 | Fallback | Manual try/catch chain | `.fallback(SMS)` |
 | Retry | Implement yourself | Built-in exponential backoff |
+| Async | Thread pools, CompletableFuture | `.sendAsync()` |
 | Templates | Each channel has its own engine | One template, all channels |
 | New channel | Build from scratch | Implement one interface |
 
@@ -41,6 +47,7 @@ notify.to(user)
 - [Features](#features)
   - [Fallback Chain](#fallback-chain)
   - [Multi-Channel Send](#multi-channel-send)
+  - [Async Sending](#async-sending)
   - [Retry with Backoff](#retry-with-backoff)
   - [Templates (Mustache)](#templates-mustache)
   - [Notifiable Interface](#notifiable-interface)
@@ -66,7 +73,7 @@ notify.to(user)
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-spring-boot-starter</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
@@ -75,7 +82,16 @@ notify.to(user)
 > <dependency>
 >     <groupId>io.github.gabrielbbaldez</groupId>
 >     <artifactId>notify-sms</artifactId>
->     <version>0.1.0</version>
+>     <version>0.2.0</version>
+> </dependency>
+> ```
+
+> **Slack / Telegram / Discord?** Add the channel you need:
+> ```xml
+> <dependency>
+>     <groupId>io.github.gabrielbbaldez</groupId>
+>     <artifactId>notify-slack</artifactId>
+>     <version>0.2.0</version>
 > </dependency>
 > ```
 
@@ -150,10 +166,31 @@ Send through ALL channels simultaneously:
 ```java
 notify.to(user)
     .via(Channel.EMAIL)
-    .via(Channel.custom("slack"))
+    .via(Channel.SLACK)
     .subject("Security Alert")
     .content("Login from a new device detected")
     .sendAll();
+```
+
+### Async Sending
+
+Send notifications without blocking:
+
+```java
+// Fire and forget
+notify.to(user)
+    .via(Channel.EMAIL)
+    .template("welcome")
+    .sendAsync();
+
+// Or wait for result
+CompletableFuture<Void> future = notify.to(user)
+    .via(Channel.EMAIL)
+    .via(Channel.SLACK)
+    .content("Deploy complete!")
+    .sendAllAsync();
+
+future.thenRun(() -> log.info("All notifications sent!"));
 ```
 
 ### Retry with Backoff
@@ -188,12 +225,12 @@ Create templates in `src/main/resources/templates/notify/`:
 <p>Total: <strong>{{total}}</strong></p>
 ```
 
-**order-confirmed.txt** (auto-used for SMS/WhatsApp):
+**order-confirmed.txt** (auto-used for SMS/WhatsApp/Slack/Telegram/Discord):
 ```
 Hello {{customerName}}, your order #{{orderId}} is confirmed. Total: {{total}}
 ```
 
-The library picks `.html` for email and `.txt` for SMS/WhatsApp automatically. If only one format exists, it converts.
+The library picks `.html` for email and `.txt` for other channels automatically.
 
 ### Notifiable Interface
 
@@ -240,15 +277,14 @@ Create your own channel by implementing one interface:
 
 ```java
 @Component
-public class SlackChannel implements NotificationChannel {
+public class PushChannel implements NotificationChannel {
 
     @Override
-    public String getName() { return "slack"; }
+    public String getName() { return "push"; }
 
     @Override
     public void send(Notification notification) {
-        // POST to Slack webhook, Discord, Telegram, etc.
-        webhookClient.post(notification.getRecipient(), notification.getRenderedContent());
+        firebaseClient.send(notification.getRecipient(), notification.getRenderedContent());
     }
 }
 ```
@@ -256,10 +292,9 @@ public class SlackChannel implements NotificationChannel {
 Use it:
 
 ```java
-notify.to("#team-alerts")
-    .via(Channel.custom("slack"))
-    .template("deploy-success")
-    .param("version", "2.1.0")
+notify.to(user)
+    .via(Channel.custom("push"))
+    .template("new-message")
     .send();
 ```
 
@@ -295,6 +330,9 @@ public class NotifyMonitor implements NotificationListener {
 | Email | SMTP (any provider) | `notify-email` | ✅ Stable |
 | SMS | Twilio | `notify-sms` | ✅ Stable |
 | WhatsApp | Twilio | `notify-sms` | ✅ Stable |
+| Slack | Webhooks | `notify-slack` | ✅ Stable |
+| Telegram | Bot API | `notify-telegram` | ✅ Stable |
+| Discord | Webhooks | `notify-discord` | ✅ Stable |
 | Push | Firebase | planned | Roadmap |
 | Custom | Any | `notify-core` | ✅ Stable |
 
@@ -327,14 +365,21 @@ notify:
       auth-token: ${TWILIO_TOKEN}  # Same Twilio token
       from-number: "+14155238886"  # Twilio WhatsApp sandbox number
 
+    slack:
+      webhook-url: ${SLACK_WEBHOOK}  # Slack Incoming Webhook URL
+
+    telegram:
+      bot-token: ${TELEGRAM_BOT_TOKEN}  # Telegram Bot token from @BotFather
+      chat-id: ${TELEGRAM_CHAT_ID}      # Default chat/group ID (optional)
+
+    discord:
+      webhook-url: ${DISCORD_WEBHOOK}   # Discord webhook URL
+      username: NotifyHub               # Bot display name (optional)
+
   retry:
     max-attempts: 3                # Max retry attempts (default: 1 = no retry)
     strategy: exponential          # none, fixed, exponential (default: none)
 ```
-
-> **Gmail users:** You need a [Google App Password](https://myaccount.google.com/apppasswords), not your real password. Enable 2FA first.
-
-> **Twilio users:** Get your credentials at [twilio.com/console](https://www.twilio.com/console). For WhatsApp, join the [Twilio Sandbox](https://www.twilio.com/console/sms/whatsapp/sandbox) first.
 
 ---
 
@@ -355,21 +400,32 @@ NotifyHub notify = NotifyHub.builder()
             .tls(true)
             .build()
     ))
-    .channel(new TwilioSmsChannel(
-        TwilioConfig.builder()
-            .accountSid("ACXXXXXXXXXX")
-            .authToken("your-token")
-            .fromNumber("+1234567890")
+    .channel(new SlackChannel(
+        SlackConfig.builder()
+            .webhookUrl("https://hooks.slack.com/services/XXX/YYY/ZZZ")
+            .build()
+    ))
+    .channel(new TelegramChannel(
+        TelegramConfig.builder()
+            .botToken("123456:ABC-DEF...")
+            .defaultChatId("123456789")
             .build()
     ))
     .defaultRetryPolicy(RetryPolicy.exponential(3))
     .build();
 
+// Sync
 notify.to("user@email.com")
     .via(Channel.EMAIL)
     .subject("Hello!")
     .content("Welcome to the app!")
     .send();
+
+// Async
+notify.to("#general")
+    .via(Channel.SLACK)
+    .content("Deploy complete!")
+    .sendAsync();
 ```
 
 Only `notify-core` + channel modules needed. No Spring dependency.
@@ -409,27 +465,11 @@ Then open [http://localhost:8080](http://localhost:8080) to see all available en
 | `GET` | `/inbox/slack` | View Slack messages |
 | `DELETE` | `/inbox` | Clear all inboxes |
 
-### Quick Test (default profile)
-
-```bash
-# Send an email (captured by embedded SMTP)
-curl -X POST "http://localhost:8080/send/email?to=test@test.com&subject=Hello&body=It+works!"
-
-# Check the inbox
-curl http://localhost:8080/inbox
-```
-
 ---
 
 ## Testing with Real Services
 
 Want to test with **real Gmail, Twilio SMS, WhatsApp, and Slack**? Use the `real` profile.
-
-### Prerequisites
-
-1. **Gmail:** Enable [2FA](https://myaccount.google.com/security) and create an [App Password](https://myaccount.google.com/apppasswords)
-2. **Twilio:** Create a free account at [twilio.com](https://www.twilio.com/try-twilio) (SMS + WhatsApp)
-3. **Slack (optional):** Create an [Incoming Webhook](https://api.slack.com/messaging/webhooks)
 
 ### Set Environment Variables
 
@@ -455,24 +495,6 @@ set SLACK_WEBHOOK=https://hooks.slack.com/services/XXX/YYY/ZZZ
 mvn -pl notify-demo spring-boot:run -Dspring-boot.run.profiles=real
 ```
 
-### Test Each Channel
-
-```bash
-# Email (arrives in your real inbox)
-curl -X POST "http://localhost:8080/send/email?to=you@gmail.com&subject=Real+Test&body=NotifyHub+works!"
-
-# SMS (arrives on your phone)
-curl -X POST "http://localhost:8080/send/sms?to=+5511999999999&message=Hello+from+NotifyHub!"
-
-# WhatsApp (join Twilio Sandbox first: twilio.com/console/sms/whatsapp/sandbox)
-curl -X POST "http://localhost:8080/send/whatsapp?to=+5511999999999&message=Hello+via+WhatsApp!"
-
-# Slack
-curl -X POST "http://localhost:8080/send/slack?channel=%23general&message=Deploy+complete!"
-```
-
-> **Note:** Twilio trial accounts only send SMS to [verified numbers](https://www.twilio.com/console/phone-numbers/verified). For WhatsApp, you need to join the [Twilio Sandbox](https://www.twilio.com/console/sms/whatsapp/sandbox) by sending a message to their number first.
-
 ---
 
 ## Architecture
@@ -481,7 +503,7 @@ curl -X POST "http://localhost:8080/send/slack?channel=%23general&message=Deploy
 notify-hub/
 ├── notify-core/                          # Zero Spring dependency
 │   ├── NotifyHub                         # Entry point + fluent API
-│   ├── NotificationBuilder               # Fluent builder for notifications
+│   ├── NotificationBuilder               # Fluent builder + async (sendAsync)
 │   ├── Notification                      # Immutable notification object
 │   ├── Channel / ChannelRef              # Built-in + custom channel refs
 │   ├── Notifiable                        # Recipient interface
@@ -492,33 +514,31 @@ notify-hub/
 │
 ├── notify-channels/
 │   ├── notify-email/                     # SMTP email (Jakarta Mail)
-│   │   ├── SmtpEmailChannel              # Email channel implementation
-│   │   └── SmtpConfig                    # SMTP configuration builder
-│   └── notify-sms/                       # Twilio SMS + WhatsApp
-│       ├── TwilioSmsChannel              # SMS channel implementation
-│       ├── TwilioWhatsAppChannel         # WhatsApp channel implementation
-│       └── TwilioConfig                  # Twilio configuration builder
+│   ├── notify-sms/                       # Twilio SMS + WhatsApp
+│   ├── notify-slack/                     # Slack webhooks (JDK HttpClient)
+│   ├── notify-telegram/                  # Telegram Bot API (JDK HttpClient)
+│   └── notify-discord/                   # Discord webhooks (JDK HttpClient)
 │
 ├── notify-spring-boot-starter/           # Auto-config for Spring Boot
-│   ├── NotifyAutoConfiguration           # Auto-discovers channels + templates
+│   ├── NotifyAutoConfiguration           # Auto-discovers all channels
 │   ├── NotifySmsAutoConfiguration        # Conditional Twilio auto-config
+│   ├── NotifySlackAutoConfiguration      # Conditional Slack auto-config
+│   ├── NotifyTelegramAutoConfiguration   # Conditional Telegram auto-config
+│   ├── NotifyDiscordAutoConfiguration    # Conditional Discord auto-config
 │   └── NotifyProperties                  # application.yml binding
 │
 └── notify-demo/                          # Demo app (run it!)
-    ├── DemoController                    # REST endpoints for all features
-    ├── SlackChannel                      # Custom channel example (webhook)
-    ├── EmbeddedSmtpConfig                # GreenMail embedded SMTP
-    └── application-real.yml              # Profile for real service testing
 ```
 
 ### Design Principles
 
-- **`notify-core` has zero Spring dependency** — use it in any Java project (Quarkus, Micronaut, plain Java)
+- **`notify-core` has zero Spring dependency** — use it in any Java project
 - **Channels are pluggable** — implement `NotificationChannel`, register as a Spring bean
-- **Template engine is replaceable** — implement `TemplateEngine` interface (default: Mustache)
+- **Slack, Telegram, Discord use zero external SDKs** — only JDK `java.net.http.HttpClient`
+- **Template engine is replaceable** — implement `TemplateEngine` interface
 - **Spring Boot starter auto-configures everything** — just add the dependency
-- **Immutable `Notification` objects** — thread-safe by design
-- **Conditional auto-config** — SMS/WhatsApp beans only load when Twilio SDK is on classpath
+- **Async support** — `sendAsync()` and `sendAllAsync()` with `CompletableFuture`
+- **Conditional auto-config** — channel beans only load when their module is on classpath
 
 ---
 
@@ -530,9 +550,21 @@ NotifyHub is published on **Maven Central**. No extra repositories needed — ju
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-spring-boot-starter</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </dependency>
 ```
+
+Available modules:
+
+| Module | Description |
+|--------|-------------|
+| `notify-spring-boot-starter` | Spring Boot auto-config (includes email) |
+| `notify-core` | Core API only (no Spring) |
+| `notify-email` | SMTP email channel |
+| `notify-sms` | Twilio SMS + WhatsApp |
+| `notify-slack` | Slack webhooks |
+| `notify-telegram` | Telegram Bot API |
+| `notify-discord` | Discord webhooks |
 
 Search on Maven Central: [io.github.gabrielbbaldez](https://central.sonatype.com/namespace/io.github.gabrielbbaldez)
 
@@ -540,9 +572,10 @@ Search on Maven Central: [io.github.gabrielbbaldez](https://central.sonatype.com
 
 ## Roadmap
 
-- [x] **v0.1.0** — Core API, Email, SMS, WhatsApp, Mustache templates, Spring Boot starter, 30 tests, **published on Maven Central**
-- [ ] **v0.3.0** — Async sending, scheduled notifications
-- [ ] **v0.4.0** — Broadcast (send to multiple recipients), delivery tracking
+- [x] **v0.1.0** — Core API, Email, SMS, WhatsApp, Mustache templates, Spring Boot starter, published on Maven Central
+- [x] **v0.2.0** — Slack, Telegram, Discord channels, async sending (`sendAsync`/`sendAllAsync`), GitHub Actions CI/CD, 43 tests
+- [ ] **v0.3.0** — Scheduled notifications, delivery tracking
+- [ ] **v0.4.0** — Broadcast (send to multiple recipients), Firebase Push
 
 ---
 

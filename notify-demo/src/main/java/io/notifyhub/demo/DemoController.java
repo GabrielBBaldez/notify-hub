@@ -1,13 +1,16 @@
 package io.notifyhub.demo;
 
-import io.notifyhub.core.Channel;
-import io.notifyhub.core.NotifyHub;
+import io.notifyhub.core.*;
 import io.notifyhub.core.channel.NotificationSendException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Demo endpoints showcasing every NotifyHub feature.
@@ -17,13 +20,20 @@ import java.util.*;
 public class DemoController {
 
     private final NotifyHub notify;
-    private final SlackChannel slackChannel;
+    private final DemoSlackChannel slackChannel;
+
+    /** Stores scheduled notifications by ID for inspection */
+    private final Map<String, ScheduledNotification> scheduledMap = new ConcurrentHashMap<>();
 
     /** Nullable — only present when running with embedded SMTP (default profile) */
     @Autowired(required = false)
     private EmbeddedSmtpConfig smtpConfig;
 
-    public DemoController(NotifyHub notify, SlackChannel slackChannel) {
+    /** Nullable — only present when tracking is enabled */
+    @Autowired(required = false)
+    private NotificationTracker tracker;
+
+    public DemoController(NotifyHub notify, DemoSlackChannel slackChannel) {
         this.notify = notify;
         this.slackChannel = slackChannel;
     }
@@ -36,15 +46,23 @@ public class DemoController {
         response.put("app", "NotifyHub Demo");
         response.put("channels", notify.getRegisteredChannels());
         response.put("profile", smtpConfig != null ? "default (embedded SMTP)" : "real (external SMTP)");
+        response.put("tracking", tracker != null ? "enabled" : "disabled");
         response.put("endpoints", List.of(
                 "GET  /                          → this page",
                 "POST /send/email                → send a simple email",
                 "POST /send/template             → send email with Mustache template",
                 "POST /send/notifiable           → send to a Notifiable user entity",
                 "POST /send/sms                  → send SMS via Twilio",
-                "POST /send/slack                → send to custom Slack channel",
+                "POST /send/telegram             → send to Telegram via Bot",
+                "POST /send/discord              → send to Discord via Webhook",
+                "POST /send/slack                → send to Slack channel",
                 "POST /send/multi                → send to email + slack simultaneously",
                 "POST /send/fallback             → test fallback (email fails → slack)",
+                "POST /send/tracked              → send with delivery tracking",
+                "POST /send/scheduled            → schedule notification for future delivery",
+                "GET  /scheduled                 → list all scheduled notifications",
+                "DELETE /scheduled/{id}          → cancel a scheduled notification",
+                "GET  /tracking                  → delivery tracking history",
                 "GET  /inbox                     → see all received emails (embedded only)",
                 "GET  /inbox/slack               → see all Slack messages",
                 "DELETE /inbox                   → clear all inboxes"
@@ -171,7 +189,47 @@ public class DemoController {
         );
     }
 
-    // ===================== 6. CUSTOM CHANNEL (SLACK) =====================
+    // ===================== 6. TELEGRAM =====================
+
+    @PostMapping("/send/telegram")
+    public Map<String, String> sendTelegram(
+            @RequestParam String chatId,
+            @RequestParam(defaultValue = "Hello from NotifyHub via Telegram! 🚀") String message) {
+
+        notify.to(chatId)
+                .via(Channel.TELEGRAM)
+                .content(message)
+                .send();
+
+        return Map.of(
+                "status", "sent",
+                "channel", "telegram",
+                "to", chatId,
+                "tip", "Check your Telegram chat!"
+        );
+    }
+
+    // ===================== 7. DISCORD =====================
+
+    @PostMapping("/send/discord")
+    public Map<String, String> sendDiscord(
+            @RequestParam(defaultValue = "discord-channel") String to,
+            @RequestParam(defaultValue = "Hello from NotifyHub via Discord! 🎮") String message) {
+
+        notify.to(to)
+                .via(Channel.DISCORD)
+                .content(message)
+                .send();
+
+        return Map.of(
+                "status", "sent",
+                "channel", "discord",
+                "to", to,
+                "tip", "Check your Discord channel!"
+        );
+    }
+
+    // ===================== 8. SLACK =====================
 
     @PostMapping("/send/slack")
     public Map<String, String> sendSlack(
@@ -179,7 +237,7 @@ public class DemoController {
             @RequestParam(defaultValue = "Deploy v2.1.0 completed successfully!") String message) {
 
         notify.to(channel)
-                .via(Channel.custom("slack"))
+                .via(Channel.SLACK)
                 .content(message)
                 .send();
 
@@ -191,7 +249,7 @@ public class DemoController {
         );
     }
 
-    // ===================== 6. MULTI-CHANNEL =====================
+    // ===================== 7. MULTI-CHANNEL =====================
 
     @PostMapping("/send/multi")
     public Map<String, String> sendMulti(
@@ -202,7 +260,7 @@ public class DemoController {
 
         notify.to(user)
                 .via(Channel.EMAIL)
-                .via(Channel.custom("slack"))
+                .via(Channel.SLACK)
                 .subject("Security Alert")
                 .content("Login detected from a new device: Windows 11, Chrome 120, IP: 189.40.xx.xx")
                 .sendAll();
@@ -216,7 +274,7 @@ public class DemoController {
         );
     }
 
-    // ===================== 7. FALLBACK =====================
+    // ===================== 8. FALLBACK =====================
 
     @PostMapping("/send/fallback")
     public Map<String, String> sendFallback() {
@@ -233,7 +291,7 @@ public class DemoController {
         try {
             notify.to("fallback-test@test.com")
                     .via(Channel.EMAIL)
-                    .fallback(Channel.custom("slack"))
+                    .fallback(Channel.SLACK)
                     .subject("Important notification")
                     .content("This message was supposed to go via email, but email failed so it went to Slack!")
                     .send();
@@ -247,6 +305,136 @@ public class DemoController {
         } finally {
             smtpConfig.getGreenMail().start();
         }
+    }
+
+    // ===================== 9. TRACKED SEND =====================
+
+    @PostMapping("/send/tracked")
+    public Map<String, Object> sendTracked(
+            @RequestParam(defaultValue = "tracked@test.com") String to,
+            @RequestParam(defaultValue = "Tracked Notification") String subject,
+            @RequestParam(defaultValue = "This email has delivery tracking enabled!") String body) {
+
+        DeliveryReceipt receipt = notify.to(to)
+                .via(Channel.EMAIL)
+                .subject(subject)
+                .content(body)
+                .sendTracked();
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("status", "sent with tracking");
+        response.put("receipt", Map.of(
+                "id", receipt.getId(),
+                "channel", receipt.getChannelName(),
+                "recipient", receipt.getRecipient(),
+                "deliveryStatus", receipt.getStatus().name(),
+                "timestamp", receipt.getTimestamp().toString()
+        ));
+        response.put("tip", "Check GET /tracking to see delivery history");
+        return response;
+    }
+
+    // ===================== 10. SCHEDULED NOTIFICATION =====================
+
+    @PostMapping("/send/scheduled")
+    public Map<String, Object> sendScheduled(
+            @RequestParam(defaultValue = "scheduled@test.com") String to,
+            @RequestParam(defaultValue = "30") int delaySeconds,
+            @RequestParam(defaultValue = "Scheduled Reminder") String subject,
+            @RequestParam(defaultValue = "This notification was scheduled and sent automatically!") String body) {
+
+        ScheduledNotification scheduled = notify.to(to)
+                .via(Channel.EMAIL)
+                .subject(subject)
+                .content(body)
+                .schedule(Duration.ofSeconds(delaySeconds));
+
+        scheduledMap.put(scheduled.getId(), scheduled);
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("status", "scheduled");
+        response.put("id", scheduled.getId());
+        response.put("channel", scheduled.getChannelName());
+        response.put("recipient", scheduled.getRecipient());
+        response.put("scheduledTime", scheduled.getScheduledTime().toString());
+        response.put("remainingDelay", scheduled.getRemainingDelay().getSeconds() + "s");
+        response.put("tip", "The notification will fire in " + delaySeconds + " seconds. " +
+                "Check GET /scheduled to see status, or DELETE /scheduled/" + scheduled.getId() + " to cancel.");
+        return response;
+    }
+
+    // ===================== SCHEDULED STATUS =====================
+
+    @GetMapping("/scheduled")
+    public Map<String, Object> listScheduled() {
+        List<Map<String, Object>> items = new ArrayList<>();
+        for (Map.Entry<String, ScheduledNotification> entry : scheduledMap.entrySet()) {
+            ScheduledNotification sn = entry.getValue();
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("id", sn.getId());
+            item.put("channel", sn.getChannelName());
+            item.put("recipient", sn.getRecipient());
+            item.put("status", sn.getStatus().name());
+            item.put("scheduledTime", sn.getScheduledTime().toString());
+            item.put("isDone", sn.isDone());
+            item.put("isCancelled", sn.isCancelled());
+            item.put("remainingDelay", sn.getRemainingDelay().getSeconds() + "s");
+            items.add(item);
+        }
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("total", items.size());
+        response.put("scheduled", items);
+        return response;
+    }
+
+    @DeleteMapping("/scheduled/{id}")
+    public Map<String, String> cancelScheduled(@PathVariable String id) {
+        ScheduledNotification sn = scheduledMap.get(id);
+        if (sn == null) {
+            return Map.of("error", "Scheduled notification not found: " + id);
+        }
+
+        boolean cancelled = sn.cancel();
+        return Map.of(
+                "id", id,
+                "cancelled", String.valueOf(cancelled),
+                "status", sn.getStatus().name(),
+                "tip", cancelled
+                        ? "Notification was successfully cancelled before delivery"
+                        : "Could not cancel — it may have already been sent"
+        );
+    }
+
+    // ===================== TRACKING =====================
+
+    @GetMapping("/tracking")
+    public Map<String, Object> trackingHistory() {
+        if (tracker == null) {
+            return Map.of(
+                    "info", "Delivery tracking is not enabled",
+                    "tip", "Set notify.tracking.enabled=true in application.properties"
+            );
+        }
+
+        List<Map<String, Object>> receipts = new ArrayList<>();
+        for (DeliveryReceipt r : tracker.findAll()) {
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("id", r.getId());
+            item.put("channel", r.getChannelName());
+            item.put("recipient", r.getRecipient());
+            item.put("status", r.getStatus().name());
+            item.put("timestamp", r.getTimestamp().toString());
+            if (r.getErrorMessage() != null) {
+                item.put("error", r.getErrorMessage());
+            }
+            receipts.add(item);
+        }
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("total", tracker.count());
+        response.put("receipts", receipts);
+        return response;
     }
 
     // ===================== INBOX =====================
@@ -295,6 +483,10 @@ public class DemoController {
             }
         }
         slackChannel.clear();
-        return Map.of("status", "All inboxes cleared");
+        if (tracker != null) {
+            tracker.clear();
+        }
+        scheduledMap.clear();
+        return Map.of("status", "All inboxes and tracking data cleared");
     }
 }

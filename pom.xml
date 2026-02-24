@@ -6,7 +6,7 @@
 
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-hub-parent</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
     <packaging>pom</packaging>
 
     <name>NotifyHub</name>
@@ -38,6 +38,9 @@
         <module>notify-core</module>
         <module>notify-channels/notify-email</module>
         <module>notify-channels/notify-sms</module>
+        <module>notify-channels/notify-slack</module>
+        <module>notify-channels/notify-telegram</module>
+        <module>notify-channels/notify-discord</module>
         <module>notify-spring-boot-starter</module>
         <module>notify-demo</module>
     </modules>
@@ -73,6 +76,21 @@
             <dependency>
                 <groupId>io.github.gabrielbbaldez</groupId>
                 <artifactId>notify-sms</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.gabrielbbaldez</groupId>
+                <artifactId>notify-slack</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.gabrielbbaldez</groupId>
+                <artifactId>notify-telegram</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.gabrielbbaldez</groupId>
+                <artifactId>notify-discord</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

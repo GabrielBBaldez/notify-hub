@@ -7,8 +7,10 @@ import io.notifyhub.core.template.TemplateEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 
 /**
  * Main entry point for sending notifications.
@@ -19,12 +21,27 @@ import java.util.concurrent.ConcurrentHashMap;
  *     .channel(new SmtpEmailChannel(config))
  *     .build();
  *
+ * // Simple send
  * notify.to(user)
  *     .via(Channel.EMAIL)
  *     .subject("Welcome!")
  *     .template("welcome")
  *     .param("name", user.getName())
  *     .send();
+ *
+ * // Tracked send (returns receipt)
+ * DeliveryReceipt receipt = notify.to(user)
+ *     .via(Channel.EMAIL)
+ *     .content("Hello!")
+ *     .sendTracked();
+ *
+ * // Scheduled send
+ * ScheduledNotification scheduled = notify.to(user)
+ *     .via(Channel.EMAIL)
+ *     .content("Reminder!")
+ *     .schedule(Duration.ofMinutes(30));
+ *
+ * scheduled.cancel(); // cancel if needed
  * }</pre>
  */
 public class NotifyHub {
@@ -35,6 +52,9 @@ public class NotifyHub {
     private final TemplateEngine templateEngine;
     private final RetryPolicy defaultRetryPolicy;
     private final List<NotificationListener> listeners;
+    private final ExecutorService executor;
+    private final ScheduledExecutorService scheduler;
+    private final NotificationTracker tracker;
 
     private NotifyHub(Builder builder) {
         this.channels = new ConcurrentHashMap<>(builder.channels);
@@ -43,6 +63,9 @@ public class NotifyHub {
                 ? builder.defaultRetryPolicy
                 : RetryPolicy.none();
         this.listeners = new ArrayList<>(builder.listeners);
+        this.executor = builder.executor;
+        this.scheduler = builder.scheduler;
+        this.tracker = builder.tracker;
     }
 
     // ===================== FLUENT API ENTRY POINTS =====================
@@ -96,6 +119,11 @@ public class NotifyHub {
     /** Get all registered channel names. */
     public Set<String> getRegisteredChannels() {
         return Collections.unmodifiableSet(channels.keySet());
+    }
+
+    /** Get the notification tracker (if configured). */
+    public NotificationTracker getTracker() {
+        return tracker;
     }
 
     // ===================== EXECUTION =====================
@@ -152,6 +180,231 @@ public class NotifyHub {
             throw new NotificationSendException("all",
                     "All " + failures.size() + " channels failed");
         }
+    }
+
+    /**
+     * Async version of execute(). Returns CompletableFuture.
+     * Called internally by NotificationBuilder.sendAsync().
+     */
+    CompletableFuture<Void> executeAsync(NotificationBuilder builder) {
+        return CompletableFuture.runAsync(() -> execute(builder), getExecutor());
+    }
+
+    /**
+     * Async version of executeAll(). Returns CompletableFuture.
+     * Called internally by NotificationBuilder.sendAllAsync().
+     */
+    CompletableFuture<Void> executeAllAsync(NotificationBuilder builder) {
+        return CompletableFuture.runAsync(() -> executeAll(builder), getExecutor());
+    }
+
+    // ===================== TRACKED EXECUTION =====================
+
+    /**
+     * Execute and return a delivery receipt for each channel.
+     * Called internally by NotificationBuilder.sendTracked().
+     */
+    DeliveryReceipt executeTracked(NotificationBuilder builder) {
+        List<String> allChannels = new ArrayList<>(builder.getChannels());
+        allChannels.addAll(builder.getFallbackChannels());
+
+        NotificationSendException lastException = null;
+        String lastChannelName = allChannels.isEmpty() ? "unknown" : allChannels.get(0);
+        String recipient = null;
+
+        for (String channelName : allChannels) {
+            lastChannelName = channelName;
+            try {
+                recipient = builder.resolveRecipient(channelName);
+                sendToChannel(channelName, builder);
+
+                // Success — create receipt
+                DeliveryReceipt receipt = DeliveryReceipt.builder()
+                        .channelName(channelName)
+                        .recipient(recipient)
+                        .status(DeliveryStatus.SENT)
+                        .templateName(builder.getTemplateName())
+                        .build();
+
+                if (tracker != null) {
+                    tracker.record(receipt);
+                }
+                return receipt;
+            } catch (NotificationSendException e) {
+                lastException = e;
+                log.warn("Channel '{}' failed: {}. Trying next fallback...",
+                        channelName, e.getMessage());
+                notifyListeners(channelName, builder, e);
+            }
+        }
+
+        // All failed — create failed receipt
+        DeliveryReceipt failedReceipt = DeliveryReceipt.builder()
+                .channelName(lastChannelName)
+                .recipient(recipient)
+                .status(DeliveryStatus.FAILED)
+                .templateName(builder.getTemplateName())
+                .errorMessage(lastException != null ? lastException.getMessage() : "Unknown error")
+                .build();
+
+        if (tracker != null) {
+            tracker.record(failedReceipt);
+        }
+
+        throw lastException;
+    }
+
+    /**
+     * Execute tracked on ALL channels. Returns list of receipts.
+     * Called internally by NotificationBuilder.sendAllTracked().
+     */
+    List<DeliveryReceipt> executeAllTracked(NotificationBuilder builder) {
+        List<String> channelNames = builder.getChannels();
+        List<DeliveryReceipt> receipts = new ArrayList<>();
+        List<NotificationSendException> failures = new ArrayList<>();
+
+        for (String channelName : channelNames) {
+            String recipient = builder.resolveRecipient(channelName);
+            try {
+                sendToChannel(channelName, builder);
+
+                DeliveryReceipt receipt = DeliveryReceipt.builder()
+                        .channelName(channelName)
+                        .recipient(recipient)
+                        .status(DeliveryStatus.SENT)
+                        .templateName(builder.getTemplateName())
+                        .build();
+
+                receipts.add(receipt);
+                if (tracker != null) {
+                    tracker.record(receipt);
+                }
+            } catch (NotificationSendException e) {
+                failures.add(e);
+                log.warn("Channel '{}' failed during sendAllTracked: {}", channelName, e.getMessage());
+                notifyListeners(channelName, builder, e);
+
+                DeliveryReceipt failedReceipt = DeliveryReceipt.builder()
+                        .channelName(channelName)
+                        .recipient(recipient)
+                        .status(DeliveryStatus.FAILED)
+                        .templateName(builder.getTemplateName())
+                        .errorMessage(e.getMessage())
+                        .build();
+
+                receipts.add(failedReceipt);
+                if (tracker != null) {
+                    tracker.record(failedReceipt);
+                }
+            }
+        }
+
+        if (failures.size() == channelNames.size()) {
+            throw new NotificationSendException("all",
+                    "All " + failures.size() + " channels failed");
+        }
+
+        return Collections.unmodifiableList(receipts);
+    }
+
+    // ===================== SCHEDULED EXECUTION =====================
+
+    /**
+     * Schedule a notification for future delivery.
+     * Called internally by NotificationBuilder.schedule().
+     */
+    ScheduledNotification executeScheduled(NotificationBuilder builder, Duration delay) {
+        ScheduledExecutorService sched = getScheduler();
+        String primaryChannel = builder.getChannels().get(0);
+        String recipient = builder.resolveRecipient(primaryChannel);
+        Instant scheduledTime = Instant.now().plus(delay);
+
+        // Use AtomicReference to share the ScheduledNotification between caller and scheduled task
+        var ref = new java.util.concurrent.atomic.AtomicReference<ScheduledNotification>();
+
+        // Schedule the actual execution
+        ScheduledFuture<?> future = sched.schedule(() -> {
+            ScheduledNotification sn = ref.get();
+            try {
+                execute(builder);
+                if (sn != null) sn.markSent();
+
+                // Update tracker with SENT status
+                if (tracker != null && sn != null) {
+                    DeliveryReceipt sentReceipt = DeliveryReceipt.builder()
+                            .id(sn.getId() + "-sent")
+                            .channelName(primaryChannel)
+                            .recipient(recipient)
+                            .status(DeliveryStatus.SENT)
+                            .templateName(builder.getTemplateName())
+                            .build();
+                    tracker.record(sentReceipt);
+                }
+            } catch (Exception e) {
+                if (sn != null) sn.markFailed();
+                log.error("Scheduled notification failed: {}", e.getMessage());
+
+                // Update tracker with FAILED status
+                if (tracker != null && sn != null) {
+                    DeliveryReceipt failedReceipt = DeliveryReceipt.builder()
+                            .id(sn.getId() + "-failed")
+                            .channelName(primaryChannel)
+                            .recipient(recipient)
+                            .status(DeliveryStatus.FAILED)
+                            .templateName(builder.getTemplateName())
+                            .errorMessage(e.getMessage())
+                            .build();
+                    tracker.record(failedReceipt);
+                }
+            }
+        }, delay.toMillis(), TimeUnit.MILLISECONDS);
+
+        // Create the ScheduledNotification with the actual future and share it
+        ScheduledNotification scheduled = new ScheduledNotification(
+                future, scheduledTime, primaryChannel, recipient
+        );
+        ref.set(scheduled);
+
+        // Record as SCHEDULED in tracker
+        if (tracker != null) {
+            DeliveryReceipt scheduledReceipt = DeliveryReceipt.builder()
+                    .id(scheduled.getId())
+                    .channelName(primaryChannel)
+                    .recipient(recipient)
+                    .status(DeliveryStatus.SCHEDULED)
+                    .templateName(builder.getTemplateName())
+                    .build();
+            tracker.record(scheduledReceipt);
+        }
+
+        // Notify listeners
+        for (NotificationListener listener : listeners) {
+            try {
+                listener.onScheduled(primaryChannel, recipient, delay);
+            } catch (Exception e) {
+                log.warn("Listener error on scheduled: {}", e.getMessage());
+            }
+        }
+
+        return scheduled;
+    }
+
+    // ===================== INTERNAL =====================
+
+    private ExecutorService getExecutor() {
+        return executor != null ? executor : ForkJoinPool.commonPool();
+    }
+
+    private ScheduledExecutorService getScheduler() {
+        if (scheduler != null) {
+            return scheduler;
+        }
+        // Default: create a single-threaded scheduler
+        return Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "notifyhub-scheduler");
+            t.setDaemon(true);
+            return t;
+        });
     }
 
     private void sendToChannel(String channelName, NotificationBuilder builder) {
@@ -261,6 +514,9 @@ public class NotifyHub {
         private TemplateEngine templateEngine;
         private RetryPolicy defaultRetryPolicy;
         private final List<NotificationListener> listeners = new ArrayList<>();
+        private ExecutorService executor;
+        private ScheduledExecutorService scheduler;
+        private NotificationTracker tracker;
 
         public Builder channel(NotificationChannel channel) {
             this.channels.put(channel.getName().toLowerCase(), channel);
@@ -286,6 +542,35 @@ public class NotifyHub {
 
         public Builder listener(NotificationListener listener) {
             this.listeners.add(listener);
+            return this;
+        }
+
+        /**
+         * Set the executor for async operations (sendAsync, sendAllAsync).
+         * If not set, defaults to {@link ForkJoinPool#commonPool()}.
+         */
+        public Builder executor(ExecutorService executor) {
+            this.executor = executor;
+            return this;
+        }
+
+        /**
+         * Set the scheduler for scheduled notifications (schedule, scheduleAt).
+         * If not set, a default single-threaded daemon scheduler is created.
+         */
+        public Builder scheduler(ScheduledExecutorService scheduler) {
+            this.scheduler = scheduler;
+            return this;
+        }
+
+        /**
+         * Set the notification tracker for delivery tracking.
+         * If not set, delivery receipts are only returned but not persisted.
+         *
+         * @see InMemoryNotificationTracker
+         */
+        public Builder tracker(NotificationTracker tracker) {
+            this.tracker = tracker;
             return this;
         }
 

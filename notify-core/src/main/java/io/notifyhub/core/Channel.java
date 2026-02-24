@@ -2,21 +2,24 @@ package io.notifyhub.core;
 
 /**
  * Built-in notification channel types.
- * Use {@code Channel.custom("slack")} for custom channels.
+ * Use {@code Channel.custom("mychannel")} for custom channels not listed here.
  */
 public enum Channel {
 
     EMAIL,
     SMS,
     WHATSAPP,
-    PUSH;
+    PUSH,
+    SLACK,
+    TELEGRAM,
+    DISCORD;
 
     /**
      * Creates a reference to a custom channel by name.
      *
      * <pre>{@code
      * notify.to(user)
-     *     .via(Channel.custom("slack"))
+     *     .via(Channel.custom("my-custom-channel"))
      *     .template("deploy-alert")
      *     .send();
      * }</pre>

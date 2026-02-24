@@ -963,6 +963,20 @@ notify-hub/
 
 NotifyHub is published on **Maven Central**. No extra repositories needed.
 
+Search on Maven Central: [io.github.gabrielbbaldez](https://central.sonatype.com/namespace/io.github.gabrielbbaldez)
+
+### Available Modules
+
+Below is every module, what it does, when you need it, and how to add it.
+
+---
+
+#### `notify-spring-boot-starter` — The Main Dependency
+
+**What it does:** Auto-configures NotifyHub inside a Spring Boot application. Automatically discovers channel beans, wires retry policies, tracking, rate limiting, DLQ, Micrometer metrics, Actuator health checks, and Spring events. Includes `notify-core` and `notify-email` transitively.
+
+**When to use:** You're building a Spring Boot app and want automatic setup. This is the **only required dependency** for most projects.
+
 ```xml
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
@@ -971,24 +985,200 @@ NotifyHub is published on **Maven Central**. No extra repositories needed.
 </dependency>
 ```
 
-### Available Modules
+---
 
-| Module | Description |
-|--------|-------------|
-| `notify-spring-boot-starter` | Spring Boot auto-config (includes email) |
-| `notify-core` | Core API only (no Spring) |
-| `notify-email` | SMTP email channel |
-| `notify-sms` | Twilio SMS + WhatsApp |
-| `notify-slack` | Slack webhooks |
-| `notify-telegram` | Telegram Bot API |
-| `notify-discord` | Discord webhooks |
-| `notify-teams` | Microsoft Teams webhooks |
-| `notify-push-firebase` | Firebase Cloud Messaging |
-| `notify-webhook` | Generic webhook channel |
-| `notify-tracker-jpa` | JPA delivery tracking |
-| `notify-admin` | Admin dashboard UI |
+#### `notify-core` — Core API (No Spring)
 
-Search on Maven Central: [io.github.gabrielbbaldez](https://central.sonatype.com/namespace/io.github.gabrielbbaldez)
+**What it does:** Contains the entire fluent API (`NotifyHub`, `NotificationBuilder`, `Channel`, `Notification`, `Priority`, `Attachment`, `RetryPolicy`), plus interfaces for channels, templates, tracking, DLQ, rate limiting, and routing. Has **zero Spring dependency** — uses only SLF4J and Mustache.
+
+**When to use:** You want to use NotifyHub in a plain Java project without Spring Boot, or you're building a library/framework on top of it.
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-core</artifactId>
+    <version>0.3.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-email` — SMTP Email Channel
+
+**What it does:** Sends emails via any SMTP server (Gmail, Outlook, Amazon SES, Mailtrap, etc). Supports HTML and plain text, file attachments, TLS/SSL, and custom sender name. Uses Jakarta Mail internally.
+
+**When to use:** You want to send email notifications. Already included by `notify-spring-boot-starter`.
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-email</artifactId>
+    <version>0.3.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-sms` — Twilio SMS + WhatsApp Channel
+
+**What it does:** Sends SMS and WhatsApp messages through the Twilio API. Handles phone number formatting (E.164) and the `whatsapp:` prefix automatically.
+
+**When to use:** You need to send SMS or WhatsApp messages. Requires a Twilio account with Account SID, Auth Token, and a phone number.
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-sms</artifactId>
+    <version>0.3.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-slack` — Slack Webhook Channel
+
+**What it does:** Sends messages to a Slack channel via Incoming Webhooks. Uses the JDK `HttpClient` — no external SDK needed.
+
+**When to use:** You want to post notifications to Slack. Requires a Slack Incoming Webhook URL (created at [api.slack.com/apps](https://api.slack.com/apps)).
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-slack</artifactId>
+    <version>0.3.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-telegram` — Telegram Bot Channel
+
+**What it does:** Sends messages to Telegram chats/groups/channels via the Bot API. Supports a default chat ID and per-notification targeting. Uses the JDK `HttpClient`.
+
+**When to use:** You want to send Telegram messages. Requires a bot token from [@BotFather](https://t.me/BotFather).
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-telegram</artifactId>
+    <version>0.3.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-discord` — Discord Webhook Channel
+
+**What it does:** Sends messages to a Discord channel via Webhooks. Supports custom bot username and avatar. Uses the JDK `HttpClient`.
+
+**When to use:** You want to post notifications to Discord. Requires a Discord webhook URL (channel Settings > Integrations > Webhooks).
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-discord</artifactId>
+    <version>0.3.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-teams` — Microsoft Teams Channel
+
+**What it does:** Sends MessageCard notifications to a Teams channel via Incoming Webhooks. Uses the JDK `HttpClient`.
+
+**When to use:** You want to post notifications to Microsoft Teams. Requires a Teams Incoming Webhook URL (channel > Connectors > Incoming Webhook).
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-teams</artifactId>
+    <version>0.3.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-push-firebase` — Firebase Cloud Messaging (FCM)
+
+**What it does:** Sends push notifications to mobile devices (Android/iOS) and web apps via Firebase Cloud Messaging. Uses the Firebase Admin SDK with service account credentials.
+
+**When to use:** You want to send push notifications to mobile apps. Requires a Firebase project with a service account JSON credentials file.
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-push-firebase</artifactId>
+    <version>0.3.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-webhook` — Generic Webhook Channel
+
+**What it does:** Sends notifications to any HTTP endpoint (REST APIs, PagerDuty, Datadog, custom services). Supports configurable payload templates with `{{recipient}}`, `{{subject}}`, `{{content}}` placeholders, custom headers, PUT/POST methods, and timeouts.
+
+**When to use:** You want to integrate with any external service that has an HTTP API, or create custom webhook integrations.
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-webhook</artifactId>
+    <version>0.3.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-tracker-jpa` — JPA Delivery Tracker
+
+**What it does:** Persists delivery receipts to a relational database (MySQL, PostgreSQL, H2, etc.) using Spring Data JPA. Stores notification ID, channel, recipient, status, timestamp, and error messages. Provides query methods for filtering and counting.
+
+**When to use:** You want delivery tracking data to survive restarts (instead of the default in-memory tracker). Requires Spring Data JPA and a database on the classpath.
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-tracker-jpa</artifactId>
+    <version>0.3.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-admin` — Admin Dashboard
+
+**What it does:** Provides a built-in web UI at `/notify-admin` with 4 pages: Dashboard (overview metrics), Tracking (delivery receipts), DLQ (failed notifications), and Channels (status). Built with Thymeleaf, dark theme, fully responsive.
+
+**When to use:** You want a visual admin panel to monitor your notification system without building one from scratch. Requires `notify.admin.enabled=true` in your config.
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-admin</artifactId>
+    <version>0.3.0</version>
+</dependency>
+```
+
+---
+
+### What Do I Need?
+
+| I want to... | Add these dependencies |
+|---|---|
+| Send emails from Spring Boot | `notify-spring-boot-starter` (already includes email) |
+| Send SMS or WhatsApp | `notify-spring-boot-starter` + `notify-sms` |
+| Send to Slack | `notify-spring-boot-starter` + `notify-slack` |
+| Send to Telegram | `notify-spring-boot-starter` + `notify-telegram` |
+| Send to Discord | `notify-spring-boot-starter` + `notify-discord` |
+| Send to Microsoft Teams | `notify-spring-boot-starter` + `notify-teams` |
+| Send mobile push (FCM) | `notify-spring-boot-starter` + `notify-push-firebase` |
+| Send to any HTTP API | `notify-spring-boot-starter` + `notify-webhook` |
+| Persist tracking to database | `notify-spring-boot-starter` + `notify-tracker-jpa` |
+| Admin dashboard UI | `notify-spring-boot-starter` + `notify-admin` |
+| Use without Spring Boot | `notify-core` + channel modules you need |
+| Everything at once | `notify-spring-boot-starter` + all channel modules above |
 
 ---
 

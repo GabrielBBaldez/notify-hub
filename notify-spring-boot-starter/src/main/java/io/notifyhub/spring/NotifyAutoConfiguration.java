@@ -2,8 +2,6 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.email.SmtpConfig;
 import io.notifyhub.channel.email.SmtpEmailChannel;
-import io.notifyhub.channel.sms.TwilioConfig;
-import io.notifyhub.channel.sms.TwilioSmsChannel;
 import io.notifyhub.core.NotifyHub;
 import io.notifyhub.core.NotificationListener;
 import io.notifyhub.core.channel.NotificationChannel;
@@ -14,11 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 
 import java.time.Duration;
 import java.util.List;
@@ -29,7 +27,7 @@ import java.util.List;
  * <p>Automatically configures:</p>
  * <ul>
  *   <li>Email channel (when {@code notify.channels.email.host} is set)</li>
- *   <li>SMS channel (when {@code notify.channels.sms.account-sid} is set)</li>
+ *   <li>SMS channel (when Twilio is on classpath and {@code notify.channels.sms.account-sid} is set)</li>
  *   <li>Mustache template engine (default)</li>
  *   <li>Retry policy (when {@code notify.retry} is configured)</li>
  * </ul>
@@ -39,6 +37,7 @@ import java.util.List;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(NotifyProperties.class)
+@Import(NotifySmsAutoConfiguration.class)
 public class NotifyAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(NotifyAutoConfiguration.class);
@@ -71,23 +70,6 @@ public class NotifyAutoConfiguration {
                 .build();
         log.info("NotifyHub: Email channel configured ({}:{})", email.getHost(), email.getPort());
         return new SmtpEmailChannel(config);
-    }
-
-    // ===================== SMS CHANNEL =====================
-
-    @Bean
-    @ConditionalOnProperty(prefix = "notify.channels.sms", name = "account-sid")
-    @ConditionalOnClass(name = "com.twilio.Twilio")
-    @ConditionalOnMissingBean(TwilioSmsChannel.class)
-    public TwilioSmsChannel twilioSmsChannel(NotifyProperties properties) {
-        NotifyProperties.Sms sms = properties.getChannels().getSms();
-        TwilioConfig config = TwilioConfig.builder()
-                .accountSid(sms.getAccountSid())
-                .authToken(sms.getAuthToken())
-                .fromNumber(sms.getFromNumber())
-                .build();
-        log.info("NotifyHub: SMS channel configured (Twilio)");
-        return new TwilioSmsChannel(config);
     }
 
     // ===================== NOTIFY HUB =====================

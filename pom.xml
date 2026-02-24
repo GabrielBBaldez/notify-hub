@@ -33,6 +33,7 @@
         <module>notify-channels/notify-email</module>
         <module>notify-channels/notify-sms</module>
         <module>notify-spring-boot-starter</module>
+        <module>notify-demo</module>
     </modules>
 
     <properties>

@@ -46,4 +46,29 @@ public interface Notifiable {
     default String getNotifyName() {
         return null;
     }
+
+    /**
+     * Preferred notification channels, in order of priority.
+     * The first channel is the primary, the rest are fallbacks.
+     *
+     * <p>Return an empty list to use the channels specified via
+     * {@code .via()} in the builder instead.</p>
+     *
+     * <pre>{@code
+     * public List<Channel> getPreferredChannels() {
+     *     return List.of(Channel.TELEGRAM, Channel.EMAIL);
+     * }
+     * }</pre>
+     */
+    default java.util.List<Channel> getPreferredChannels() {
+        return java.util.List.of();
+    }
+
+    /**
+     * User's preferred locale for i18n template resolution.
+     * Return null to use the system default locale.
+     */
+    default java.util.Locale getLocale() {
+        return null;
+    }
 }

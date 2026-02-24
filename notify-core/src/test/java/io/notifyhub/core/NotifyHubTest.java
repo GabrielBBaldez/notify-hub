@@ -81,7 +81,7 @@ class NotifyHubTest {
     @Test
     @DisplayName("Should send email with template")
     void sendEmailWithTemplate() {
-        when(templateEngine.render(eq("welcome"), eq("html"), anyMap()))
+        when(templateEngine.render(eq("welcome"), eq("html"), anyMap(), any()))
                 .thenReturn("<h1>Hello Gabriel!</h1>");
         buildHub();
 
@@ -92,14 +92,14 @@ class NotifyHubTest {
                 .param("name", "Gabriel")
                 .send();
 
-        verify(templateEngine).render(eq("welcome"), eq("html"), anyMap());
+        verify(templateEngine).render(eq("welcome"), eq("html"), anyMap(), any());
         verify(emailChannel).send(any(Notification.class));
     }
 
     @Test
     @DisplayName("Should send SMS with text template")
     void sendSmsWithTemplate() {
-        when(templateEngine.render(eq("code"), eq("txt"), anyMap()))
+        when(templateEngine.render(eq("code"), eq("txt"), anyMap(), any()))
                 .thenReturn("Your code: 1234");
         buildHub();
 
@@ -109,7 +109,7 @@ class NotifyHubTest {
                 .param("code", "1234")
                 .send();
 
-        verify(templateEngine).render(eq("code"), eq("txt"), anyMap());
+        verify(templateEngine).render(eq("code"), eq("txt"), anyMap(), any());
         verify(smsChannel).send(any(Notification.class));
     }
 

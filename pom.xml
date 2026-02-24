@@ -6,7 +6,7 @@
 
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-hub-parent</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
     <packaging>pom</packaging>
 
     <name>NotifyHub</name>
@@ -41,7 +41,12 @@
         <module>notify-channels/notify-slack</module>
         <module>notify-channels/notify-telegram</module>
         <module>notify-channels/notify-discord</module>
+        <module>notify-channels/notify-teams</module>
+        <module>notify-channels/notify-push-firebase</module>
+        <module>notify-channels/notify-webhook</module>
+        <module>notify-tracker-jpa</module>
         <module>notify-spring-boot-starter</module>
+        <module>notify-admin</module>
         <module>notify-demo</module>
     </modules>
 
@@ -91,6 +96,31 @@
             <dependency>
                 <groupId>io.github.gabrielbbaldez</groupId>
                 <artifactId>notify-discord</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.gabrielbbaldez</groupId>
+                <artifactId>notify-teams</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.gabrielbbaldez</groupId>
+                <artifactId>notify-push-firebase</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.gabrielbbaldez</groupId>
+                <artifactId>notify-webhook</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.gabrielbbaldez</groupId>
+                <artifactId>notify-tracker-jpa</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.gabrielbbaldez</groupId>
+                <artifactId>notify-admin</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

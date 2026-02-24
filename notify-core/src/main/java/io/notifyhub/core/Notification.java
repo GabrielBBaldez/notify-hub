@@ -2,6 +2,7 @@ package io.notifyhub.core;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,9 +17,18 @@ public final class Notification {
     private final String templateName;
     private final String rawContent;
     private final Map<String, Object> params;
+    private final List<Attachment> attachments;
+    private final Priority priority;
 
     public Notification(String recipient, String channelName, String subject,
                  String templateName, String rawContent, Map<String, Object> params) {
+        this(recipient, channelName, subject, templateName, rawContent, params,
+                Collections.emptyList(), Priority.NORMAL);
+    }
+
+    public Notification(String recipient, String channelName, String subject,
+                 String templateName, String rawContent, Map<String, Object> params,
+                 List<Attachment> attachments, Priority priority) {
         this.recipient = recipient;
         this.channelName = channelName;
         this.subject = subject;
@@ -27,6 +37,10 @@ public final class Notification {
         this.params = params != null
                 ? Collections.unmodifiableMap(new LinkedHashMap<>(params))
                 : Collections.emptyMap();
+        this.attachments = attachments != null
+                ? Collections.unmodifiableList(attachments)
+                : Collections.emptyList();
+        this.priority = priority != null ? priority : Priority.NORMAL;
     }
 
     /** The recipient address (email, phone, push token, etc.) */
@@ -59,6 +73,16 @@ public final class Notification {
         return params;
     }
 
+    /** File attachments (primarily for email). Empty list if none. */
+    public List<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    /** Notification priority level. Defaults to {@link Priority#NORMAL}. */
+    public Priority getPriority() {
+        return priority;
+    }
+
     /**
      * Returns the rendered content — either from template or raw content.
      * The template is rendered by the NotifyHub before passing to the channel.
@@ -82,6 +106,8 @@ public final class Notification {
                 "recipient='" + recipient + '\'' +
                 ", channel='" + channelName + '\'' +
                 ", template='" + templateName + '\'' +
+                ", priority=" + priority +
+                ", attachments=" + attachments.size() +
                 '}';
     }
 }

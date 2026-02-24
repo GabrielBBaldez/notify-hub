@@ -1,22 +1,35 @@
-# NotifyHub
+<p align="center">
+  <img src="docs/logo.png" alt="NotifyHub Mascot" width="180"/>
+</p>
 
-**One API. Every channel.** Unified notification library for Java and Spring Boot.
+<h1 align="center">NotifyHub</h1>
 
-[![Java 17+](https://img.shields.io/badge/Java-17%2B-blue)](https://openjdk.org/)
-[![Spring Boot 3.x](https://img.shields.io/badge/Spring%20Boot-3.x-green)](https://spring.io/projects/spring-boot)
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.gabrielbbaldez/notify-spring-boot-starter)](https://central.sonatype.com/namespace/io.github.gabrielbbaldez)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![CI](https://github.com/GabrielBBaldez/notify-hub/actions/workflows/ci.yml/badge.svg)](https://github.com/GabrielBBaldez/notify-hub/actions/workflows/ci.yml)
+<p align="center">
+  <strong>One API. Every channel.</strong><br/>
+  Unified notification library for Java and Spring Boot.
+</p>
 
-Stop writing different code for each notification channel. NotifyHub gives you a single fluent API to send notifications via Email, SMS, WhatsApp, Slack, Telegram, Discord — or any custom channel you create.
+<p align="center">
+  <a href="https://openjdk.org/"><img src="https://img.shields.io/badge/Java-17%2B-blue" alt="Java 17+"/></a>
+  <a href="https://spring.io/projects/spring-boot"><img src="https://img.shields.io/badge/Spring%20Boot-3.x-green" alt="Spring Boot 3.x"/></a>
+  <a href="https://central.sonatype.com/namespace/io.github.gabrielbbaldez"><img src="https://img.shields.io/maven-central/v/io.github.gabrielbbaldez/notify-spring-boot-starter" alt="Maven Central"/></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/></a>
+  <a href="https://github.com/GabrielBBaldez/notify-hub/actions/workflows/ci.yml"><img src="https://github.com/GabrielBBaldez/notify-hub/actions/workflows/ci.yml/badge.svg" alt="CI"/></a>
+</p>
+
+---
+
+Stop writing different code for each notification channel. NotifyHub gives you a single fluent API to send notifications via **Email, SMS, WhatsApp, Slack, Telegram, Discord, Microsoft Teams, Firebase Push, Webhooks** — or any custom channel you create.
 
 ```java
 notify.to(user)
     .via(EMAIL)
     .fallback(SMS)
+    .priority(Priority.HIGH)
     .subject("Order confirmed")
     .template("order-confirmed")
     .param("orderId", order.getId())
+    .attach(invoicePdf)
     .send();
 ```
 
@@ -32,11 +45,23 @@ notify.to(user)
 | Slack | Webhook HTTP, JSON payload | `.via(SLACK)` |
 | Telegram | Bot API, HTTP client setup | `.via(TELEGRAM)` |
 | Discord | Webhook HTTP, JSON payload | `.via(DISCORD)` |
+| Teams | Incoming Webhook, MessageCard JSON | `.via(TEAMS)` |
+| Push | Firebase Admin SDK, credentials... | `.via(PUSH)` |
+| Webhook | Custom HTTP, payload template | `.via(Channel.custom("pagerduty"))` |
 | Multiple channels | Completely different code for each | Same fluent API |
 | Fallback | Manual try/catch chain | `.fallback(SMS)` |
 | Retry | Implement yourself | Built-in exponential backoff |
 | Async | Thread pools, CompletableFuture | `.sendAsync()` |
+| Scheduling | ScheduledExecutor, timer logic | `.schedule(Duration.ofMinutes(30))` |
 | Templates | Each channel has its own engine | One template, all channels |
+| i18n | Manual locale resolution | `.locale(Locale.PT_BR)` |
+| Rate limiting | Token bucket from scratch | Config-driven per-channel |
+| Tracking | Build your own delivery log | Built-in receipts + JPA |
+| Dead letters | Lost in the void | Auto-captured in DLQ |
+| Batch | Loop and pray | `.toAll(users).send()` |
+| Monitoring | Wire Micrometer yourself | Auto-configured counters |
+| Health checks | Write an Actuator indicator | Auto-configured |
+| Admin UI | Build your own dashboard | Built-in `/notify-admin` |
 | New channel | Build from scratch | Implement one interface |
 
 ---
@@ -50,14 +75,24 @@ notify.to(user)
   - [Async Sending](#async-sending)
   - [Retry with Backoff](#retry-with-backoff)
   - [Templates (Mustache)](#templates-mustache)
+  - [i18n (Internationalization)](#i18n-internationalization)
+  - [Attachments](#attachments)
+  - [Priority Levels](#priority-levels)
+  - [Rate Limiting](#rate-limiting)
+  - [Dead Letter Queue (DLQ)](#dead-letter-queue-dlq)
+  - [Batch Send](#batch-send)
+  - [Delivery Tracking](#delivery-tracking)
+  - [Scheduled Notifications](#scheduled-notifications)
+  - [Notification Routing](#notification-routing)
   - [Notifiable Interface](#notifiable-interface)
   - [Custom Channels](#custom-channels)
-  - [Event Listeners](#event-listeners)
+  - [Event Listeners + Spring Events](#event-listeners--spring-events)
 - [Supported Channels](#supported-channels)
+- [Admin Dashboard](#admin-dashboard)
+- [Spring Boot Integration](#spring-boot-integration)
 - [Configuration Reference](#configuration-reference)
 - [Without Spring Boot](#without-spring-boot)
 - [Running the Demo](#running-the-demo)
-- [Testing with Real Services](#testing-with-real-services)
 - [Architecture](#architecture)
 - [Maven Central](#maven-central)
 - [Roadmap](#roadmap)
@@ -73,25 +108,24 @@ notify.to(user)
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-spring-boot-starter</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
 </dependency>
 ```
 
-> **SMS/WhatsApp?** Add the Twilio channel too:
+> **Need extra channels?** Add optional modules:
 > ```xml
+> <!-- SMS + WhatsApp (Twilio) -->
 > <dependency>
 >     <groupId>io.github.gabrielbbaldez</groupId>
 >     <artifactId>notify-sms</artifactId>
->     <version>0.2.0</version>
+>     <version>0.3.0</version>
 > </dependency>
-> ```
-
-> **Slack / Telegram / Discord?** Add the channel you need:
-> ```xml
+>
+> <!-- Slack / Telegram / Discord / Teams / Firebase Push / Webhook -->
 > <dependency>
 >     <groupId>io.github.gabrielbbaldez</groupId>
 >     <artifactId>notify-slack</artifactId>
->     <version>0.2.0</version>
+>     <version>0.3.0</version>
 > </dependency>
 > ```
 
@@ -110,7 +144,9 @@ notify:
       tls: true
   retry:
     max-attempts: 3
-    strategy: exponential  # none, fixed, exponential
+    strategy: exponential
+  tracking:
+    enabled: true
 ```
 
 ### 3. Inject and use
@@ -167,6 +203,7 @@ Send through ALL channels simultaneously:
 notify.to(user)
     .via(Channel.EMAIL)
     .via(Channel.SLACK)
+    .via(Channel.TEAMS)
     .subject("Security Alert")
     .content("Login from a new device detected")
     .sendAll();
@@ -225,12 +262,223 @@ Create templates in `src/main/resources/templates/notify/`:
 <p>Total: <strong>{{total}}</strong></p>
 ```
 
-**order-confirmed.txt** (auto-used for SMS/WhatsApp/Slack/Telegram/Discord):
+**order-confirmed.txt** (auto-used for SMS/WhatsApp/Slack/Telegram/Discord/Teams):
 ```
 Hello {{customerName}}, your order #{{orderId}} is confirmed. Total: {{total}}
 ```
 
 The library picks `.html` for email and `.txt` for other channels automatically.
+
+### i18n (Internationalization)
+
+Templates support locale-based resolution with automatic fallback:
+
+```java
+// User with locale
+notify.to(user)
+    .via(Channel.EMAIL)
+    .locale(Locale.forLanguageTag("pt-BR"))
+    .template("welcome")
+    .param("name", user.getName())
+    .send();
+```
+
+Template resolution order: `welcome_pt_BR.html` -> `welcome_pt.html` -> `welcome.html`
+
+Your `Notifiable` can also return a locale:
+
+```java
+public class User implements Notifiable {
+    @Override
+    public Locale getLocale() {
+        return Locale.forLanguageTag("pt-BR");
+    }
+}
+```
+
+### Attachments
+
+Attach files to email notifications:
+
+```java
+notify.to(user)
+    .via(Channel.EMAIL)
+    .subject("Your Invoice")
+    .template("invoice")
+    .attach("invoice.pdf", pdfBytes, "application/pdf")
+    .attach(new File("/reports/monthly.xlsx"))
+    .attach(Attachment.fromFile(contractFile))
+    .send();
+```
+
+### Priority Levels
+
+Set notification priority. **URGENT** notifications bypass rate limiting:
+
+```java
+notify.to(user)
+    .via(Channel.EMAIL)
+    .priority(Priority.URGENT)
+    .subject("SERVER DOWN!")
+    .content("Production server is unresponsive")
+    .send();
+```
+
+Available priorities: `URGENT` (bypasses rate limits), `HIGH`, `NORMAL` (default), `LOW`.
+
+### Rate Limiting
+
+Control notification throughput per-channel:
+
+```yaml
+notify:
+  rate-limit:
+    enabled: true
+    max-requests: 100
+    window: 1m
+    channels:
+      email:
+        max-requests: 50
+        window: 1m
+      sms:
+        max-requests: 10
+        window: 1m
+```
+
+Rate limiting uses a token bucket algorithm. URGENT priority notifications always bypass rate limits.
+
+### Dead Letter Queue (DLQ)
+
+Failed notifications (after all retries) are automatically captured in the DLQ:
+
+```yaml
+notify:
+  tracking:
+    enabled: true
+    dlq-enabled: true
+```
+
+View and manage dead letters via the admin dashboard at `/notify-admin/dlq`, or programmatically:
+
+```java
+DeadLetterQueue dlq = hub.getDeadLetterQueue();
+List<DeadLetter> failed = dlq.findAll();
+dlq.remove(deadLetterId); // after manual reprocessing
+```
+
+### Batch Send
+
+Send notifications to multiple recipients at once:
+
+```java
+// By email addresses
+notify.toAll(List.of("user1@test.com", "user2@test.com", "user3@test.com"))
+    .via(Channel.EMAIL)
+    .subject("System Maintenance")
+    .template("maintenance-notice")
+    .param("date", "2025-03-01")
+    .send();
+
+// By Notifiable entities
+notify.toAllNotifiable(users)
+    .via(Channel.EMAIL)
+    .template("newsletter")
+    .send();
+
+// Async batch
+notify.toAll(recipients)
+    .via(Channel.EMAIL)
+    .template("promo")
+    .sendAsync();
+```
+
+### Delivery Tracking
+
+Track every notification with delivery receipts:
+
+```yaml
+notify:
+  tracking:
+    enabled: true
+    type: memory  # or "jpa" for database persistence
+```
+
+```java
+// Send and get a receipt
+DeliveryReceipt receipt = notify.to(user)
+    .via(Channel.EMAIL)
+    .content("Hello!")
+    .sendTracked();
+
+System.out.println(receipt.getStatus());    // SENT
+System.out.println(receipt.getId());         // uuid
+System.out.println(receipt.getTimestamp());  // 2025-01-15T10:30:00Z
+```
+
+For database persistence, add the JPA tracker module:
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-tracker-jpa</artifactId>
+    <version>0.3.0</version>
+</dependency>
+```
+
+```yaml
+notify:
+  tracking:
+    enabled: true
+    type: jpa
+```
+
+### Scheduled Notifications
+
+Schedule notifications for future delivery:
+
+```java
+ScheduledNotification scheduled = notify.to(user)
+    .via(Channel.EMAIL)
+    .subject("Reminder")
+    .content("Don't forget your appointment tomorrow!")
+    .schedule(Duration.ofHours(24));
+
+// Check status
+scheduled.getStatus();        // SCHEDULED, SENT, FAILED, CANCELLED
+scheduled.getRemainingDelay(); // PT23H59M...
+
+// Cancel if needed
+scheduled.cancel();
+```
+
+### Notification Routing
+
+Auto-route notifications based on user preferences:
+
+```java
+public class User implements Notifiable {
+    @Override
+    public List<Channel> getPreferredChannels() {
+        return List.of(Channel.WHATSAPP, Channel.SMS, Channel.EMAIL);
+    }
+}
+
+// Auto-routes: WhatsApp (primary) -> SMS (fallback) -> Email (fallback)
+notify.notify(user)
+    .template("order-update")
+    .param("orderId", "12345")
+    .send();
+```
+
+Conditional routing with rules:
+
+```java
+NotificationRouter router = NotificationRouter.builder()
+    .rule(RoutingRule.timeBasedRule(
+        LocalTime.of(9, 0), LocalTime.of(18, 0),
+        Channel.SLACK, Channel.EMAIL))  // Slack during business hours, email after
+    .build();
+```
 
 ### Notifiable Interface
 
@@ -252,6 +500,14 @@ public class User implements Notifiable {
 
     @Override
     public String getNotifyName() { return name; }
+
+    @Override
+    public Locale getLocale() { return Locale.forLanguageTag("pt-BR"); }
+
+    @Override
+    public List<Channel> getPreferredChannels() {
+        return List.of(Channel.EMAIL, Channel.SMS);
+    }
 }
 ```
 
@@ -286,6 +542,9 @@ public class PushChannel implements NotificationChannel {
     public void send(Notification notification) {
         firebaseClient.send(notification.getRecipient(), notification.getRenderedContent());
     }
+
+    @Override
+    public boolean isAvailable() { return true; }
 }
 ```
 
@@ -300,9 +559,9 @@ notify.to(user)
 
 Spring Boot auto-discovers any `NotificationChannel` bean. No extra config needed.
 
-### Event Listeners
+### Event Listeners + Spring Events
 
-Monitor notification outcomes:
+Monitor notification outcomes with the listener interface:
 
 ```java
 @Component
@@ -318,6 +577,29 @@ public class NotifyMonitor implements NotificationListener {
         log.error("Failed on {}: {}", channel, error.getMessage());
         alertService.warn("Channel " + channel + " is failing");
     }
+
+    @Override
+    public void onScheduled(String channel, String recipient, Duration delay) {
+        log.info("Scheduled for {} in {}", recipient, delay);
+    }
+}
+```
+
+Or use **Spring Application Events** (auto-configured):
+
+```java
+@Component
+public class NotificationEventHandler {
+
+    @EventListener
+    public void onSent(NotificationSentEvent event) {
+        log.info("Sent via {} to {}", event.getChannel(), event.getRecipient());
+    }
+
+    @EventListener
+    public void onFailed(NotificationFailedEvent event) {
+        log.error("Failed: {}", event.getError().getMessage());
+    }
 }
 ```
 
@@ -327,14 +609,102 @@ public class NotifyMonitor implements NotificationListener {
 
 | Channel | Provider | Module | Status |
 |---------|----------|--------|--------|
-| Email | SMTP (any provider) | `notify-email` | ✅ Stable |
-| SMS | Twilio | `notify-sms` | ✅ Stable |
-| WhatsApp | Twilio | `notify-sms` | ✅ Stable |
-| Slack | Webhooks | `notify-slack` | ✅ Stable |
-| Telegram | Bot API | `notify-telegram` | ✅ Stable |
-| Discord | Webhooks | `notify-discord` | ✅ Stable |
-| Push | Firebase | planned | Roadmap |
-| Custom | Any | `notify-core` | ✅ Stable |
+| Email | SMTP (any provider) | `notify-email` | Stable |
+| SMS | Twilio | `notify-sms` | Stable |
+| WhatsApp | Twilio | `notify-sms` | Stable |
+| Slack | Webhooks | `notify-slack` | Stable |
+| Telegram | Bot API | `notify-telegram` | Stable |
+| Discord | Webhooks | `notify-discord` | Stable |
+| Microsoft Teams | Incoming Webhooks | `notify-teams` | Stable |
+| Push (FCM) | Firebase Cloud Messaging | `notify-push-firebase` | Stable |
+| Webhook | Any HTTP endpoint | `notify-webhook` | Stable |
+| Custom | Any | `notify-core` | Stable |
+
+---
+
+## Admin Dashboard
+
+NotifyHub includes a built-in admin dashboard for monitoring your notification system.
+
+```yaml
+notify:
+  admin:
+    enabled: true
+```
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-admin</artifactId>
+    <version>0.3.0</version>
+</dependency>
+```
+
+Access at **`/notify-admin`** to see:
+
+- **Dashboard** — overview with sent/failed/pending totals, DLQ count, active channels
+- **Tracking** — delivery receipts with channel filter
+- **Dead Letter Queue** — failed notifications with reprocess action
+- **Channels** — status of each registered channel
+
+---
+
+## Spring Boot Integration
+
+### Micrometer Metrics
+
+Auto-configured when Micrometer is on the classpath:
+
+```xml
+<dependency>
+    <groupId>io.micrometer</groupId>
+    <artifactId>micrometer-core</artifactId>
+</dependency>
+```
+
+Exposes counters:
+- `notifyhub.notifications.sent` (tags: channel, template)
+- `notifyhub.notifications.failed` (tags: channel, template)
+- `notifyhub.notifications.scheduled` (tags: channel)
+
+### Actuator Health Check
+
+Auto-configured when Spring Boot Actuator is on the classpath:
+
+```
+GET /actuator/health/notifyhub
+```
+
+```json
+{
+  "status": "UP",
+  "details": {
+    "email": "UP",
+    "slack": "UP",
+    "totalChannels": 2,
+    "availableChannels": 2
+  }
+}
+```
+
+Status: **UP** (all channels available), **DEGRADED** (some down), **DOWN** (all down).
+
+### Actuator Info
+
+```
+GET /actuator/info
+```
+
+```json
+{
+  "notifyhub": {
+    "version": "0.3.0",
+    "channels": ["email", "slack", "teams"],
+    "tracking.enabled": true,
+    "dlq.enabled": true
+  }
+}
+```
 
 ---
 
@@ -346,39 +716,70 @@ Full `application.yml` with all options:
 notify:
   channels:
     email:
-      host: smtp.gmail.com        # SMTP server
-      port: 587                    # SMTP port (587 for TLS, 465 for SSL)
-      username: ${GMAIL_USER}      # SMTP username
-      password: ${GMAIL_PASS}      # SMTP password (use App Passwords for Gmail)
-      from: noreply@myapp.com      # Sender address
-      from-name: MyApp             # Sender display name
-      tls: true                    # Enable STARTTLS (default: true)
-      ssl: false                   # Enable SSL (default: false)
+      host: smtp.gmail.com
+      port: 587
+      username: ${GMAIL_USER}
+      password: ${GMAIL_PASS}
+      from: noreply@myapp.com
+      from-name: MyApp
+      tls: true
+      ssl: false
 
     sms:
-      account-sid: ${TWILIO_SID}   # Twilio Account SID
-      auth-token: ${TWILIO_TOKEN}  # Twilio Auth Token
-      from-number: "+1234567890"   # Twilio phone number (E.164 format)
+      account-sid: ${TWILIO_SID}
+      auth-token: ${TWILIO_TOKEN}
+      from-number: "+1234567890"
 
     whatsapp:
-      account-sid: ${TWILIO_SID}   # Same Twilio account
-      auth-token: ${TWILIO_TOKEN}  # Same Twilio token
-      from-number: "+14155238886"  # Twilio WhatsApp sandbox number
+      account-sid: ${TWILIO_SID}
+      auth-token: ${TWILIO_TOKEN}
+      from-number: "+14155238886"
 
     slack:
-      webhook-url: ${SLACK_WEBHOOK}  # Slack Incoming Webhook URL
+      webhook-url: ${SLACK_WEBHOOK}
 
     telegram:
-      bot-token: ${TELEGRAM_BOT_TOKEN}  # Telegram Bot token from @BotFather
-      chat-id: ${TELEGRAM_CHAT_ID}      # Default chat/group ID (optional)
+      bot-token: ${TELEGRAM_BOT_TOKEN}
+      chat-id: ${TELEGRAM_CHAT_ID}
 
     discord:
-      webhook-url: ${DISCORD_WEBHOOK}   # Discord webhook URL
-      username: NotifyHub               # Bot display name (optional)
+      webhook-url: ${DISCORD_WEBHOOK}
+      username: NotifyHub
+
+    teams:
+      webhook-url: ${TEAMS_WEBHOOK}
+
+    push:
+      credentials-path: ${FIREBASE_CREDENTIALS}
+      project-id: ${FIREBASE_PROJECT_ID}
+
+    webhooks:
+      - name: pagerduty
+        url: https://events.pagerduty.com/v2/enqueue
+        headers:
+          Authorization: "Token ${PAGERDUTY_TOKEN}"
+        payload-template: '{"summary":"{{content}}"}'
 
   retry:
-    max-attempts: 3                # Max retry attempts (default: 1 = no retry)
-    strategy: exponential          # none, fixed, exponential (default: none)
+    max-attempts: 3
+    strategy: exponential
+
+  rate-limit:
+    enabled: true
+    max-requests: 100
+    window: 1m
+    channels:
+      email:
+        max-requests: 50
+        window: 1m
+
+  tracking:
+    enabled: true
+    type: memory         # memory | jpa
+    dlq-enabled: true
+
+  admin:
+    enabled: true
 ```
 
 ---
@@ -392,12 +793,9 @@ NotifyHub notify = NotifyHub.builder()
     .templateEngine(new MustacheTemplateEngine())
     .channel(new SmtpEmailChannel(
         SmtpConfig.builder()
-            .host("smtp.gmail.com")
-            .port(587)
-            .username("user@gmail.com")
-            .password("app-password")
-            .from("noreply@myapp.com")
-            .tls(true)
+            .host("smtp.gmail.com").port(587)
+            .username("user@gmail.com").password("app-password")
+            .from("noreply@myapp.com").tls(true)
             .build()
     ))
     .channel(new SlackChannel(
@@ -405,13 +803,23 @@ NotifyHub notify = NotifyHub.builder()
             .webhookUrl("https://hooks.slack.com/services/XXX/YYY/ZZZ")
             .build()
     ))
-    .channel(new TelegramChannel(
-        TelegramConfig.builder()
-            .botToken("123456:ABC-DEF...")
-            .defaultChatId("123456789")
+    .channel(new TeamsChannel(
+        TeamsConfig.builder()
+            .webhookUrl("https://outlook.office.com/webhook/XXX/YYY/ZZZ")
+            .build()
+    ))
+    .channel(new WebhookChannel(
+        WebhookConfig.builder()
+            .name("pagerduty")
+            .url("https://events.pagerduty.com/v2/enqueue")
+            .payloadTemplate("{\"summary\":\"{{content}}\"}")
             .build()
     ))
     .defaultRetryPolicy(RetryPolicy.exponential(3))
+    .rateLimiter(new TokenBucketRateLimiter(
+        RateLimitConfig.perMinute(100)))
+    .deadLetterQueue(new InMemoryDeadLetterQueue())
+    .tracker(new InMemoryNotificationTracker())
     .build();
 
 // Sync
@@ -426,6 +834,24 @@ notify.to("#general")
     .via(Channel.SLACK)
     .content("Deploy complete!")
     .sendAsync();
+
+// Tracked
+DeliveryReceipt receipt = notify.to(user)
+    .via(Channel.EMAIL)
+    .content("Invoice attached")
+    .sendTracked();
+
+// Scheduled
+notify.to(user)
+    .via(Channel.EMAIL)
+    .content("Reminder!")
+    .schedule(Duration.ofMinutes(30));
+
+// Batch
+notify.toAll(List.of("a@test.com", "b@test.com"))
+    .via(Channel.EMAIL)
+    .template("announcement")
+    .send();
 ```
 
 Only `notify-core` + channel modules needed. No Spring dependency.
@@ -437,7 +863,6 @@ Only `notify-core` + channel modules needed. No Spring dependency.
 The demo app showcases every feature with a built-in SMTP server — **zero external config needed**.
 
 ```bash
-# Clone and build
 git clone https://github.com/GabrielBBaldez/notify-hub.git
 cd notify-hub
 mvn clean install -DskipTests
@@ -446,54 +871,31 @@ mvn clean install -DskipTests
 mvn -pl notify-demo spring-boot:run
 ```
 
-Then open [http://localhost:8080](http://localhost:8080) to see all available endpoints.
+Then open:
+- [http://localhost:8080](http://localhost:8080) — API endpoints
+- [http://localhost:8080/notify-admin](http://localhost:8080/notify-admin) — Admin dashboard
 
 ### Demo Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/` | Home — lists all endpoints |
-| `POST` | `/send/email?to=x&subject=x&body=x` | Send a simple email |
-| `POST` | `/send/template?to=x&customerName=x&orderId=x&total=x` | Send templated email |
-| `POST` | `/send/notifiable?name=x&email=x&plan=x` | Send to a Notifiable entity |
-| `POST` | `/send/sms?to=+5511...&message=x` | Send SMS (requires Twilio) |
-| `POST` | `/send/whatsapp?to=+5511...&message=x` | Send WhatsApp (requires Twilio) |
-| `POST` | `/send/slack?channel=%23general&message=x` | Send to Slack channel |
-| `POST` | `/send/multi?email=x&slackChannel=x` | Send to email + Slack simultaneously |
+| `POST` | `/send/email` | Send a simple email |
+| `POST` | `/send/template` | Send email with Mustache template |
+| `POST` | `/send/notifiable` | Send to a Notifiable entity |
+| `POST` | `/send/sms` | Send SMS (requires Twilio) |
+| `POST` | `/send/whatsapp` | Send WhatsApp (requires Twilio) |
+| `POST` | `/send/telegram` | Send to Telegram via Bot |
+| `POST` | `/send/discord` | Send to Discord via Webhook |
+| `POST` | `/send/slack` | Send to Slack channel |
+| `POST` | `/send/multi` | Send to email + Slack simultaneously |
 | `POST` | `/send/fallback` | Test fallback (email fails -> Slack) |
+| `POST` | `/send/tracked` | Send with delivery tracking |
+| `POST` | `/send/scheduled` | Schedule notification for future |
+| `GET` | `/tracking` | Delivery tracking history |
+| `GET` | `/notify-admin` | Admin dashboard |
 | `GET` | `/inbox` | View captured emails |
-| `GET` | `/inbox/slack` | View Slack messages |
 | `DELETE` | `/inbox` | Clear all inboxes |
-
----
-
-## Testing with Real Services
-
-Want to test with **real Gmail, Twilio SMS, WhatsApp, and Slack**? Use the `real` profile.
-
-### Set Environment Variables
-
-```bash
-# Gmail
-set GMAIL_USER=you@gmail.com
-set GMAIL_PASS=xxxx xxxx xxxx xxxx
-
-# Twilio (from twilio.com/console)
-set TWILIO_SID=ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-set TWILIO_TOKEN=your_auth_token_here
-set TWILIO_FROM_NUMBER=+12025551234
-
-# Slack (optional)
-set SLACK_WEBHOOK=https://hooks.slack.com/services/XXX/YYY/ZZZ
-```
-
-> On Linux/Mac use `export` instead of `set`.
-
-### Run with Real Profile
-
-```bash
-mvn -pl notify-demo spring-boot:run -Dspring-boot.run.profiles=real
-```
 
 ---
 
@@ -503,29 +905,44 @@ mvn -pl notify-demo spring-boot:run -Dspring-boot.run.profiles=real
 notify-hub/
 ├── notify-core/                          # Zero Spring dependency
 │   ├── NotifyHub                         # Entry point + fluent API
-│   ├── NotificationBuilder               # Fluent builder + async (sendAsync)
+│   ├── NotificationBuilder               # Fluent builder (send/async/tracked/scheduled)
+│   ├── BatchNotificationBuilder          # Batch send to multiple recipients
 │   ├── Notification                      # Immutable notification object
 │   ├── Channel / ChannelRef              # Built-in + custom channel refs
-│   ├── Notifiable                        # Recipient interface
+│   ├── Priority                          # URGENT, HIGH, NORMAL, LOW
+│   ├── Attachment                        # Email file attachments
+│   ├── Notifiable                        # Recipient interface (i18n + routing)
 │   ├── NotificationChannel               # Channel SPI (implement this!)
 │   ├── NotificationListener              # Event listener interface
-│   ├── MustacheTemplateEngine            # Default template engine
+│   ├── NotificationTracker               # Delivery tracking interface
+│   ├── DeadLetterQueue                   # DLQ interface
+│   ├── RateLimiter / TokenBucket         # Rate limiting
+│   ├── NotificationRouter / RoutingRule  # Conditional routing
+│   ├── MustacheTemplateEngine            # Template engine (i18n-aware)
 │   └── RetryPolicy                       # Retry + backoff strategies
 │
 ├── notify-channels/
-│   ├── notify-email/                     # SMTP email (Jakarta Mail)
+│   ├── notify-email/                     # SMTP email (Jakarta Mail + attachments)
 │   ├── notify-sms/                       # Twilio SMS + WhatsApp
 │   ├── notify-slack/                     # Slack webhooks (JDK HttpClient)
 │   ├── notify-telegram/                  # Telegram Bot API (JDK HttpClient)
-│   └── notify-discord/                   # Discord webhooks (JDK HttpClient)
+│   ├── notify-discord/                   # Discord webhooks (JDK HttpClient)
+│   ├── notify-teams/                     # Microsoft Teams webhooks (JDK HttpClient)
+│   ├── notify-push-firebase/             # Firebase Cloud Messaging (FCM)
+│   └── notify-webhook/                   # Generic webhook (configurable)
+│
+├── notify-tracker-jpa/                   # JPA-backed delivery tracker
 │
 ├── notify-spring-boot-starter/           # Auto-config for Spring Boot
 │   ├── NotifyAutoConfiguration           # Auto-discovers all channels
-│   ├── NotifySmsAutoConfiguration        # Conditional Twilio auto-config
-│   ├── NotifySlackAutoConfiguration      # Conditional Slack auto-config
-│   ├── NotifyTelegramAutoConfiguration   # Conditional Telegram auto-config
-│   ├── NotifyDiscordAutoConfiguration    # Conditional Discord auto-config
+│   ├── MicrometerNotificationListener    # Metrics (counters per channel)
+│   ├── NotifyHubHealthIndicator          # Actuator health check
+│   ├── NotifyHubInfoContributor          # Actuator info endpoint
+│   ├── SpringEventNotificationListener   # Spring ApplicationEvents
 │   └── NotifyProperties                  # application.yml binding
+│
+├── notify-admin/                         # Admin dashboard (Thymeleaf)
+│   └── NotifyAdminController             # /notify-admin/*
 │
 └── notify-demo/                          # Demo app (run it!)
 ```
@@ -534,7 +951,7 @@ notify-hub/
 
 - **`notify-core` has zero Spring dependency** — use it in any Java project
 - **Channels are pluggable** — implement `NotificationChannel`, register as a Spring bean
-- **Slack, Telegram, Discord use zero external SDKs** — only JDK `java.net.http.HttpClient`
+- **Slack, Telegram, Discord, Teams use zero external SDKs** — only JDK `java.net.http.HttpClient`
 - **Template engine is replaceable** — implement `TemplateEngine` interface
 - **Spring Boot starter auto-configures everything** — just add the dependency
 - **Async support** — `sendAsync()` and `sendAllAsync()` with `CompletableFuture`
@@ -544,17 +961,17 @@ notify-hub/
 
 ## Maven Central
 
-NotifyHub is published on **Maven Central**. No extra repositories needed — just add the dependency:
+NotifyHub is published on **Maven Central**. No extra repositories needed.
 
 ```xml
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-spring-boot-starter</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
 </dependency>
 ```
 
-Available modules:
+### Available Modules
 
 | Module | Description |
 |--------|-------------|
@@ -565,6 +982,11 @@ Available modules:
 | `notify-slack` | Slack webhooks |
 | `notify-telegram` | Telegram Bot API |
 | `notify-discord` | Discord webhooks |
+| `notify-teams` | Microsoft Teams webhooks |
+| `notify-push-firebase` | Firebase Cloud Messaging |
+| `notify-webhook` | Generic webhook channel |
+| `notify-tracker-jpa` | JPA delivery tracking |
+| `notify-admin` | Admin dashboard UI |
 
 Search on Maven Central: [io.github.gabrielbbaldez](https://central.sonatype.com/namespace/io.github.gabrielbbaldez)
 
@@ -572,10 +994,10 @@ Search on Maven Central: [io.github.gabrielbbaldez](https://central.sonatype.com
 
 ## Roadmap
 
-- [x] **v0.1.0** — Core API, Email, SMS, WhatsApp, Mustache templates, Spring Boot starter, published on Maven Central
-- [x] **v0.2.0** — Slack, Telegram, Discord channels, async sending (`sendAsync`/`sendAllAsync`), GitHub Actions CI/CD, 43 tests
-- [ ] **v0.3.0** — Scheduled notifications, delivery tracking
-- [ ] **v0.4.0** — Broadcast (send to multiple recipients), Firebase Push
+- [x] **v0.1.0** — Core API, Email, SMS, WhatsApp, Mustache templates, Spring Boot starter
+- [x] **v0.2.0** — Slack, Telegram, Discord, async sending, scheduling, delivery tracking
+- [x] **v0.3.0** — Teams, Firebase Push, Webhook, attachments, priority, rate limiting, DLQ, i18n, batch send, JPA tracker, Micrometer metrics, Actuator health, Spring events, conditional routing, admin dashboard (80+ tests)
+- [ ] **v0.4.0** — WebSocket channel, message deduplication, template versioning
 
 ---
 
@@ -593,4 +1015,6 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 ---
 
-Built by [Gabriel Baldez](https://github.com/GabrielBBaldez)
+<p align="center">
+  Built by <a href="https://github.com/GabrielBBaldez">Gabriel Baldez</a>
+</p>

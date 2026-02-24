@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -58,6 +59,32 @@ public class MustacheTemplateEngine implements TemplateEngine {
             throw new TemplateRenderException(templateName,
                     "Failed to render template: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public String render(String templateName, String variant, Map<String, Object> params, Locale locale) {
+        if (locale != null) {
+            // Try locale-specific templates: e.g., order-confirmed_pt_BR, then order-confirmed_pt
+            String lang = locale.getLanguage();
+            String country = locale.getCountry();
+
+            if (country != null && !country.isEmpty()) {
+                String localized = templateName + "_" + lang + "_" + country;
+                if (exists(localized, variant)) {
+                    return render(localized, variant, params);
+                }
+            }
+
+            if (lang != null && !lang.isEmpty()) {
+                String localized = templateName + "_" + lang;
+                if (exists(localized, variant)) {
+                    return render(localized, variant, params);
+                }
+            }
+        }
+
+        // Fallback to default (no locale suffix)
+        return render(templateName, variant, params);
     }
 
     @Override

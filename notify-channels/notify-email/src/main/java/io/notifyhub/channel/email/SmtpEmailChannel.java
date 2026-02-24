@@ -1,10 +1,13 @@
 package io.notifyhub.channel.email;
 
+import io.notifyhub.core.Attachment;
 import io.notifyhub.core.Notification;
 import io.notifyhub.core.channel.NotificationChannel;
 import io.notifyhub.core.channel.NotificationSendException;
+import jakarta.activation.DataHandler;
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
+import jakarta.mail.util.ByteArrayDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +15,7 @@ import java.util.Properties;
 
 /**
  * Email notification channel using SMTP (Jakarta Mail).
+ * Supports plain text, HTML, and file attachments.
  *
  * <pre>{@code
  * SmtpConfig config = SmtpConfig.builder()
@@ -65,18 +69,46 @@ public class SmtpEmailChannel implements NotificationChannel {
                     : "Notification";
             message.setSubject(subject, "UTF-8");
 
-            // Body
+            // Body (with or without attachments)
             String content = notification.getRenderedContent();
-            if (isHtml(content)) {
-                message.setContent(content, "text/html; charset=UTF-8");
+
+            if (notification.getAttachments().isEmpty()) {
+                // Simple message — no attachments
+                if (isHtml(content)) {
+                    message.setContent(content, "text/html; charset=UTF-8");
+                } else {
+                    message.setText(content, "UTF-8");
+                }
             } else {
-                message.setText(content, "UTF-8");
+                // Multipart message with attachments
+                MimeMultipart multipart = new MimeMultipart();
+
+                // Body part
+                MimeBodyPart bodyPart = new MimeBodyPart();
+                if (isHtml(content)) {
+                    bodyPart.setContent(content, "text/html; charset=UTF-8");
+                } else {
+                    bodyPart.setText(content, "UTF-8");
+                }
+                multipart.addBodyPart(bodyPart);
+
+                // Attachment parts
+                for (Attachment att : notification.getAttachments()) {
+                    MimeBodyPart attachPart = new MimeBodyPart();
+                    ByteArrayDataSource dataSource = new ByteArrayDataSource(
+                            att.getContent(), att.getMimeType());
+                    attachPart.setDataHandler(new DataHandler(dataSource));
+                    attachPart.setFileName(att.getFileName());
+                    multipart.addBodyPart(attachPart);
+                }
+
+                message.setContent(multipart);
             }
 
             // Send
             Transport.send(message);
-            log.debug("Email sent to '{}' with subject '{}'",
-                    notification.getRecipient(), subject);
+            log.debug("Email sent to '{}' with subject '{}' ({} attachment(s))",
+                    notification.getRecipient(), subject, notification.getAttachments().size());
 
         } catch (Exception e) {
             throw new NotificationSendException("email",

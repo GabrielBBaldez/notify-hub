@@ -21,6 +21,20 @@ public interface TemplateEngine {
     String render(String templateName, String variant, Map<String, Object> params);
 
     /**
+     * Render a template with locale support for i18n.
+     * Default implementation ignores the locale and delegates to the 3-arg render.
+     *
+     * @param templateName template name (without extension)
+     * @param variant      template variant — "html" for email, "txt" for SMS/WhatsApp
+     * @param params       key-value parameters for substitution
+     * @param locale       the locale for template resolution (may be null)
+     * @return rendered content string
+     */
+    default String render(String templateName, String variant, Map<String, Object> params, java.util.Locale locale) {
+        return render(templateName, variant, params);
+    }
+
+    /**
      * Check if a specific template variant exists.
      *
      * @param templateName template name

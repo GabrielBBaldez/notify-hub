@@ -2,42 +2,11 @@ package io.notifyhub.spring;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/**
- * Configuration properties for NotifyHub.
- * Bind from {@code application.yml} under the {@code notify} prefix.
- *
- * <pre>{@code
- * notify:
- *   channels:
- *     email:
- *       host: smtp.gmail.com
- *       port: 587
- *       username: ${MAIL_USER}
- *       password: ${MAIL_PASS}
- *       from: noreply@myapp.com
- *       from-name: MyApp
- *       tls: true
- *     sms:
- *       account-sid: ${TWILIO_SID}
- *       auth-token: ${TWILIO_TOKEN}
- *       from-number: "+5548999999999"
- *     whatsapp:
- *       account-sid: ${TWILIO_SID}
- *       auth-token: ${TWILIO_TOKEN}
- *       from-number: "+14155238886"
- *     slack:
- *       webhook-url: https://hooks.slack.com/services/XXX/YYY/ZZZ
- *     telegram:
- *       bot-token: "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
- *       chat-id: "123456789"
- *     discord:
- *       webhook-url: https://discord.com/api/webhooks/123/abc
- *       username: NotifyHub Bot
- *   retry:
- *     max-attempts: 3
- *     strategy: exponential
- * }</pre>
- */
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 @ConfigurationProperties(prefix = "notify")
 public class NotifyProperties {
 
@@ -45,6 +14,8 @@ public class NotifyProperties {
     private Retry retry = new Retry();
     private Scheduling scheduling = new Scheduling();
     private Tracking tracking = new Tracking();
+    private Events events = new Events();
+    private RateLimit rateLimit = new RateLimit();
 
     public Channels getChannels() { return channels; }
     public void setChannels(Channels channels) { this.channels = channels; }
@@ -54,15 +25,21 @@ public class NotifyProperties {
     public void setScheduling(Scheduling scheduling) { this.scheduling = scheduling; }
     public Tracking getTracking() { return tracking; }
     public void setTracking(Tracking tracking) { this.tracking = tracking; }
+    public Events getEvents() { return events; }
+    public void setEvents(Events events) { this.events = events; }
+    public RateLimit getRateLimit() { return rateLimit; }
+    public void setRateLimit(RateLimit rateLimit) { this.rateLimit = rateLimit; }
 
     public static class Channels {
-
         private Email email;
         private Sms sms;
         private WhatsApp whatsapp;
         private Slack slack;
         private Telegram telegram;
         private Discord discord;
+        private Teams teams;
+        private Push push;
+        private List<WebhookEntry> webhooks = new ArrayList<>();
 
         public Email getEmail() { return email; }
         public void setEmail(Email email) { this.email = email; }
@@ -76,6 +53,12 @@ public class NotifyProperties {
         public void setTelegram(Telegram telegram) { this.telegram = telegram; }
         public Discord getDiscord() { return discord; }
         public void setDiscord(Discord discord) { this.discord = discord; }
+        public Teams getTeams() { return teams; }
+        public void setTeams(Teams teams) { this.teams = teams; }
+        public Push getPush() { return push; }
+        public void setPush(Push push) { this.push = push; }
+        public List<WebhookEntry> getWebhooks() { return webhooks; }
+        public void setWebhooks(List<WebhookEntry> webhooks) { this.webhooks = webhooks; }
     }
 
     public static class Email {
@@ -87,7 +70,6 @@ public class NotifyProperties {
         private String fromName;
         private boolean tls = true;
         private boolean ssl = false;
-
         public String getHost() { return host; }
         public void setHost(String host) { this.host = host; }
         public int getPort() { return port; }
@@ -110,7 +92,6 @@ public class NotifyProperties {
         private String accountSid;
         private String authToken;
         private String fromNumber;
-
         public String getAccountSid() { return accountSid; }
         public void setAccountSid(String accountSid) { this.accountSid = accountSid; }
         public String getAuthToken() { return authToken; }
@@ -123,7 +104,6 @@ public class NotifyProperties {
         private String accountSid;
         private String authToken;
         private String fromNumber;
-
         public String getAccountSid() { return accountSid; }
         public void setAccountSid(String accountSid) { this.accountSid = accountSid; }
         public String getAuthToken() { return authToken; }
@@ -134,7 +114,6 @@ public class NotifyProperties {
 
     public static class Slack {
         private String webhookUrl;
-
         public String getWebhookUrl() { return webhookUrl; }
         public void setWebhookUrl(String webhookUrl) { this.webhookUrl = webhookUrl; }
     }
@@ -142,7 +121,6 @@ public class NotifyProperties {
     public static class Telegram {
         private String botToken;
         private String chatId;
-
         public String getBotToken() { return botToken; }
         public void setBotToken(String botToken) { this.botToken = botToken; }
         public String getChatId() { return chatId; }
@@ -153,7 +131,6 @@ public class NotifyProperties {
         private String webhookUrl;
         private String username;
         private String avatarUrl;
-
         public String getWebhookUrl() { return webhookUrl; }
         public void setWebhookUrl(String webhookUrl) { this.webhookUrl = webhookUrl; }
         public String getUsername() { return username; }
@@ -162,10 +139,39 @@ public class NotifyProperties {
         public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
     }
 
+    public static class Teams {
+        private String webhookUrl;
+        public String getWebhookUrl() { return webhookUrl; }
+        public void setWebhookUrl(String webhookUrl) { this.webhookUrl = webhookUrl; }
+    }
+
+    public static class Push {
+        private String serverKey;
+        public String getServerKey() { return serverKey; }
+        public void setServerKey(String serverKey) { this.serverKey = serverKey; }
+    }
+
+    public static class WebhookEntry {
+        private String name;
+        private String url;
+        private String payloadTemplate;
+        private Map<String, String> headers = new LinkedHashMap<>();
+        private String method = "POST";
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+        public String getUrl() { return url; }
+        public void setUrl(String url) { this.url = url; }
+        public String getPayloadTemplate() { return payloadTemplate; }
+        public void setPayloadTemplate(String payloadTemplate) { this.payloadTemplate = payloadTemplate; }
+        public Map<String, String> getHeaders() { return headers; }
+        public void setHeaders(Map<String, String> headers) { this.headers = headers; }
+        public String getMethod() { return method; }
+        public void setMethod(String method) { this.method = method; }
+    }
+
     public static class Retry {
         private int maxAttempts = 1;
-        private String strategy = "none"; // none, fixed, exponential
-
+        private String strategy = "none";
         public int getMaxAttempts() { return maxAttempts; }
         public void setMaxAttempts(int maxAttempts) { this.maxAttempts = maxAttempts; }
         public String getStrategy() { return strategy; }
@@ -175,7 +181,6 @@ public class NotifyProperties {
     public static class Scheduling {
         private boolean enabled = true;
         private int poolSize = 2;
-
         public boolean isEnabled() { return enabled; }
         public void setEnabled(boolean enabled) { this.enabled = enabled; }
         public int getPoolSize() { return poolSize; }
@@ -184,8 +189,43 @@ public class NotifyProperties {
 
     public static class Tracking {
         private boolean enabled = false;
-
+        private String type = "memory";
+        private boolean dlqEnabled = false;
         public boolean isEnabled() { return enabled; }
         public void setEnabled(boolean enabled) { this.enabled = enabled; }
+        public String getType() { return type; }
+        public void setType(String type) { this.type = type; }
+        public boolean isDlqEnabled() { return dlqEnabled; }
+        public void setDlqEnabled(boolean dlqEnabled) { this.dlqEnabled = dlqEnabled; }
+    }
+
+    public static class Events {
+        private boolean enabled = true;
+        public boolean isEnabled() { return enabled; }
+        public void setEnabled(boolean enabled) { this.enabled = enabled; }
+    }
+
+    public static class RateLimit {
+        private boolean enabled = false;
+        private int maxRequests = 100;
+        private String window = "60s";
+        private Map<String, ChannelRateLimit> channels = new LinkedHashMap<>();
+        public boolean isEnabled() { return enabled; }
+        public void setEnabled(boolean enabled) { this.enabled = enabled; }
+        public int getMaxRequests() { return maxRequests; }
+        public void setMaxRequests(int maxRequests) { this.maxRequests = maxRequests; }
+        public String getWindow() { return window; }
+        public void setWindow(String window) { this.window = window; }
+        public Map<String, ChannelRateLimit> getChannels() { return channels; }
+        public void setChannels(Map<String, ChannelRateLimit> channels) { this.channels = channels; }
+    }
+
+    public static class ChannelRateLimit {
+        private int maxRequests;
+        private String window;
+        public int getMaxRequests() { return maxRequests; }
+        public void setMaxRequests(int maxRequests) { this.maxRequests = maxRequests; }
+        public String getWindow() { return window; }
+        public void setWindow(String window) { this.window = window; }
     }
 }

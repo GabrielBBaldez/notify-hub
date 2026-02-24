@@ -2,10 +2,12 @@ package io.notifyhub.core;
 
 import io.notifyhub.core.retry.RetryPolicy;
 
+import java.io.File;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -60,8 +62,17 @@ public class NotificationBuilder {
     private String rawContent;
     private final Map<String, Object> params = new LinkedHashMap<>();
 
+    // Attachments
+    private final List<Attachment> attachments = new ArrayList<>();
+
+    // Priority
+    private Priority priority = Priority.NORMAL;
+
     // Retry
     private RetryPolicy retryPolicy;
+
+    // i18n
+    private Locale locale;
 
     NotificationBuilder(NotifyHub hub) {
         this.hub = hub;
@@ -78,6 +89,7 @@ public class NotificationBuilder {
         if (recipientName != null) {
             this.params.put("recipientName", recipientName);
         }
+        this.locale = notifiable.getLocale();
         return this;
     }
 
@@ -153,6 +165,37 @@ public class NotificationBuilder {
         return this;
     }
 
+    // ===================== ATTACHMENTS =====================
+
+    /** Attach a file by providing raw bytes and MIME type. */
+    public NotificationBuilder attach(String fileName, byte[] content, String mimeType) {
+        this.attachments.add(new Attachment(fileName, content, mimeType));
+        return this;
+    }
+
+    /** Attach a {@link File}. MIME type is detected from the file extension. */
+    public NotificationBuilder attach(File file) {
+        this.attachments.add(Attachment.fromFile(file));
+        return this;
+    }
+
+    /** Attach a pre-built {@link Attachment}. */
+    public NotificationBuilder attach(Attachment attachment) {
+        this.attachments.add(attachment);
+        return this;
+    }
+
+    // ===================== PRIORITY =====================
+
+    /**
+     * Set the notification priority.
+     * {@link Priority#URGENT} notifications bypass rate limiting.
+     */
+    public NotificationBuilder priority(Priority priority) {
+        this.priority = priority != null ? priority : Priority.NORMAL;
+        return this;
+    }
+
     // ===================== RETRY =====================
 
     /** Set custom retry policy for this notification. */
@@ -164,6 +207,24 @@ public class NotificationBuilder {
     /** Set retry with exponential backoff. */
     public NotificationBuilder retry(int maxAttempts) {
         this.retryPolicy = RetryPolicy.exponential(maxAttempts);
+        return this;
+    }
+
+    // ===================== i18n =====================
+
+    /** Set the locale for template resolution. */
+    public NotificationBuilder locale(Locale locale) {
+        this.locale = locale;
+        return this;
+    }
+
+    // ===================== ROUTING =====================
+
+    /**
+     * Signal that routing should be resolved by the configured NotificationRouter.
+     * Actual resolution happens in NotifyHub.execute().
+     */
+    public NotificationBuilder route() {
         return this;
     }
 
@@ -325,7 +386,7 @@ public class NotificationBuilder {
             case "email" -> recipientEmail;
             case "sms", "whatsapp" -> recipientPhone;
             case "push" -> recipientPushToken;
-            case "slack", "telegram", "discord" -> recipientEmail;
+            case "slack", "telegram", "discord", "teams" -> recipientEmail;
             default -> recipientEmail != null ? recipientEmail : recipientPhone;
         };
     }
@@ -356,5 +417,17 @@ public class NotificationBuilder {
 
     RetryPolicy getRetryPolicy() {
         return retryPolicy;
+    }
+
+    List<Attachment> getAttachments() {
+        return Collections.unmodifiableList(attachments);
+    }
+
+    Priority getPriority() {
+        return priority;
+    }
+
+    Locale getLocale() {
+        return locale;
     }
 }

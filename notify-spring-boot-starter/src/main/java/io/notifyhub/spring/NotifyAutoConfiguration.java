@@ -10,13 +10,18 @@ import io.notifyhub.core.channel.NotificationChannel;
 import io.notifyhub.core.retry.RetryPolicy;
 import io.notifyhub.core.template.MustacheTemplateEngine;
 import io.notifyhub.core.template.TemplateEngine;
+import io.notifyhub.spring.event.SpringEventNotificationListener;
+import io.notifyhub.spring.metrics.MicrometerNotificationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
@@ -26,32 +31,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-/**
- * Spring Boot auto-configuration for NotifyHub.
- *
- * <p>Automatically configures:</p>
- * <ul>
- *   <li>Email channel (when {@code notify.channels.email.host} is set)</li>
- *   <li>SMS channel (when Twilio is on classpath and {@code notify.channels.sms.account-sid} is set)</li>
- *   <li>Slack channel (when notify-slack is on classpath and {@code notify.channels.slack.webhook-url} is set)</li>
- *   <li>Telegram channel (when notify-telegram is on classpath and {@code notify.channels.telegram.bot-token} is set)</li>
- *   <li>Discord channel (when notify-discord is on classpath and {@code notify.channels.discord.webhook-url} is set)</li>
- *   <li>Mustache template engine (default)</li>
- *   <li>Retry policy (when {@code notify.retry} is configured)</li>
- *   <li>Scheduled notifications (when {@code notify.scheduling.enabled=true}, default)</li>
- *   <li>Delivery tracking (when {@code notify.tracking.enabled=true})</li>
- * </ul>
- *
- * <p>Custom channels implementing {@link NotificationChannel} are automatically
- * discovered and registered as Spring beans.</p>
- */
 @AutoConfiguration
 @EnableConfigurationProperties(NotifyProperties.class)
 @Import({
     NotifySmsAutoConfiguration.class,
     NotifySlackAutoConfiguration.class,
     NotifyTelegramAutoConfiguration.class,
-    NotifyDiscordAutoConfiguration.class
+    NotifyDiscordAutoConfiguration.class,
+    NotifyTeamsAutoConfiguration.class,
+    NotifyFirebasePushAutoConfiguration.class,
+    NotifyWebhookAutoConfiguration.class
 })
 public class NotifyAutoConfiguration {
 
@@ -110,6 +99,64 @@ public class NotifyAutoConfiguration {
                 .build();
         log.info("NotifyHub: Email channel configured ({}:{})", email.getHost(), email.getPort());
         return new SmtpEmailChannel(config);
+    }
+
+    // ===================== MICROMETER METRICS (isolated to avoid ClassNotFound) =====================
+
+    @AutoConfiguration
+    @ConditionalOnClass(name = "io.micrometer.core.instrument.MeterRegistry")
+    static class MicrometerConfiguration {
+        @Bean
+        @ConditionalOnBean(type = "io.micrometer.core.instrument.MeterRegistry")
+        @ConditionalOnMissingBean(MicrometerNotificationListener.class)
+        public MicrometerNotificationListener micrometerNotificationListener(
+                io.micrometer.core.instrument.MeterRegistry meterRegistry) {
+            LoggerFactory.getLogger(NotifyAutoConfiguration.class)
+                    .info("NotifyHub: Micrometer metrics listener enabled");
+            return new MicrometerNotificationListener(meterRegistry);
+        }
+    }
+
+    // ===================== ACTUATOR (isolated to avoid ClassNotFound) =====================
+
+    @AutoConfiguration
+    @ConditionalOnClass(name = "org.springframework.boot.actuate.health.HealthIndicator")
+    static class ActuatorConfiguration {
+        @Bean
+        @ConditionalOnProperty(prefix = "management.health.notifyhub", name = "enabled", matchIfMissing = true)
+        @ConditionalOnMissingBean(name = "notifyHubHealthIndicator")
+        public io.notifyhub.spring.actuator.NotifyHubHealthIndicator notifyHubHealthIndicator(
+                ObjectProvider<List<NotificationChannel>> channelsProvider) {
+            LoggerFactory.getLogger(NotifyAutoConfiguration.class)
+                    .info("NotifyHub: Actuator health indicator enabled");
+            return new io.notifyhub.spring.actuator.NotifyHubHealthIndicator(
+                    channelsProvider.getIfAvailable(List::of));
+        }
+
+        @Bean
+        @ConditionalOnProperty(prefix = "management.info.notifyhub", name = "enabled", matchIfMissing = true)
+        @ConditionalOnMissingBean(name = "notifyHubInfoContributor")
+        public io.notifyhub.spring.actuator.NotifyHubInfoContributor notifyHubInfoContributor(
+                ObjectProvider<List<NotificationChannel>> channelsProvider,
+                ObjectProvider<NotificationTracker> trackerProvider,
+                NotifyProperties properties) {
+            LoggerFactory.getLogger(NotifyAutoConfiguration.class)
+                    .info("NotifyHub: Actuator info contributor enabled");
+            return new io.notifyhub.spring.actuator.NotifyHubInfoContributor(
+                    channelsProvider.getIfAvailable(List::of),
+                    trackerProvider.getIfAvailable(),
+                    properties.getTracking().isDlqEnabled());
+        }
+    }
+
+    // ===================== SPRING EVENTS =====================
+
+    @Bean
+    @ConditionalOnProperty(prefix = "notify.events", name = "enabled", matchIfMissing = true)
+    @ConditionalOnMissingBean(SpringEventNotificationListener.class)
+    public SpringEventNotificationListener springEventNotificationListener(ApplicationEventPublisher eventPublisher) {
+        log.info("NotifyHub: Spring event notification listener enabled");
+        return new SpringEventNotificationListener(eventPublisher);
     }
 
     // ===================== NOTIFY HUB =====================

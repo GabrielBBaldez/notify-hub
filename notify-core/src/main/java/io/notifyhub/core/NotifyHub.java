@@ -2,6 +2,11 @@ package io.notifyhub.core;
 
 import io.notifyhub.core.channel.NotificationChannel;
 import io.notifyhub.core.channel.NotificationSendException;
+import io.notifyhub.core.dlq.DeadLetter;
+import io.notifyhub.core.dlq.DeadLetterQueue;
+import io.notifyhub.core.ratelimit.RateLimitExceededException;
+import io.notifyhub.core.ratelimit.RateLimiter;
+import io.notifyhub.core.routing.NotificationRouter;
 import io.notifyhub.core.retry.RetryPolicy;
 import io.notifyhub.core.template.TemplateEngine;
 import org.slf4j.Logger;
@@ -55,6 +60,9 @@ public class NotifyHub {
     private final ExecutorService executor;
     private final ScheduledExecutorService scheduler;
     private final NotificationTracker tracker;
+    private final RateLimiter rateLimiter;
+    private final DeadLetterQueue deadLetterQueue;
+    private final NotificationRouter router;
 
     private NotifyHub(Builder builder) {
         this.channels = new ConcurrentHashMap<>(builder.channels);
@@ -66,6 +74,9 @@ public class NotifyHub {
         this.executor = builder.executor;
         this.scheduler = builder.scheduler;
         this.tracker = builder.tracker;
+        this.rateLimiter = builder.rateLimiter;
+        this.deadLetterQueue = builder.deadLetterQueue;
+        this.router = builder.router;
     }
 
     // ===================== FLUENT API ENTRY POINTS =====================
@@ -103,6 +114,35 @@ public class NotifyHub {
         return new NotificationBuilder(this).toPhone(phone);
     }
 
+    /**
+     * Start building a batch notification to multiple email recipients.
+     *
+     * <pre>{@code
+     * notify.toAll(List.of("a@test.com", "b@test.com"))
+     *     .via(Channel.EMAIL)
+     *     .template("announcement")
+     *     .send();
+     * }</pre>
+     */
+    public BatchNotificationBuilder toAll(java.util.List<String> recipients) {
+        return new BatchNotificationBuilder(this, recipients, null);
+    }
+
+    /**
+     * Start building a batch notification to multiple Notifiable recipients.
+     *
+     * <pre>{@code
+     * notify.toAll(users)
+     *     .via(Channel.EMAIL)
+     *     .template("announcement")
+     *     .send();
+     * }</pre>
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends Notifiable> BatchNotificationBuilder toAllNotifiable(java.util.List<T> notifiables) {
+        return new BatchNotificationBuilder(this, null, (java.util.List<Notifiable>) (java.util.List<?>) notifiables);
+    }
+
     // ===================== CHANNEL MANAGEMENT =====================
 
     /** Register a new channel at runtime. */
@@ -124,6 +164,35 @@ public class NotifyHub {
     /** Get the notification tracker (if configured). */
     public NotificationTracker getTracker() {
         return tracker;
+    }
+
+    /** Get the dead letter queue (if configured). */
+    public DeadLetterQueue getDeadLetterQueue() {
+        return deadLetterQueue;
+    }
+
+    /**
+     * Send to a Notifiable, auto-routing through their preferred channels.
+     * The first preferred channel is the primary, the rest are fallbacks.
+     * If no preferred channels, requires .via() to be set manually.
+     *
+     * <pre>{@code
+     * notify.notify(user)
+     *     .subject("Welcome!")
+     *     .template("welcome")
+     *     .send();
+     * }</pre>
+     */
+    public NotificationBuilder notify(Notifiable notifiable) {
+        NotificationBuilder builder = new NotificationBuilder(this).to(notifiable);
+        List<Channel> preferred = notifiable.getPreferredChannels();
+        if (!preferred.isEmpty()) {
+            builder.via(preferred.get(0));
+            for (int i = 1; i < preferred.size(); i++) {
+                builder.fallback(preferred.get(i));
+            }
+        }
+        return builder;
     }
 
     // ===================== EXECUTION =====================
@@ -414,6 +483,13 @@ public class NotifyHub {
                     "Channel '" + channelName + "' not registered. Available: " + channels.keySet());
         }
 
+        // Rate limiting (URGENT bypasses)
+        if (rateLimiter != null && builder.getPriority() != Priority.URGENT) {
+            if (!rateLimiter.tryAcquire(channelName)) {
+                throw new RateLimitExceededException(channelName);
+            }
+        }
+
         String recipient = builder.resolveRecipient(channelName);
         if (recipient == null || recipient.isBlank()) {
             throw new NotificationSendException(channelName,
@@ -425,14 +501,15 @@ public class NotifyHub {
         if (builder.getTemplateName() != null && templateEngine != null) {
             String variant = channelName.equals("email") ? "html" : "txt";
             renderedContent = templateEngine.render(
-                    builder.getTemplateName(), variant, builder.getParams());
+                    builder.getTemplateName(), variant, builder.getParams(), builder.getLocale());
         }
 
         // Build notification object
         Notification notification = new Notification(
                 recipient, channelName, builder.getSubject(),
                 builder.getTemplateName(), builder.getRawContent(),
-                builder.getParams()
+                builder.getParams(), builder.getAttachments(),
+                builder.getPriority()
         );
         if (renderedContent != null) {
             notification.setRenderedContent(renderedContent);
@@ -478,6 +555,22 @@ public class NotifyHub {
             }
         }
 
+        // All retries exhausted — enqueue to DLQ if configured
+        if (deadLetterQueue != null) {
+            DeadLetter dl = DeadLetter.builder()
+                    .channelName(channel.getName())
+                    .recipient(notification.getRecipient())
+                    .subject(notification.getSubject())
+                    .content(notification.getRenderedContent())
+                    .templateName(notification.getTemplateName())
+                    .errorMessage(lastException != null ? lastException.getMessage() : "Unknown error")
+                    .attemptCount(attempts)
+                    .build();
+            deadLetterQueue.enqueue(dl);
+            log.warn("Notification moved to DLQ after {} failed attempts for channel '{}'",
+                    attempts, channel.getName());
+        }
+
         throw lastException;
     }
 
@@ -517,6 +610,9 @@ public class NotifyHub {
         private ExecutorService executor;
         private ScheduledExecutorService scheduler;
         private NotificationTracker tracker;
+        private RateLimiter rateLimiter;
+        private DeadLetterQueue deadLetterQueue;
+        private NotificationRouter router;
 
         public Builder channel(NotificationChannel channel) {
             this.channels.put(channel.getName().toLowerCase(), channel);
@@ -571,6 +667,33 @@ public class NotifyHub {
          */
         public Builder tracker(NotificationTracker tracker) {
             this.tracker = tracker;
+            return this;
+        }
+
+        /**
+         * Set the rate limiter for controlling notification throughput.
+         * URGENT priority notifications bypass rate limiting.
+         */
+        public Builder rateLimiter(RateLimiter rateLimiter) {
+            this.rateLimiter = rateLimiter;
+            return this;
+        }
+
+        /**
+         * Set the dead letter queue for failed notifications.
+         * Notifications that fail after all retries are moved to the DLQ.
+         */
+        public Builder deadLetterQueue(DeadLetterQueue deadLetterQueue) {
+            this.deadLetterQueue = deadLetterQueue;
+            return this;
+        }
+
+        /**
+         * Set the notification router for conditional routing.
+         * When configured, notifications can use .route() to auto-select channels.
+         */
+        public Builder router(NotificationRouter router) {
+            this.router = router;
             return this;
         }
 

@@ -12,7 +12,8 @@ public enum Channel {
     PUSH,
     SLACK,
     TELEGRAM,
-    DISCORD;
+    DISCORD,
+    TEAMS;
 
     /**
      * Creates a reference to a custom channel by name.

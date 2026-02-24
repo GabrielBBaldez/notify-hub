@@ -87,11 +87,11 @@ public class DeliveryReceipt {
 
     // ===================== BUILDER =====================
 
-    static Builder builder() {
+    public static Builder builder() {
         return new Builder();
     }
 
-    static class Builder {
+    public static class Builder {
         private String id;
         private String channelName;
         private String recipient;
@@ -100,42 +100,42 @@ public class DeliveryReceipt {
         private String errorMessage;
         private String templateName;
 
-        Builder id(String id) {
+        public Builder id(String id) {
             this.id = id;
             return this;
         }
 
-        Builder channelName(String channelName) {
+        public Builder channelName(String channelName) {
             this.channelName = channelName;
             return this;
         }
 
-        Builder recipient(String recipient) {
+        public Builder recipient(String recipient) {
             this.recipient = recipient;
             return this;
         }
 
-        Builder status(DeliveryStatus status) {
+        public Builder status(DeliveryStatus status) {
             this.status = status;
             return this;
         }
 
-        Builder timestamp(Instant timestamp) {
+        public Builder timestamp(Instant timestamp) {
             this.timestamp = timestamp;
             return this;
         }
 
-        Builder errorMessage(String errorMessage) {
+        public Builder errorMessage(String errorMessage) {
             this.errorMessage = errorMessage;
             return this;
         }
 
-        Builder templateName(String templateName) {
+        public Builder templateName(String templateName) {
             this.templateName = templateName;
             return this;
         }
 
-        DeliveryReceipt build() {
+        public DeliveryReceipt build() {
             return new DeliveryReceipt(this);
         }
     }

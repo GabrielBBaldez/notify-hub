@@ -7,7 +7,7 @@
     <parent>
         <groupId>io.github.gabrielbbaldez</groupId>
         <artifactId>notify-hub-parent</artifactId>
-        <version>0.2.0</version>
+        <version>0.3.0</version>
     </parent>
 
     <artifactId>notify-demo</artifactId>
@@ -54,6 +54,19 @@
             <groupId>io.github.gabrielbbaldez</groupId>
             <artifactId>notify-discord</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <!-- Admin Dashboard -->
+        <dependency>
+            <groupId>io.github.gabrielbbaldez</groupId>
+            <artifactId>notify-admin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Thymeleaf (needed for admin dashboard) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
 
         <!-- GreenMail embedded — no external SMTP needed to demo -->

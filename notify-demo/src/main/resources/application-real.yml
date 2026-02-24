@@ -1,0 +1,45 @@
+## ========================================
+## NotifyHub Demo — Real Services Profile
+## ========================================
+## Run with: mvn -pl notify-demo spring-boot:run -Dspring-boot.run.profiles=real
+##
+## Required environment variables:
+##   GMAIL_USER           → Gmail address (e.g. you@gmail.com)
+##   GMAIL_PASS           → Google App Password (not your real password!)
+##   TWILIO_SID           → Twilio Account SID
+##   TWILIO_TOKEN         → Twilio Auth Token
+##   TWILIO_FROM_NUMBER   → Your Twilio phone number (e.g. +12025551234)
+##   TWILIO_WA_NUMBER     → Twilio WhatsApp sandbox number (default: +14155238886)
+##   SLACK_WEBHOOK        → Slack Incoming Webhook URL (optional)
+
+server:
+  error:
+    include-message: always
+    include-exception: true
+
+demo:
+  embedded-smtp: false  # Disable GreenMail — we're using real SMTP
+  slack:
+    webhook-url: ${SLACK_WEBHOOK:}
+
+notify:
+  channels:
+    email:
+      host: smtp.gmail.com
+      port: 587
+      username: ${GMAIL_USER}
+      password: ${GMAIL_PASS}
+      from: ${GMAIL_USER}
+      from-name: NotifyHub
+      tls: true
+    sms:
+      account-sid: ${TWILIO_SID}
+      auth-token: ${TWILIO_TOKEN}
+      from-number: ${TWILIO_FROM_NUMBER}
+    whatsapp:
+      account-sid: ${TWILIO_SID}
+      auth-token: ${TWILIO_TOKEN}
+      from-number: ${TWILIO_WA_NUMBER:+14155238886}
+  retry:
+    max-attempts: 3
+    strategy: exponential

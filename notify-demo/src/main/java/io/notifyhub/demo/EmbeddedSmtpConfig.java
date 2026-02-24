@@ -6,6 +6,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
  * read via the /inbox endpoint.
  */
 @Configuration
+@ConditionalOnProperty(name = "demo.embedded-smtp", havingValue = "true", matchIfMissing = true)
 public class EmbeddedSmtpConfig {
 
     private static final Logger log = LoggerFactory.getLogger(EmbeddedSmtpConfig.class);

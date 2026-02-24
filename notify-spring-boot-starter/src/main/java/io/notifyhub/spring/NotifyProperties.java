@@ -21,6 +21,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *       account-sid: ${TWILIO_SID}
  *       auth-token: ${TWILIO_TOKEN}
  *       from-number: "+5548999999999"
+ *     whatsapp:
+ *       account-sid: ${TWILIO_SID}
+ *       auth-token: ${TWILIO_TOKEN}
+ *       from-number: "+14155238886"
  *   retry:
  *     max-attempts: 3
  *     strategy: exponential
@@ -41,11 +45,14 @@ public class NotifyProperties {
 
         private Email email;
         private Sms sms;
+        private WhatsApp whatsapp;
 
         public Email getEmail() { return email; }
         public void setEmail(Email email) { this.email = email; }
         public Sms getSms() { return sms; }
         public void setSms(Sms sms) { this.sms = sms; }
+        public WhatsApp getWhatsapp() { return whatsapp; }
+        public void setWhatsapp(WhatsApp whatsapp) { this.whatsapp = whatsapp; }
     }
 
     public static class Email {
@@ -77,6 +84,19 @@ public class NotifyProperties {
     }
 
     public static class Sms {
+        private String accountSid;
+        private String authToken;
+        private String fromNumber;
+
+        public String getAccountSid() { return accountSid; }
+        public void setAccountSid(String accountSid) { this.accountSid = accountSid; }
+        public String getAuthToken() { return authToken; }
+        public void setAuthToken(String authToken) { this.authToken = authToken; }
+        public String getFromNumber() { return fromNumber; }
+        public void setFromNumber(String fromNumber) { this.fromNumber = fromNumber; }
+    }
+
+    public static class WhatsApp {
         private String accountSid;
         private String authToken;
         private String fromNumber;

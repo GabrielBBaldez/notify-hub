@@ -2,6 +2,7 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.sms.TwilioConfig;
 import io.notifyhub.channel.sms.TwilioSmsChannel;
+import io.notifyhub.channel.sms.TwilioWhatsAppChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -11,7 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * SMS auto-configuration — isolated in its own class so that
+ * SMS and WhatsApp auto-configuration — isolated in its own class so that
  * the Twilio classes are only loaded when Twilio SDK is on the classpath.
  */
 @Configuration
@@ -32,5 +33,19 @@ public class NotifySmsAutoConfiguration {
                 .build();
         log.info("NotifyHub: SMS channel configured (Twilio)");
         return new TwilioSmsChannel(config);
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "notify.channels.whatsapp", name = "account-sid")
+    @ConditionalOnMissingBean(TwilioWhatsAppChannel.class)
+    public TwilioWhatsAppChannel twilioWhatsAppChannel(NotifyProperties properties) {
+        NotifyProperties.WhatsApp wa = properties.getChannels().getWhatsapp();
+        TwilioConfig config = TwilioConfig.builder()
+                .accountSid(wa.getAccountSid())
+                .authToken(wa.getAuthToken())
+                .fromNumber(wa.getFromNumber())
+                .build();
+        log.info("NotifyHub: WhatsApp channel configured (Twilio)");
+        return new TwilioWhatsAppChannel(config);
     }
 }

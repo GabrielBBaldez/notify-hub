@@ -4,7 +4,7 @@ import io.notifyhub.core.Channel;
 import io.notifyhub.core.NotifyHub;
 import io.notifyhub.core.channel.NotificationSendException;
 import jakarta.mail.internet.MimeMessage;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -17,12 +17,14 @@ import java.util.*;
 public class DemoController {
 
     private final NotifyHub notify;
-    private final EmbeddedSmtpConfig smtpConfig;
     private final SlackChannel slackChannel;
 
-    public DemoController(NotifyHub notify, EmbeddedSmtpConfig smtpConfig, SlackChannel slackChannel) {
+    /** Nullable — only present when running with embedded SMTP (default profile) */
+    @Autowired(required = false)
+    private EmbeddedSmtpConfig smtpConfig;
+
+    public DemoController(NotifyHub notify, SlackChannel slackChannel) {
         this.notify = notify;
-        this.smtpConfig = smtpConfig;
         this.slackChannel = slackChannel;
     }
 
@@ -33,15 +35,17 @@ public class DemoController {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("app", "NotifyHub Demo");
         response.put("channels", notify.getRegisteredChannels());
+        response.put("profile", smtpConfig != null ? "default (embedded SMTP)" : "real (external SMTP)");
         response.put("endpoints", List.of(
                 "GET  /                          → this page",
                 "POST /send/email                → send a simple email",
                 "POST /send/template             → send email with Mustache template",
                 "POST /send/notifiable           → send to a Notifiable user entity",
+                "POST /send/sms                  → send SMS via Twilio",
                 "POST /send/slack                → send to custom Slack channel",
                 "POST /send/multi                → send to email + slack simultaneously",
                 "POST /send/fallback             → test fallback (email fails → slack)",
-                "GET  /inbox                     → see all received emails",
+                "GET  /inbox                     → see all received emails (embedded only)",
                 "GET  /inbox/slack               → see all Slack messages",
                 "DELETE /inbox                   → clear all inboxes"
         ));
@@ -66,7 +70,9 @@ public class DemoController {
                 "status", "sent",
                 "channel", "email",
                 "to", to,
-                "tip", "Check GET /inbox to see the received email"
+                "tip", smtpConfig != null
+                        ? "Check GET /inbox to see the received email"
+                        : "Check your real inbox at " + to
         );
     }
 
@@ -93,7 +99,9 @@ public class DemoController {
                 "channel", "email",
                 "template", "order-confirmed",
                 "to", to,
-                "tip", "Check GET /inbox to see the rendered HTML email"
+                "tip", smtpConfig != null
+                        ? "Check GET /inbox to see the rendered HTML email"
+                        : "Check your real inbox for a beautiful HTML email!"
         );
     }
 
@@ -123,7 +131,47 @@ public class DemoController {
         );
     }
 
-    // ===================== 4. CUSTOM CHANNEL (SLACK) =====================
+    // ===================== 4. SMS (TWILIO) =====================
+
+    @PostMapping("/send/sms")
+    public Map<String, String> sendSms(
+            @RequestParam String to,
+            @RequestParam(defaultValue = "Hello from NotifyHub! Your notification system is working.") String message) {
+
+        notify.toPhone(to)
+                .via(Channel.SMS)
+                .content(message)
+                .send();
+
+        return Map.of(
+                "status", "sent",
+                "channel", "sms",
+                "to", to,
+                "tip", "Check your phone for the SMS!"
+        );
+    }
+
+    // ===================== 5. WHATSAPP (TWILIO) =====================
+
+    @PostMapping("/send/whatsapp")
+    public Map<String, String> sendWhatsApp(
+            @RequestParam String to,
+            @RequestParam(defaultValue = "Hello from NotifyHub via WhatsApp!") String message) {
+
+        notify.toPhone(to)
+                .via(Channel.WHATSAPP)
+                .content(message)
+                .send();
+
+        return Map.of(
+                "status", "sent",
+                "channel", "whatsapp",
+                "to", to,
+                "tip", "Check your WhatsApp!"
+        );
+    }
+
+    // ===================== 6. CUSTOM CHANNEL (SLACK) =====================
 
     @PostMapping("/send/slack")
     public Map<String, String> sendSlack(
@@ -143,7 +191,7 @@ public class DemoController {
         );
     }
 
-    // ===================== 5. MULTI-CHANNEL =====================
+    // ===================== 6. MULTI-CHANNEL =====================
 
     @PostMapping("/send/multi")
     public Map<String, String> sendMulti(
@@ -168,10 +216,17 @@ public class DemoController {
         );
     }
 
-    // ===================== 6. FALLBACK =====================
+    // ===================== 7. FALLBACK =====================
 
     @PostMapping("/send/fallback")
     public Map<String, String> sendFallback() {
+        if (smtpConfig == null) {
+            return Map.of(
+                    "error", "Fallback demo only works with embedded SMTP (default profile)",
+                    "tip", "Run without -Dspring-boot.run.profiles=real to test fallback"
+            );
+        }
+
         // Stop SMTP to force email failure
         smtpConfig.getGreenMail().stop();
 
@@ -198,6 +253,12 @@ public class DemoController {
 
     @GetMapping("/inbox")
     public Map<String, Object> inbox() throws Exception {
+        if (smtpConfig == null) {
+            Map<String, Object> response = new LinkedHashMap<>();
+            response.put("info", "Inbox not available — using real SMTP, emails go to your real inbox");
+            return response;
+        }
+
         MimeMessage[] messages = smtpConfig.getGreenMail().getReceivedMessages();
         List<Map<String, String>> emails = new ArrayList<>();
 
@@ -227,9 +288,11 @@ public class DemoController {
 
     @DeleteMapping("/inbox")
     public Map<String, String> clearInbox() {
-        try {
-            smtpConfig.getGreenMail().purgeEmailFromAllMailboxes();
-        } catch (Exception ignored) {
+        if (smtpConfig != null) {
+            try {
+                smtpConfig.getGreenMail().purgeEmailFromAllMailboxes();
+            } catch (Exception ignored) {
+            }
         }
         slackChannel.clear();
         return Map.of("status", "All inboxes cleared");

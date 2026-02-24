@@ -28,6 +28,13 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- SMS via Twilio (optional — only active when Twilio SDK is on classpath) -->
+        <dependency>
+            <groupId>io.notifyhub</groupId>
+            <artifactId>notify-sms</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- GreenMail embedded — no external SMTP needed to demo -->
         <dependency>
             <groupId>com.icegreen</groupId>

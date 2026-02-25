@@ -19,7 +19,7 @@
 
 ---
 
-Stop writing different code for each notification channel. NotifyHub gives you a single fluent API to send notifications via **Email, SMS, WhatsApp, Slack, Telegram, Discord, Microsoft Teams, Firebase Push, Webhooks** — or any custom channel you create.
+Stop writing different code for each notification channel. NotifyHub gives you a single fluent API to send notifications via **Email, SMS, WhatsApp, Slack, Telegram, Discord, Microsoft Teams, Firebase Push, Webhooks, WebSocket, Google Chat** — or any custom channel you create.
 
 ```java
 notify.to(user)
@@ -48,6 +48,8 @@ notify.to(user)
 | Teams | Incoming Webhook, MessageCard JSON | `.via(TEAMS)` |
 | Push | Firebase Admin SDK, credentials... | `.via(PUSH)` |
 | Webhook | Custom HTTP, payload template | `.via(Channel.custom("pagerduty"))` |
+| WebSocket | Java WebSocket API, reconnect logic | `.via(WEBSOCKET)` |
+| Google Chat | Webhook HTTP, JSON payload | `.via(GOOGLE_CHAT)` |
 | Multiple channels | Completely different code for each | Same fluent API |
 | Fallback | Manual try/catch chain | `.fallback(SMS)` |
 | Retry | Implement yourself | Built-in exponential backoff |
@@ -58,6 +60,8 @@ notify.to(user)
 | Rate limiting | Token bucket from scratch | Config-driven per-channel |
 | Tracking | Build your own delivery log | Built-in receipts + JPA |
 | Dead letters | Lost in the void | Auto-captured in DLQ |
+| Deduplication | Track sent messages yourself | Built-in content hash / explicit key |
+| Template versions | Manage files manually | `.templateVersion("v2")` + A/B test |
 | Batch | Loop and pray | `.toAll(users).send()` |
 | Monitoring | Wire Micrometer yourself | Auto-configured counters |
 | Health checks | Write an Actuator indicator | Auto-configured |
@@ -85,6 +89,8 @@ notify.to(user)
   - [Scheduled Notifications](#scheduled-notifications)
   - [Notification Routing](#notification-routing)
   - [Notifiable Interface](#notifiable-interface)
+  - [Message Deduplication](#message-deduplication)
+  - [Template Versioning](#template-versioning)
   - [Custom Channels](#custom-channels)
   - [Event Listeners + Spring Events](#event-listeners--spring-events)
 - [Supported Channels](#supported-channels)
@@ -108,7 +114,7 @@ notify.to(user)
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-spring-boot-starter</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
 </dependency>
 ```
 
@@ -118,14 +124,21 @@ notify.to(user)
 > <dependency>
 >     <groupId>io.github.gabrielbbaldez</groupId>
 >     <artifactId>notify-sms</artifactId>
->     <version>0.3.0</version>
+>     <version>0.4.0</version>
 > </dependency>
 >
 > <!-- Slack / Telegram / Discord / Teams / Firebase Push / Webhook -->
 > <dependency>
 >     <groupId>io.github.gabrielbbaldez</groupId>
 >     <artifactId>notify-slack</artifactId>
->     <version>0.3.0</version>
+>     <version>0.4.0</version>
+> </dependency>
+>
+> <!-- WebSocket / Google Chat -->
+> <dependency>
+>     <groupId>io.github.gabrielbbaldez</groupId>
+>     <artifactId>notify-websocket</artifactId>
+>     <version>0.4.0</version>
 > </dependency>
 > ```
 
@@ -421,7 +434,7 @@ For database persistence, add the JPA tracker module:
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-tracker-jpa</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
 </dependency>
 ```
 
@@ -527,6 +540,80 @@ notify.to("user@email.com").via(Channel.EMAIL).content("Hello!").send();
 notify.toPhone("+5511999999999").via(Channel.SMS).content("Code: 1234").send();
 ```
 
+### Message Deduplication
+
+Prevent duplicate notifications automatically with content hashing or explicit keys:
+
+```yaml
+notify:
+  deduplication:
+    enabled: true
+    ttl: 24h
+    strategy: content-hash  # content-hash | explicit-key | both
+```
+
+```java
+// Auto-dedup by content hash (same recipient + channel + content = skipped)
+notify.to(user).via(EMAIL).content("Order confirmed").send();
+notify.to(user).via(EMAIL).content("Order confirmed").send(); // skipped!
+
+// Dedup by explicit key
+notify.to(user).via(EMAIL)
+    .deduplicationKey("order-" + orderId)
+    .template("order-confirmed")
+    .send();
+```
+
+Strategies:
+- **`content-hash`** — SHA-256 hash of recipient + channel + subject + content
+- **`explicit-key`** — uses the key provided via `.deduplicationKey("...")`
+- **`both`** — uses explicit key if provided, otherwise falls back to content hash
+
+Without Spring Boot:
+
+```java
+NotifyHub notify = NotifyHub.builder()
+    .deduplicationStore(new InMemoryDeduplicationStore(Duration.ofHours(12)))
+    .channel(emailChannel)
+    .build();
+```
+
+### Template Versioning
+
+Manage multiple versions of templates for A/B testing or gradual rollouts:
+
+```
+templates/notify/
+├── order-confirmed.html           ← default version
+├── order-confirmed@v1.html        ← version v1
+├── order-confirmed@v2.html        ← version v2
+├── order-confirmed_pt_BR@v2.html  ← v2 with i18n
+└── order-confirmed.txt            ← text default
+```
+
+```java
+// Use a specific version
+notify.to(user).via(EMAIL)
+    .template("order-confirmed")
+    .templateVersion("v2")
+    .param("orderId", "123")
+    .send();
+
+// No version = default template (backward compatible)
+notify.to(user).via(EMAIL)
+    .template("order-confirmed")
+    .send();
+
+// A/B testing
+String version = abTestService.getVariant(user, "email-template");
+notify.to(user).via(EMAIL)
+    .template("welcome")
+    .templateVersion(version)  // "v1" or "v2"
+    .send();
+```
+
+Resolution order: `{name}@{version}_{locale}.{variant}` → `{name}@{version}.{variant}` → `{name}_{locale}.{variant}` → `{name}.{variant}`
+
 ### Custom Channels
 
 Create your own channel by implementing one interface:
@@ -618,6 +705,8 @@ public class NotificationEventHandler {
 | Microsoft Teams | Incoming Webhooks | `notify-teams` | Stable |
 | Push (FCM) | Firebase Cloud Messaging | `notify-push-firebase` | Stable |
 | Webhook | Any HTTP endpoint | `notify-webhook` | Stable |
+| WebSocket | JDK WebSocket (`java.net.http`) | `notify-websocket` | Stable |
+| Google Chat | Webhooks | `notify-google-chat` | Stable |
 | Custom | Any | `notify-core` | Stable |
 
 ---
@@ -636,7 +725,7 @@ notify:
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-admin</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
 </dependency>
 ```
 
@@ -698,7 +787,7 @@ GET /actuator/info
 ```json
 {
   "notifyhub": {
-    "version": "0.3.0",
+    "version": "0.4.0",
     "channels": ["email", "slack", "teams"],
     "tracking.enabled": true,
     "dlq.enabled": true
@@ -760,6 +849,20 @@ notify:
           Authorization: "Token ${PAGERDUTY_TOKEN}"
         payload-template: '{"summary":"{{content}}"}'
 
+    websocket:
+      uri: wss://echo.example.com/ws
+      timeout-ms: 10000
+      reconnect-enabled: true
+      reconnect-delay-ms: 5000
+      max-reconnect-attempts: 3
+      headers:
+        Authorization: "Bearer ${WS_TOKEN}"
+      message-format: '{"type":"notification","content":"{{content}}"}'
+
+    google-chat:
+      webhook-url: ${GOOGLE_CHAT_WEBHOOK}
+      timeout-ms: 10000
+
   retry:
     max-attempts: 3
     strategy: exponential
@@ -777,6 +880,11 @@ notify:
     enabled: true
     type: memory         # memory | jpa
     dlq-enabled: true
+
+  deduplication:
+    enabled: true
+    ttl: 24h
+    strategy: content-hash  # content-hash | explicit-key | both
 
   admin:
     enabled: true
@@ -815,6 +923,18 @@ NotifyHub notify = NotifyHub.builder()
             .payloadTemplate("{\"summary\":\"{{content}}\"}")
             .build()
     ))
+    .channel(new WebSocketChannel(
+        WebSocketConfig.builder()
+            .uri("wss://echo.example.com/ws")
+            .messageFormat("{\"text\":\"{{content}}\"}")
+            .build()
+    ))
+    .channel(new GoogleChatChannel(
+        GoogleChatConfig.builder()
+            .webhookUrl("https://chat.googleapis.com/v1/spaces/XXX/messages?key=YYY")
+            .build()
+    ))
+    .deduplicationStore(new InMemoryDeduplicationStore(Duration.ofHours(24)))
     .defaultRetryPolicy(RetryPolicy.exponential(3))
     .rateLimiter(new TokenBucketRateLimiter(
         RateLimitConfig.perMinute(100)))
@@ -918,7 +1038,9 @@ notify-hub/
 │   ├── DeadLetterQueue                   # DLQ interface
 │   ├── RateLimiter / TokenBucket         # Rate limiting
 │   ├── NotificationRouter / RoutingRule  # Conditional routing
-│   ├── MustacheTemplateEngine            # Template engine (i18n-aware)
+│   ├── MustacheTemplateEngine            # Template engine (i18n-aware + versioning)
+│   ├── VersionedTemplateEngine           # Template versioning interface (A/B testing)
+│   ├── DeduplicationStore                # Dedup interface (in-memory impl)
 │   └── RetryPolicy                       # Retry + backoff strategies
 │
 ├── notify-channels/
@@ -929,7 +1051,9 @@ notify-hub/
 │   ├── notify-discord/                   # Discord webhooks (JDK HttpClient)
 │   ├── notify-teams/                     # Microsoft Teams webhooks (JDK HttpClient)
 │   ├── notify-push-firebase/             # Firebase Cloud Messaging (FCM)
-│   └── notify-webhook/                   # Generic webhook (configurable)
+│   ├── notify-webhook/                   # Generic webhook (configurable)
+│   ├── notify-websocket/                 # WebSocket (JDK java.net.http)
+│   └── notify-google-chat/              # Google Chat webhooks (JDK HttpClient)
 │
 ├── notify-tracker-jpa/                   # JPA-backed delivery tracker
 │
@@ -951,7 +1075,7 @@ notify-hub/
 
 - **`notify-core` has zero Spring dependency** — use it in any Java project
 - **Channels are pluggable** — implement `NotificationChannel`, register as a Spring bean
-- **Slack, Telegram, Discord, Teams use zero external SDKs** — only JDK `java.net.http.HttpClient`
+- **Slack, Telegram, Discord, Teams, WebSocket, Google Chat use zero external SDKs** — only JDK `java.net.http.HttpClient`
 - **Template engine is replaceable** — implement `TemplateEngine` interface
 - **Spring Boot starter auto-configures everything** — just add the dependency
 - **Async support** — `sendAsync()` and `sendAllAsync()` with `CompletableFuture`
@@ -981,7 +1105,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-spring-boot-starter</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
 </dependency>
 ```
 
@@ -997,7 +1121,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-core</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
 </dependency>
 ```
 
@@ -1013,7 +1137,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-email</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
 </dependency>
 ```
 
@@ -1029,7 +1153,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-sms</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
 </dependency>
 ```
 
@@ -1045,7 +1169,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-slack</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
 </dependency>
 ```
 
@@ -1061,7 +1185,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-telegram</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
 </dependency>
 ```
 
@@ -1077,7 +1201,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-discord</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
 </dependency>
 ```
 
@@ -1093,7 +1217,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-teams</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
 </dependency>
 ```
 
@@ -1109,7 +1233,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-push-firebase</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
 </dependency>
 ```
 
@@ -1125,7 +1249,39 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-webhook</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-websocket` — WebSocket Channel
+
+**What it does:** Sends notifications over WebSocket connections using the JDK `java.net.http.WebSocket` API. Supports configurable message format with `{{recipient}}`, `{{subject}}`, `{{content}}` placeholders, custom headers, auto-reconnect with backoff, and connection timeout. Zero external dependencies.
+
+**When to use:** You want to send real-time notifications over WebSocket to a server (e.g., live dashboards, chat systems, or custom WebSocket consumers).
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-websocket</artifactId>
+    <version>0.4.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-google-chat` — Google Chat Channel
+
+**What it does:** Sends messages to Google Chat spaces via Incoming Webhooks. Posts JSON payloads using the JDK `HttpClient` — no external SDK needed.
+
+**When to use:** You want to send notifications to a Google Chat space. Requires a Google Chat webhook URL (space Settings > Apps & integrations > Webhooks).
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-google-chat</artifactId>
+    <version>0.4.0</version>
 </dependency>
 ```
 
@@ -1141,7 +1297,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-tracker-jpa</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
 </dependency>
 ```
 
@@ -1157,7 +1313,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-admin</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
 </dependency>
 ```
 
@@ -1175,6 +1331,10 @@ Below is every module, what it does, when you need it, and how to add it.
 | Send to Microsoft Teams | `notify-spring-boot-starter` + `notify-teams` |
 | Send mobile push (FCM) | `notify-spring-boot-starter` + `notify-push-firebase` |
 | Send to any HTTP API | `notify-spring-boot-starter` + `notify-webhook` |
+| Send via WebSocket | `notify-spring-boot-starter` + `notify-websocket` |
+| Send to Google Chat | `notify-spring-boot-starter` + `notify-google-chat` |
+| Prevent duplicate sends | `notify-spring-boot-starter` (built-in, config-driven) |
+| A/B test templates | `notify-spring-boot-starter` (built-in, use `.templateVersion()`) |
 | Persist tracking to database | `notify-spring-boot-starter` + `notify-tracker-jpa` |
 | Admin dashboard UI | `notify-spring-boot-starter` + `notify-admin` |
 | Use without Spring Boot | `notify-core` + channel modules you need |
@@ -1187,7 +1347,7 @@ Below is every module, what it does, when you need it, and how to add it.
 - [x] **v0.1.0** — Core API, Email, SMS, WhatsApp, Mustache templates, Spring Boot starter
 - [x] **v0.2.0** — Slack, Telegram, Discord, async sending, scheduling, delivery tracking
 - [x] **v0.3.0** — Teams, Firebase Push, Webhook, attachments, priority, rate limiting, DLQ, i18n, batch send, JPA tracker, Micrometer metrics, Actuator health, Spring events, conditional routing, admin dashboard (80+ tests)
-- [ ] **v0.4.0** — WebSocket channel, message deduplication, template versioning
+- [x] **v0.4.0** — WebSocket channel, Google Chat channel, message deduplication, template versioning (105+ tests, 16 modules)
 
 ---
 

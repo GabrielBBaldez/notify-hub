@@ -2,8 +2,10 @@ package io.notifyhub.core;
 
 import io.notifyhub.core.channel.NotificationChannel;
 import io.notifyhub.core.channel.NotificationSendException;
+import io.notifyhub.core.dedup.InMemoryDeduplicationStore;
 import io.notifyhub.core.retry.RetryPolicy;
 import io.notifyhub.core.template.TemplateEngine;
+import io.notifyhub.core.template.VersionedTemplateEngine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -623,5 +625,178 @@ class NotifyHubTest {
 
         scheduled.cancel();
         scheduler.shutdown();
+    }
+
+    // ===================== DEDUPLICATION =====================
+
+    @Test
+    @DisplayName("Dedup: duplicate notification by content hash should be skipped")
+    void dedupByContentHash() {
+        InMemoryDeduplicationStore store = new InMemoryDeduplicationStore(Duration.ofHours(1));
+        hub = NotifyHub.builder()
+                .channel(emailChannel)
+                .deduplicationStore(store)
+                .build();
+
+        hub.to("user@test.com").via(Channel.EMAIL).content("Order confirmed").send();
+        hub.to("user@test.com").via(Channel.EMAIL).content("Order confirmed").send(); // duplicate
+
+        // Should only send once
+        verify(emailChannel, times(1)).send(any());
+        assertEquals(1, store.size());
+    }
+
+    @Test
+    @DisplayName("Dedup: different content should NOT be deduplicated")
+    void dedupDifferentContentNotSkipped() {
+        InMemoryDeduplicationStore store = new InMemoryDeduplicationStore(Duration.ofHours(1));
+        hub = NotifyHub.builder()
+                .channel(emailChannel)
+                .deduplicationStore(store)
+                .build();
+
+        hub.to("user@test.com").via(Channel.EMAIL).content("Message 1").send();
+        hub.to("user@test.com").via(Channel.EMAIL).content("Message 2").send();
+
+        // Both should be sent
+        verify(emailChannel, times(2)).send(any());
+        assertEquals(2, store.size());
+    }
+
+    @Test
+    @DisplayName("Dedup: explicit deduplication key should be used")
+    void dedupByExplicitKey() {
+        InMemoryDeduplicationStore store = new InMemoryDeduplicationStore(Duration.ofHours(1));
+        hub = NotifyHub.builder()
+                .channel(emailChannel)
+                .deduplicationStore(store)
+                .build();
+
+        hub.to("user@test.com").via(Channel.EMAIL).content("Order A").deduplicationKey("order-123").send();
+        hub.to("user@test.com").via(Channel.EMAIL).content("Order B").deduplicationKey("order-123").send(); // same key
+
+        verify(emailChannel, times(1)).send(any());
+    }
+
+    @Test
+    @DisplayName("Dedup: TTL expiry allows re-send")
+    void dedupTtlExpiry() throws Exception {
+        InMemoryDeduplicationStore store = new InMemoryDeduplicationStore(Duration.ofMillis(100));
+        hub = NotifyHub.builder()
+                .channel(emailChannel)
+                .deduplicationStore(store)
+                .build();
+
+        hub.to("user@test.com").via(Channel.EMAIL).content("Test").send();
+        Thread.sleep(200); // wait for TTL to expire
+        hub.to("user@test.com").via(Channel.EMAIL).content("Test").send();
+
+        verify(emailChannel, times(2)).send(any());
+    }
+
+    @Test
+    @DisplayName("Dedup: no store configured means no dedup")
+    void dedupDisabled() {
+        buildHub(); // no dedup store
+
+        hub.to("user@test.com").via(Channel.EMAIL).content("Same").send();
+        hub.to("user@test.com").via(Channel.EMAIL).content("Same").send();
+
+        verify(emailChannel, times(2)).send(any());
+    }
+
+    @Test
+    @DisplayName("Dedup: InMemoryDeduplicationStore clear and remove work")
+    void dedupStoreOperations() {
+        InMemoryDeduplicationStore store = new InMemoryDeduplicationStore(Duration.ofHours(1));
+        store.markSent("key1");
+        store.markSent("key2");
+        assertEquals(2, store.size());
+
+        assertTrue(store.isDuplicate("key1"));
+        store.remove("key1");
+        assertFalse(store.isDuplicate("key1"));
+        assertEquals(1, store.size());
+
+        store.clear();
+        assertEquals(0, store.size());
+    }
+
+    // ===================== TEMPLATE VERSIONING =====================
+
+    @Test
+    @DisplayName("Template versioning: uses VersionedTemplateEngine when version is set")
+    void templateVersioningUsesVersionedEngine() {
+        VersionedTemplateEngine vte = mock(VersionedTemplateEngine.class);
+        when(vte.render(eq("welcome"), eq("v2"), eq("html"), anyMap(), any()))
+                .thenReturn("Welcome v2!");
+
+        hub = NotifyHub.builder()
+                .channel(emailChannel)
+                .templateEngine(vte)
+                .build();
+
+        hub.to("user@test.com")
+                .via(Channel.EMAIL)
+                .template("welcome")
+                .templateVersion("v2")
+                .send();
+
+        verify(vte).render(eq("welcome"), eq("v2"), eq("html"), anyMap(), any());
+        verify(emailChannel).send(any());
+    }
+
+    @Test
+    @DisplayName("Template versioning: falls back to normal render without version")
+    void templateVersioningFallbackNoVersion() {
+        when(templateEngine.render(eq("welcome"), eq("html"), anyMap(), any()))
+                .thenReturn("Welcome default!");
+
+        buildHub();
+
+        hub.to("user@test.com")
+                .via(Channel.EMAIL)
+                .template("welcome")
+                .send();
+
+        verify(templateEngine).render(eq("welcome"), eq("html"), anyMap(), any());
+    }
+
+    @Test
+    @DisplayName("Channel.GOOGLE_CHAT maps to 'google-chat' name")
+    void googleChatChannelMapping() {
+        NotificationChannel gcChannel = mock(NotificationChannel.class);
+        when(gcChannel.getName()).thenReturn("google-chat");
+
+        hub = NotifyHub.builder()
+                .channel(emailChannel)
+                .channel(gcChannel)
+                .build();
+
+        hub.to("user@test.com")
+                .via(Channel.GOOGLE_CHAT)
+                .content("Hello Google Chat!")
+                .send();
+
+        verify(gcChannel).send(any());
+    }
+
+    @Test
+    @DisplayName("Channel.WEBSOCKET maps to 'websocket' name")
+    void websocketChannelMapping() {
+        NotificationChannel wsChannel = mock(NotificationChannel.class);
+        when(wsChannel.getName()).thenReturn("websocket");
+
+        hub = NotifyHub.builder()
+                .channel(emailChannel)
+                .channel(wsChannel)
+                .build();
+
+        hub.to("user@test.com")
+                .via(Channel.WEBSOCKET)
+                .content("Hello WebSocket!")
+                .send();
+
+        verify(wsChannel).send(any());
     }
 }

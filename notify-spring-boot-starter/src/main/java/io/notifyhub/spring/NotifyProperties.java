@@ -16,6 +16,7 @@ public class NotifyProperties {
     private Tracking tracking = new Tracking();
     private Events events = new Events();
     private RateLimit rateLimit = new RateLimit();
+    private Deduplication deduplication = new Deduplication();
 
     public Channels getChannels() { return channels; }
     public void setChannels(Channels channels) { this.channels = channels; }
@@ -29,6 +30,8 @@ public class NotifyProperties {
     public void setEvents(Events events) { this.events = events; }
     public RateLimit getRateLimit() { return rateLimit; }
     public void setRateLimit(RateLimit rateLimit) { this.rateLimit = rateLimit; }
+    public Deduplication getDeduplication() { return deduplication; }
+    public void setDeduplication(Deduplication deduplication) { this.deduplication = deduplication; }
 
     public static class Channels {
         private Email email;
@@ -40,6 +43,8 @@ public class NotifyProperties {
         private Teams teams;
         private Push push;
         private List<WebhookEntry> webhooks = new ArrayList<>();
+        private WebSocket websocket;
+        private GoogleChat googleChat;
 
         public Email getEmail() { return email; }
         public void setEmail(Email email) { this.email = email; }
@@ -59,6 +64,10 @@ public class NotifyProperties {
         public void setPush(Push push) { this.push = push; }
         public List<WebhookEntry> getWebhooks() { return webhooks; }
         public void setWebhooks(List<WebhookEntry> webhooks) { this.webhooks = webhooks; }
+        public WebSocket getWebsocket() { return websocket; }
+        public void setWebsocket(WebSocket websocket) { this.websocket = websocket; }
+        public GoogleChat getGoogleChat() { return googleChat; }
+        public void setGoogleChat(GoogleChat googleChat) { this.googleChat = googleChat; }
     }
 
     public static class Email {
@@ -151,6 +160,39 @@ public class NotifyProperties {
         public void setServerKey(String serverKey) { this.serverKey = serverKey; }
     }
 
+    public static class WebSocket {
+        private String uri;
+        private int timeoutMs = 10_000;
+        private boolean reconnectEnabled = true;
+        private long reconnectDelayMs = 5_000;
+        private int maxReconnectAttempts = 3;
+        private Map<String, String> headers = new LinkedHashMap<>();
+        private String messageFormat = "{{content}}";
+        public String getUri() { return uri; }
+        public void setUri(String uri) { this.uri = uri; }
+        public int getTimeoutMs() { return timeoutMs; }
+        public void setTimeoutMs(int timeoutMs) { this.timeoutMs = timeoutMs; }
+        public boolean isReconnectEnabled() { return reconnectEnabled; }
+        public void setReconnectEnabled(boolean reconnectEnabled) { this.reconnectEnabled = reconnectEnabled; }
+        public long getReconnectDelayMs() { return reconnectDelayMs; }
+        public void setReconnectDelayMs(long reconnectDelayMs) { this.reconnectDelayMs = reconnectDelayMs; }
+        public int getMaxReconnectAttempts() { return maxReconnectAttempts; }
+        public void setMaxReconnectAttempts(int maxReconnectAttempts) { this.maxReconnectAttempts = maxReconnectAttempts; }
+        public Map<String, String> getHeaders() { return headers; }
+        public void setHeaders(Map<String, String> headers) { this.headers = headers; }
+        public String getMessageFormat() { return messageFormat; }
+        public void setMessageFormat(String messageFormat) { this.messageFormat = messageFormat; }
+    }
+
+    public static class GoogleChat {
+        private String webhookUrl;
+        private int timeoutMs = 10_000;
+        public String getWebhookUrl() { return webhookUrl; }
+        public void setWebhookUrl(String webhookUrl) { this.webhookUrl = webhookUrl; }
+        public int getTimeoutMs() { return timeoutMs; }
+        public void setTimeoutMs(int timeoutMs) { this.timeoutMs = timeoutMs; }
+    }
+
     public static class WebhookEntry {
         private String name;
         private String url;
@@ -218,6 +260,18 @@ public class NotifyProperties {
         public void setWindow(String window) { this.window = window; }
         public Map<String, ChannelRateLimit> getChannels() { return channels; }
         public void setChannels(Map<String, ChannelRateLimit> channels) { this.channels = channels; }
+    }
+
+    public static class Deduplication {
+        private boolean enabled = false;
+        private String ttl = "24h";
+        private String strategy = "content-hash";
+        public boolean isEnabled() { return enabled; }
+        public void setEnabled(boolean enabled) { this.enabled = enabled; }
+        public String getTtl() { return ttl; }
+        public void setTtl(String ttl) { this.ttl = ttl; }
+        public String getStrategy() { return strategy; }
+        public void setStrategy(String strategy) { this.strategy = strategy; }
     }
 
     public static class ChannelRateLimit {

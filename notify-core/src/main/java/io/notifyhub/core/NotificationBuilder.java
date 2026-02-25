@@ -3,6 +3,8 @@ package io.notifyhub.core;
 import io.notifyhub.core.retry.RetryPolicy;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -71,6 +73,12 @@ public class NotificationBuilder {
     // Retry
     private RetryPolicy retryPolicy;
 
+    // Deduplication
+    private String deduplicationKey;
+
+    // Template versioning
+    private String templateVersion;
+
     // i18n
     private Locale locale;
 
@@ -110,7 +118,7 @@ public class NotificationBuilder {
     /** Set the primary channel(s) to send through. */
     public NotificationBuilder via(Channel... channels) {
         for (Channel ch : channels) {
-            this.channels.add(ch.name().toLowerCase());
+            this.channels.add(channelToName(ch));
         }
         return this;
     }
@@ -123,7 +131,7 @@ public class NotificationBuilder {
 
     /** Add a fallback channel if the primary fails. Multiple fallbacks are tried in order. */
     public NotificationBuilder fallback(Channel channel) {
-        this.fallbackChannels.add(channel.name().toLowerCase());
+        this.fallbackChannels.add(channelToName(channel));
         return this;
     }
 
@@ -207,6 +215,43 @@ public class NotificationBuilder {
     /** Set retry with exponential backoff. */
     public NotificationBuilder retry(int maxAttempts) {
         this.retryPolicy = RetryPolicy.exponential(maxAttempts);
+        return this;
+    }
+
+    // ===================== TEMPLATE VERSIONING =====================
+
+    /**
+     * Set the template version to use.
+     * Templates are resolved as {@code name@version.variant} (e.g., welcome@v2.html).
+     * If the versioned template is not found, falls back to the default version.
+     *
+     * <pre>{@code
+     * notify.to(user).via(Channel.EMAIL)
+     *     .template("welcome")
+     *     .templateVersion("v2")
+     *     .send();
+     * }</pre>
+     */
+    public NotificationBuilder templateVersion(String version) {
+        this.templateVersion = version;
+        return this;
+    }
+
+    // ===================== DEDUPLICATION =====================
+
+    /**
+     * Set an explicit deduplication key for this notification.
+     * If set, the system uses this key instead of computing a content hash.
+     *
+     * <pre>{@code
+     * notify.to(user).via(Channel.EMAIL)
+     *     .deduplicationKey("order-" + orderId)
+     *     .template("order-confirmed")
+     *     .send();
+     * }</pre>
+     */
+    public NotificationBuilder deduplicationKey(String key) {
+        this.deduplicationKey = key;
         return this;
     }
 
@@ -371,6 +416,11 @@ public class NotificationBuilder {
 
     // ===================== INTERNAL =====================
 
+    /** Convert enum name to channel name (e.g. GOOGLE_CHAT → "google-chat"). */
+    private static String channelToName(Channel ch) {
+        return ch.name().toLowerCase().replace('_', '-');
+    }
+
     private void validate() {
         if (channels.isEmpty()) {
             throw new IllegalStateException("No channel specified. Use .via(Channel.EMAIL) to set a channel.");
@@ -386,7 +436,8 @@ public class NotificationBuilder {
             case "email" -> recipientEmail;
             case "sms", "whatsapp" -> recipientPhone;
             case "push" -> recipientPushToken;
-            case "slack", "telegram", "discord", "teams" -> recipientEmail;
+            case "slack", "telegram", "discord", "teams", "google-chat" -> recipientEmail;
+            case "websocket" -> recipientEmail != null ? recipientEmail : recipientPhone;
             default -> recipientEmail != null ? recipientEmail : recipientPhone;
         };
     }
@@ -429,5 +480,39 @@ public class NotificationBuilder {
 
     Locale getLocale() {
         return locale;
+    }
+
+    String getTemplateVersion() {
+        return templateVersion;
+    }
+
+    String getDeduplicationKey() {
+        return deduplicationKey;
+    }
+
+    /**
+     * Compute a SHA-256 hash from recipient + channel(s) + subject + content.
+     * Used for content-based deduplication when no explicit key is provided.
+     */
+    String computeDeduplicationHash() {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            String data = String.join("|",
+                    recipientEmail != null ? recipientEmail : "",
+                    String.join(",", channels),
+                    subject != null ? subject : "",
+                    rawContent != null ? rawContent : "",
+                    templateName != null ? templateName : ""
+            );
+            byte[] hash = digest.digest(data.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hex = new StringBuilder();
+            for (byte b : hash) {
+                hex.append(String.format("%02x", b));
+            }
+            return hex.toString();
+        } catch (Exception e) {
+            // SHA-256 is always available in JDK
+            throw new RuntimeException("Failed to compute deduplication hash", e);
+        }
     }
 }

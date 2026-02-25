@@ -7,6 +7,8 @@ import io.notifyhub.core.InMemoryNotificationTracker;
 import io.notifyhub.core.NotificationListener;
 import io.notifyhub.core.NotificationTracker;
 import io.notifyhub.core.channel.NotificationChannel;
+import io.notifyhub.core.dedup.DeduplicationStore;
+import io.notifyhub.core.dedup.InMemoryDeduplicationStore;
 import io.notifyhub.core.retry.RetryPolicy;
 import io.notifyhub.core.template.MustacheTemplateEngine;
 import io.notifyhub.core.template.TemplateEngine;
@@ -40,7 +42,9 @@ import java.util.concurrent.ScheduledExecutorService;
     NotifyDiscordAutoConfiguration.class,
     NotifyTeamsAutoConfiguration.class,
     NotifyFirebasePushAutoConfiguration.class,
-    NotifyWebhookAutoConfiguration.class
+    NotifyWebhookAutoConfiguration.class,
+    NotifyWebSocketAutoConfiguration.class,
+    NotifyGoogleChatAutoConfiguration.class
 })
 public class NotifyAutoConfiguration {
 
@@ -78,6 +82,29 @@ public class NotifyAutoConfiguration {
     public NotificationTracker notifyTracker() {
         log.info("NotifyHub: In-memory delivery tracking enabled");
         return new InMemoryNotificationTracker();
+    }
+
+    // ===================== DEDUPLICATION =====================
+
+    @Bean
+    @ConditionalOnMissingBean(DeduplicationStore.class)
+    @ConditionalOnProperty(prefix = "notify.deduplication", name = "enabled", havingValue = "true")
+    public DeduplicationStore deduplicationStore(NotifyProperties properties) {
+        String ttlStr = properties.getDeduplication().getTtl();
+        Duration ttl = parseDuration(ttlStr);
+        log.info("NotifyHub: Deduplication enabled (TTL: {}, strategy: {})",
+                ttl, properties.getDeduplication().getStrategy());
+        return new InMemoryDeduplicationStore(ttl);
+    }
+
+    private static Duration parseDuration(String value) {
+        if (value == null || value.isBlank()) return Duration.ofHours(24);
+        value = value.trim().toLowerCase();
+        if (value.endsWith("h")) return Duration.ofHours(Long.parseLong(value.replace("h", "")));
+        if (value.endsWith("m")) return Duration.ofMinutes(Long.parseLong(value.replace("m", "")));
+        if (value.endsWith("s")) return Duration.ofSeconds(Long.parseLong(value.replace("s", "")));
+        if (value.endsWith("d")) return Duration.ofDays(Long.parseLong(value.replace("d", "")));
+        return Duration.ofHours(Long.parseLong(value)); // default hours
     }
 
     // ===================== EMAIL CHANNEL =====================
@@ -170,6 +197,7 @@ public class NotifyAutoConfiguration {
             ObjectProvider<ExecutorService> executorProvider,
             ObjectProvider<ScheduledExecutorService> schedulerProvider,
             ObjectProvider<NotificationTracker> trackerProvider,
+            ObjectProvider<DeduplicationStore> deduplicationStoreProvider,
             NotifyProperties properties) {
 
         NotifyHub.Builder builder = NotifyHub.builder()
@@ -218,6 +246,13 @@ public class NotifyAutoConfiguration {
         if (tracker != null) {
             builder.tracker(tracker);
             log.info("NotifyHub: Delivery tracking enabled");
+        }
+
+        // Configure deduplication store
+        DeduplicationStore dedupStore = deduplicationStoreProvider.getIfAvailable();
+        if (dedupStore != null) {
+            builder.deduplicationStore(dedupStore);
+            log.info("NotifyHub: Deduplication store configured");
         }
 
         return builder.build();

@@ -8,21 +8,25 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 /**
- * Default template engine using Mustache.
+ * Default template engine using Mustache, with version support.
  *
  * <p>Templates are loaded from the classpath at {@code templates/notify/}.</p>
  *
  * <p>File naming convention:</p>
  * <ul>
- *   <li>{@code templates/notify/order-confirmed.html} — email (HTML)</li>
- *   <li>{@code templates/notify/order-confirmed.txt} — SMS/WhatsApp (plain text)</li>
+ *   <li>{@code templates/notify/order-confirmed.html} — default version, email (HTML)</li>
+ *   <li>{@code templates/notify/order-confirmed.txt} — default version, SMS (plain text)</li>
+ *   <li>{@code templates/notify/order-confirmed@v2.html} — version v2, email</li>
+ *   <li>{@code templates/notify/order-confirmed_pt_BR@v2.html} — version v2, i18n</li>
  * </ul>
  */
-public class MustacheTemplateEngine implements TemplateEngine {
+public class MustacheTemplateEngine implements VersionedTemplateEngine {
 
     private static final Logger log = LoggerFactory.getLogger(MustacheTemplateEngine.class);
     private static final String TEMPLATE_BASE_PATH = "templates/notify/";
@@ -85,6 +89,66 @@ public class MustacheTemplateEngine implements TemplateEngine {
 
         // Fallback to default (no locale suffix)
         return render(templateName, variant, params);
+    }
+
+    // ===================== VERSIONED TEMPLATE ENGINE =====================
+
+    @Override
+    public String render(String templateName, String version, String variant,
+                         Map<String, Object> params, Locale locale) {
+        if (version == null || version.isBlank()) {
+            // No version specified — use normal locale-aware resolution
+            return render(templateName, variant, params, locale);
+        }
+
+        // Try versioned + localized: name_locale@version.variant
+        if (locale != null) {
+            String lang = locale.getLanguage();
+            String country = locale.getCountry();
+
+            if (country != null && !country.isEmpty()) {
+                String versionedLocalized = templateName + "_" + lang + "_" + country + "@" + version;
+                if (exists(versionedLocalized, variant)) {
+                    return render(versionedLocalized, variant, params);
+                }
+            }
+
+            if (lang != null && !lang.isEmpty()) {
+                String versionedLocalized = templateName + "_" + lang + "@" + version;
+                if (exists(versionedLocalized, variant)) {
+                    return render(versionedLocalized, variant, params);
+                }
+            }
+        }
+
+        // Try versioned without locale: name@version.variant
+        String versioned = templateName + "@" + version;
+        if (exists(versioned, variant)) {
+            return render(versioned, variant, params);
+        }
+
+        // Fallback: normal locale-aware resolution (without version)
+        log.debug("Versioned template '{}@{}' not found, falling back to default", templateName, version);
+        return render(templateName, variant, params, locale);
+    }
+
+    @Override
+    public List<String> getAvailableVersions(String templateName, String variant) {
+        // Scan common versions: v1..v10
+        List<String> versions = new ArrayList<>();
+        for (int i = 1; i <= 10; i++) {
+            String version = "v" + i;
+            if (existsVersion(templateName, version, variant)) {
+                versions.add(version);
+            }
+        }
+        return versions;
+    }
+
+    @Override
+    public boolean existsVersion(String templateName, String version, String variant) {
+        String versioned = templateName + "@" + version;
+        return exists(versioned, variant);
     }
 
     @Override

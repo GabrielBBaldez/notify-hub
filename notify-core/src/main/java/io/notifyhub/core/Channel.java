@@ -13,7 +13,9 @@ public enum Channel {
     SLACK,
     TELEGRAM,
     DISCORD,
-    TEAMS;
+    TEAMS,
+    WEBSOCKET,
+    GOOGLE_CHAT;
 
     /**
      * Creates a reference to a custom channel by name.

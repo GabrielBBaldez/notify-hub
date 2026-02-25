@@ -7,7 +7,7 @@
     <parent>
         <groupId>io.github.gabrielbbaldez</groupId>
         <artifactId>notify-hub-parent</artifactId>
-        <version>0.3.0</version>
+        <version>0.4.0</version>
     </parent>
 
     <artifactId>notify-demo</artifactId>
@@ -56,6 +56,20 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- WebSocket channel -->
+        <dependency>
+            <groupId>io.github.gabrielbbaldez</groupId>
+            <artifactId>notify-websocket</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Google Chat channel -->
+        <dependency>
+            <groupId>io.github.gabrielbbaldez</groupId>
+            <artifactId>notify-google-chat</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- Admin Dashboard -->
         <dependency>
             <groupId>io.github.gabrielbbaldez</groupId>
@@ -76,6 +90,12 @@
             <version>2.0.1</version>
         </dependency>
     </dependencies>
+
+    <!-- Demo app — do not publish to Maven Central -->
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.install.skip>true</maven.install.skip>
+    </properties>
 
     <build>
         <plugins>

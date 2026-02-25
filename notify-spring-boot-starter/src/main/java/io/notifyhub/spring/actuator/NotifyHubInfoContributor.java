@@ -36,7 +36,7 @@ public class NotifyHubInfoContributor implements InfoContributor {
     @Override
     public void contribute(Info.Builder builder) {
         Map<String, Object> info = new LinkedHashMap<>();
-        info.put("version", "0.3.0");
+        info.put("version", "0.4.0");
         info.put("channels", channels.stream()
                 .map(NotificationChannel::getName)
                 .toList());

@@ -7,7 +7,7 @@
     <parent>
         <groupId>io.github.gabrielbbaldez</groupId>
         <artifactId>notify-hub-parent</artifactId>
-        <version>0.3.0</version>
+        <version>0.4.0</version>
     </parent>
 
     <artifactId>notify-spring-boot-starter</artifactId>
@@ -56,6 +56,16 @@
         <dependency>
             <groupId>io.github.gabrielbbaldez</groupId>
             <artifactId>notify-webhook</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>io.github.gabrielbbaldez</groupId>
+            <artifactId>notify-websocket</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>io.github.gabrielbbaldez</groupId>
+            <artifactId>notify-google-chat</artifactId>
             <optional>true</optional>
         </dependency>
 

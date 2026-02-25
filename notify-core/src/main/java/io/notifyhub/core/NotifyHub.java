@@ -2,6 +2,7 @@ package io.notifyhub.core;
 
 import io.notifyhub.core.channel.NotificationChannel;
 import io.notifyhub.core.channel.NotificationSendException;
+import io.notifyhub.core.dedup.DeduplicationStore;
 import io.notifyhub.core.dlq.DeadLetter;
 import io.notifyhub.core.dlq.DeadLetterQueue;
 import io.notifyhub.core.ratelimit.RateLimitExceededException;
@@ -9,6 +10,7 @@ import io.notifyhub.core.ratelimit.RateLimiter;
 import io.notifyhub.core.routing.NotificationRouter;
 import io.notifyhub.core.retry.RetryPolicy;
 import io.notifyhub.core.template.TemplateEngine;
+import io.notifyhub.core.template.VersionedTemplateEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +65,7 @@ public class NotifyHub {
     private final RateLimiter rateLimiter;
     private final DeadLetterQueue deadLetterQueue;
     private final NotificationRouter router;
+    private final DeduplicationStore deduplicationStore;
 
     private NotifyHub(Builder builder) {
         this.channels = new ConcurrentHashMap<>(builder.channels);
@@ -77,6 +80,7 @@ public class NotifyHub {
         this.rateLimiter = builder.rateLimiter;
         this.deadLetterQueue = builder.deadLetterQueue;
         this.router = builder.router;
+        this.deduplicationStore = builder.deduplicationStore;
     }
 
     // ===================== FLUENT API ENTRY POINTS =====================
@@ -483,6 +487,17 @@ public class NotifyHub {
                     "Channel '" + channelName + "' not registered. Available: " + channels.keySet());
         }
 
+        // Deduplication check (before rate limiting and sending)
+        if (deduplicationStore != null) {
+            String dedupKey = builder.getDeduplicationKey() != null
+                    ? builder.getDeduplicationKey()
+                    : builder.computeDeduplicationHash();
+            if (deduplicationStore.isDuplicate(dedupKey)) {
+                log.info("Duplicate notification skipped for channel '{}' (key: {})", channelName, dedupKey);
+                return;
+            }
+        }
+
         // Rate limiting (URGENT bypasses)
         if (rateLimiter != null && builder.getPriority() != Priority.URGENT) {
             if (!rateLimiter.tryAcquire(channelName)) {
@@ -496,12 +511,18 @@ public class NotifyHub {
                     "No recipient address available for channel '" + channelName + "'");
         }
 
-        // Render template
+        // Render template (with optional version support)
         String renderedContent = null;
         if (builder.getTemplateName() != null && templateEngine != null) {
             String variant = channelName.equals("email") ? "html" : "txt";
-            renderedContent = templateEngine.render(
-                    builder.getTemplateName(), variant, builder.getParams(), builder.getLocale());
+            if (builder.getTemplateVersion() != null && templateEngine instanceof VersionedTemplateEngine vte) {
+                renderedContent = vte.render(
+                        builder.getTemplateName(), builder.getTemplateVersion(),
+                        variant, builder.getParams(), builder.getLocale());
+            } else {
+                renderedContent = templateEngine.render(
+                        builder.getTemplateName(), variant, builder.getParams(), builder.getLocale());
+            }
         }
 
         // Build notification object
@@ -521,6 +542,14 @@ public class NotifyHub {
                 : defaultRetryPolicy;
 
         sendWithRetry(channel, notification, policy);
+
+        // Mark as sent in dedup store after successful delivery
+        if (deduplicationStore != null) {
+            String dedupKey = builder.getDeduplicationKey() != null
+                    ? builder.getDeduplicationKey()
+                    : builder.computeDeduplicationHash();
+            deduplicationStore.markSent(dedupKey);
+        }
 
         log.info("Notification sent via '{}' to '{}'", channelName, recipient);
         notifyListenersSuccess(channelName, builder);
@@ -613,6 +642,7 @@ public class NotifyHub {
         private RateLimiter rateLimiter;
         private DeadLetterQueue deadLetterQueue;
         private NotificationRouter router;
+        private DeduplicationStore deduplicationStore;
 
         public Builder channel(NotificationChannel channel) {
             this.channels.put(channel.getName().toLowerCase(), channel);
@@ -694,6 +724,17 @@ public class NotifyHub {
          */
         public Builder router(NotificationRouter router) {
             this.router = router;
+            return this;
+        }
+
+        /**
+         * Set the deduplication store for preventing duplicate notifications.
+         * When configured, identical notifications are silently skipped.
+         *
+         * @see io.notifyhub.core.dedup.InMemoryDeduplicationStore
+         */
+        public Builder deduplicationStore(DeduplicationStore deduplicationStore) {
+            this.deduplicationStore = deduplicationStore;
             return this;
         }
 

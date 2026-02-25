@@ -6,7 +6,7 @@
 
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-hub-parent</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
     <packaging>pom</packaging>
 
     <name>NotifyHub</name>
@@ -44,6 +44,8 @@
         <module>notify-channels/notify-teams</module>
         <module>notify-channels/notify-push-firebase</module>
         <module>notify-channels/notify-webhook</module>
+        <module>notify-channels/notify-websocket</module>
+        <module>notify-channels/notify-google-chat</module>
         <module>notify-tracker-jpa</module>
         <module>notify-spring-boot-starter</module>
         <module>notify-admin</module>
@@ -111,6 +113,16 @@
             <dependency>
                 <groupId>io.github.gabrielbbaldez</groupId>
                 <artifactId>notify-webhook</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.gabrielbbaldez</groupId>
+                <artifactId>notify-websocket</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.gabrielbbaldez</groupId>
+                <artifactId>notify-google-chat</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

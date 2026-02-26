@@ -15,6 +15,7 @@
   <a href="https://central.sonatype.com/namespace/io.github.gabrielbbaldez"><img src="https://img.shields.io/maven-central/v/io.github.gabrielbbaldez/notify-spring-boot-starter" alt="Maven Central"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/></a>
   <a href="https://github.com/GabrielBBaldez/notify-hub/actions/workflows/ci.yml"><img src="https://github.com/GabrielBBaldez/notify-hub/actions/workflows/ci.yml/badge.svg" alt="CI"/></a>
+  <a href="https://codecov.io/gh/GabrielBBaldez/notify-hub"><img src="https://codecov.io/gh/GabrielBBaldez/notify-hub/graph/badge.svg" alt="Coverage"/></a>
 </p>
 
 ---

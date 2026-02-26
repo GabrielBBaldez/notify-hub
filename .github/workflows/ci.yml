@@ -26,6 +26,15 @@ jobs:
       - name: Build and Test
         run: mvn clean verify -B
 
+      - name: Upload coverage to Codecov
+        if: matrix.java == '17'
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: '**/target/site/jacoco/jacoco.xml'
+          flags: unittests
+          fail_ci_if_error: false
+
       - name: Upload test results
         if: failure()
         uses: actions/upload-artifact@v4

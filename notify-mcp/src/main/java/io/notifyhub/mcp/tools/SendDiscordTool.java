@@ -27,7 +27,7 @@ public class SendDiscordTool {
                   "properties": {
                     "recipient": {
                       "type": "string",
-                      "description": "Discord channel ID or webhook target"
+                      "description": "Discord recipient alias (configured name), webhook URL, or channel identifier"
                     },
                     "body": {
                       "type": "string",

@@ -8,6 +8,7 @@ import io.notifyhub.core.NotifyHub;
 import io.notifyhub.mcp.util.ToolResultHelper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,10 +55,14 @@ public class ListChannelsTool {
                 } catch (Exception e) {
                     available = false;
                 }
-                channelInfos.add(Map.of(
-                        "name", name,
-                        "available", available
-                ));
+                Map<String, Object> info = new HashMap<>();
+                info.put("name", name);
+                info.put("available", available);
+                Map<String, String> recipients = ch.getConfiguredRecipients();
+                if (recipients != null && !recipients.isEmpty()) {
+                    info.put("recipients", recipients);
+                }
+                channelInfos.add(info);
             });
         }
 

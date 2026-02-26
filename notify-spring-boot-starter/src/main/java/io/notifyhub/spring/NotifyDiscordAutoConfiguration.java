@@ -26,7 +26,8 @@ public class NotifyDiscordAutoConfiguration {
     public DiscordChannel discordChannel(NotifyProperties properties) {
         NotifyProperties.Discord dc = properties.getChannels().getDiscord();
         DiscordConfig.Builder builder = DiscordConfig.builder()
-                .webhookUrl(dc.getWebhookUrl());
+                .webhookUrl(dc.getWebhookUrl())
+                .recipients(dc.getRecipients());
         if (dc.getUsername() != null) {
             builder.username(dc.getUsername());
         }

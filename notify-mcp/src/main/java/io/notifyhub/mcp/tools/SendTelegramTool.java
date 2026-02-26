@@ -27,7 +27,7 @@ public class SendTelegramTool {
                   "properties": {
                     "recipient": {
                       "type": "string",
-                      "description": "Telegram chat ID or channel username (e.g., @mychannel, 123456789)"
+                      "description": "Telegram recipient alias (configured name), chat ID, or channel username (e.g., @mychannel, 123456789)"
                     },
                     "body": {
                       "type": "string",

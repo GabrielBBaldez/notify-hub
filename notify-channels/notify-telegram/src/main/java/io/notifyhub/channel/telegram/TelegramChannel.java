@@ -11,6 +11,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.Map;
 
 /**
  * Telegram notification channel using the Bot API.
@@ -50,12 +51,8 @@ public class TelegramChannel implements NotificationChannel {
     @Override
     public void send(Notification notification) {
         String content = notification.getRenderedContent();
-        String chatId = notification.getRecipient();
+        String chatId = resolveChatId(notification.getRecipient());
 
-        // Fall back to default chat ID if recipient is not set
-        if (chatId == null || chatId.isBlank()) {
-            chatId = config.getDefaultChatId();
-        }
         if (chatId == null || chatId.isBlank()) {
             throw new NotificationSendException("telegram",
                     "No chat ID provided and no default chat ID configured");
@@ -96,6 +93,21 @@ public class TelegramChannel implements NotificationChannel {
     @Override
     public boolean isAvailable() {
         return config.getBotToken() != null && !config.getBotToken().isBlank();
+    }
+
+    @Override
+    public Map<String, String> getConfiguredRecipients() {
+        return config.getRecipients();
+    }
+
+    private String resolveChatId(String recipient) {
+        if (recipient != null && config.getRecipients().containsKey(recipient)) {
+            return config.getRecipients().get(recipient);
+        }
+        if (recipient != null && !recipient.isBlank()) {
+            return recipient;
+        }
+        return config.getDefaultChatId();
     }
 
     private String escapeJson(String text) {

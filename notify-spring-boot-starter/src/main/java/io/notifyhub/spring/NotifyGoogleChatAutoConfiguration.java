@@ -28,6 +28,7 @@ public class NotifyGoogleChatAutoConfiguration {
         GoogleChatConfig config = GoogleChatConfig.builder()
                 .webhookUrl(gc.getWebhookUrl())
                 .timeoutMs(gc.getTimeoutMs())
+                .recipients(gc.getRecipients())
                 .build();
         log.info("NotifyHub: Google Chat channel configured (webhook)");
         return new GoogleChatChannel(config);

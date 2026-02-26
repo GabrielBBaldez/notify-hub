@@ -2,6 +2,9 @@ package io.notifyhub.core.channel;
 
 import io.notifyhub.core.Notification;
 
+import java.util.Collections;
+import java.util.Map;
+
 /**
  * Interface that all notification channels must implement.
  *
@@ -46,5 +49,13 @@ public interface NotificationChannel {
      */
     default boolean isAvailable() {
         return true;
+    }
+
+    /**
+     * Returns a map of named recipient aliases configured for this channel.
+     * Keys are alias names, values are the resolved targets (webhook URLs, chat IDs, etc.).
+     */
+    default Map<String, String> getConfiguredRecipients() {
+        return Collections.emptyMap();
     }
 }

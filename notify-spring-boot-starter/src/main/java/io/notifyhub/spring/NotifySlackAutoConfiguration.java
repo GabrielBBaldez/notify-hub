@@ -27,6 +27,7 @@ public class NotifySlackAutoConfiguration {
         NotifyProperties.Slack slack = properties.getChannels().getSlack();
         SlackConfig config = SlackConfig.builder()
                 .webhookUrl(slack.getWebhookUrl())
+                .recipients(slack.getRecipients())
                 .build();
         log.info("NotifyHub: Slack channel configured (webhook)");
         return new SlackChannel(config);

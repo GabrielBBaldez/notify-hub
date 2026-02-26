@@ -27,7 +27,7 @@ public class SendTeamsTool {
                   "properties": {
                     "recipient": {
                       "type": "string",
-                      "description": "Microsoft Teams channel or webhook target"
+                      "description": "Teams recipient alias (configured name), webhook URL, or channel identifier"
                     },
                     "subject": {
                       "type": "string",

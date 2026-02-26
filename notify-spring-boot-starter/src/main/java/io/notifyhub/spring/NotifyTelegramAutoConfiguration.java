@@ -26,7 +26,8 @@ public class NotifyTelegramAutoConfiguration {
     public TelegramChannel telegramChannel(NotifyProperties properties) {
         NotifyProperties.Telegram tg = properties.getChannels().getTelegram();
         TelegramConfig.Builder builder = TelegramConfig.builder()
-                .botToken(tg.getBotToken());
+                .botToken(tg.getBotToken())
+                .recipients(tg.getRecipients());
         if (tg.getChatId() != null) {
             builder.defaultChatId(tg.getChatId());
         }

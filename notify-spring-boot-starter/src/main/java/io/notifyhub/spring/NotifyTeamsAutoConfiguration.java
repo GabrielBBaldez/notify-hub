@@ -27,6 +27,7 @@ public class NotifyTeamsAutoConfiguration {
         NotifyProperties.Teams teams = properties.getChannels().getTeams();
         TeamsConfig config = TeamsConfig.builder()
                 .webhookUrl(teams.getWebhookUrl())
+                .recipients(teams.getRecipients())
                 .build();
         log.info("NotifyHub: Teams channel configured (webhook)");
         return new TeamsChannel(config);

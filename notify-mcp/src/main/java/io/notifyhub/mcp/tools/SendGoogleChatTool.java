@@ -27,7 +27,7 @@ public class SendGoogleChatTool {
                   "properties": {
                     "recipient": {
                       "type": "string",
-                      "description": "Google Chat space ID or webhook target"
+                      "description": "Google Chat recipient alias (configured name), webhook URL, or space ID"
                     },
                     "body": {
                       "type": "string",

@@ -123,35 +123,47 @@ public class NotifyProperties {
 
     public static class Slack {
         private String webhookUrl;
+        private Map<String, String> recipients = new LinkedHashMap<>();
         public String getWebhookUrl() { return webhookUrl; }
         public void setWebhookUrl(String webhookUrl) { this.webhookUrl = webhookUrl; }
+        public Map<String, String> getRecipients() { return recipients; }
+        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
     }
 
     public static class Telegram {
         private String botToken;
         private String chatId;
+        private Map<String, String> recipients = new LinkedHashMap<>();
         public String getBotToken() { return botToken; }
         public void setBotToken(String botToken) { this.botToken = botToken; }
         public String getChatId() { return chatId; }
         public void setChatId(String chatId) { this.chatId = chatId; }
+        public Map<String, String> getRecipients() { return recipients; }
+        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
     }
 
     public static class Discord {
         private String webhookUrl;
         private String username;
         private String avatarUrl;
+        private Map<String, String> recipients = new LinkedHashMap<>();
         public String getWebhookUrl() { return webhookUrl; }
         public void setWebhookUrl(String webhookUrl) { this.webhookUrl = webhookUrl; }
         public String getUsername() { return username; }
         public void setUsername(String username) { this.username = username; }
         public String getAvatarUrl() { return avatarUrl; }
         public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
+        public Map<String, String> getRecipients() { return recipients; }
+        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
     }
 
     public static class Teams {
         private String webhookUrl;
+        private Map<String, String> recipients = new LinkedHashMap<>();
         public String getWebhookUrl() { return webhookUrl; }
         public void setWebhookUrl(String webhookUrl) { this.webhookUrl = webhookUrl; }
+        public Map<String, String> getRecipients() { return recipients; }
+        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
     }
 
     public static class Push {
@@ -187,10 +199,13 @@ public class NotifyProperties {
     public static class GoogleChat {
         private String webhookUrl;
         private int timeoutMs = 10_000;
+        private Map<String, String> recipients = new LinkedHashMap<>();
         public String getWebhookUrl() { return webhookUrl; }
         public void setWebhookUrl(String webhookUrl) { this.webhookUrl = webhookUrl; }
         public int getTimeoutMs() { return timeoutMs; }
         public void setTimeoutMs(int timeoutMs) { this.timeoutMs = timeoutMs; }
+        public Map<String, String> getRecipients() { return recipients; }
+        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
     }
 
     public static class WebhookEntry {

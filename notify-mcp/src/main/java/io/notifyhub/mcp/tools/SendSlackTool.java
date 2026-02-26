@@ -27,7 +27,7 @@ public class SendSlackTool {
                   "properties": {
                     "recipient": {
                       "type": "string",
-                      "description": "Slack channel or user ID (e.g., #general, @user)"
+                      "description": "Slack recipient alias (configured name), webhook URL, or channel/user ID (e.g., #general, @user)"
                     },
                     "body": {
                       "type": "string",

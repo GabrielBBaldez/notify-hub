@@ -11,6 +11,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.Map;
 
 /**
  * Slack notification channel using Incoming Webhooks.
@@ -58,7 +59,7 @@ public class SlackChannel implements NotificationChannel {
             );
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(config.getWebhookUrl()))
+                    .uri(URI.create(resolveWebhookUrl(notification.getRecipient())))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(payload))
                     .build();
@@ -82,7 +83,23 @@ public class SlackChannel implements NotificationChannel {
 
     @Override
     public boolean isAvailable() {
-        return config.getWebhookUrl() != null && !config.getWebhookUrl().isBlank();
+        return (config.getWebhookUrl() != null && !config.getWebhookUrl().isBlank())
+                || !config.getRecipients().isEmpty();
+    }
+
+    @Override
+    public Map<String, String> getConfiguredRecipients() {
+        return config.getRecipients();
+    }
+
+    private String resolveWebhookUrl(String recipient) {
+        if (recipient != null && config.getRecipients().containsKey(recipient)) {
+            return config.getRecipients().get(recipient);
+        }
+        if (recipient != null && recipient.startsWith("http")) {
+            return recipient;
+        }
+        return config.getWebhookUrl();
     }
 
     private String escapeJson(String text) {

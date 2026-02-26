@@ -1,0 +1,21 @@
+spring:
+  main:
+    web-application-type: none
+    banner-mode: off
+    log-startup-info: false
+
+# Route all logging to file — stdout is reserved for MCP JSON-RPC
+logging:
+  file:
+    name: ${user.home}/.notifyhub/mcp-server.log
+  level:
+    root: WARN
+    io.notifyhub: INFO
+
+# Enable delivery tracking by default
+notify:
+  tracking:
+    enabled: true
+  retry:
+    max-attempts: 3
+    strategy: exponential

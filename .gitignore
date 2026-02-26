@@ -36,3 +36,7 @@ Thumbs.db
 # Environment
 .env
 *.env
+
+# Claude Code
+.claude/
+.mcp.json

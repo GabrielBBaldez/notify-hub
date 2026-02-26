@@ -98,6 +98,7 @@ notify.to(user)
 - [Spring Boot Integration](#spring-boot-integration)
 - [Configuration Reference](#configuration-reference)
 - [Without Spring Boot](#without-spring-boot)
+- [MCP Server (AI Agents)](#mcp-server-ai-agents)
 - [Running the Demo](#running-the-demo)
 - [Architecture](#architecture)
 - [Maven Central](#maven-central)
@@ -978,6 +979,89 @@ Only `notify-core` + channel modules needed. No Spring dependency.
 
 ---
 
+## MCP Server (AI Agents)
+
+NotifyHub includes an **MCP (Model Context Protocol) server** that exposes all notification channels as tools for AI agents like **Claude Desktop**, **Claude Code**, **Cursor**, and any MCP-compatible client.
+
+### How it works
+
+The `notify-mcp` module is a standalone Java application that communicates via STDIO using the JSON-RPC protocol. AI agents discover the available tools and can send notifications through any configured channel.
+
+### Setup
+
+**1. Build the MCP server:**
+
+```bash
+mvn clean package -pl notify-mcp -am -DskipTests
+```
+
+**2. Configure in Claude Desktop** (`claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "notify-hub": {
+      "command": "java",
+      "args": ["-jar", "path/to/notify-mcp-0.4.0.jar"],
+      "env": {
+        "NOTIFY_CHANNELS_EMAIL_HOST": "smtp.gmail.com",
+        "NOTIFY_CHANNELS_EMAIL_PORT": "587",
+        "NOTIFY_CHANNELS_EMAIL_USERNAME": "you@gmail.com",
+        "NOTIFY_CHANNELS_EMAIL_PASSWORD": "app-password",
+        "NOTIFY_CHANNELS_SLACK_WEBHOOK_URL": "https://hooks.slack.com/...",
+        "NOTIFY_CHANNELS_DISCORD_WEBHOOK_URL": "https://discord.com/api/webhooks/..."
+      }
+    }
+  }
+}
+```
+
+**Or for Claude Code** (`.mcp.json` in project root):
+
+```json
+{
+  "mcpServers": {
+    "notify-hub": {
+      "command": "java",
+      "args": ["-jar", "path/to/notify-mcp-0.4.0.jar"],
+      "env": {
+        "NOTIFY_CHANNELS_DISCORD_WEBHOOK_URL": "https://discord.com/api/webhooks/..."
+      }
+    }
+  }
+}
+```
+
+### Available MCP Tools
+
+| Tool | Description | Required Params |
+|------|-------------|-----------------|
+| `send_notification` | Send via any channel (generic) | `channel`, `recipient`, `body` or `template` |
+| `send_email` | Send email | `to`, `body` or `template` |
+| `send_sms` | Send SMS via Twilio | `phone`, `body` or `template` |
+| `send_slack` | Send to Slack channel | `recipient`, `body` or `template` |
+| `send_telegram` | Send via Telegram Bot | `recipient`, `body` or `template` |
+| `send_discord` | Send to Discord channel | `recipient`, `body` or `template` |
+| `send_whatsapp` | Send WhatsApp via Twilio | `phone`, `body` or `template` |
+| `send_teams` | Send to Microsoft Teams | `recipient`, `body` or `template` |
+| `send_google_chat` | Send to Google Chat | `recipient`, `body` or `template` |
+| `send_push` | Send push via Firebase | `push_token`, `body` |
+| `send_multi_channel` | Send to multiple channels | `channels[]`, `recipient`, `body` or `template` |
+| `list_channels` | List configured channels | _(none)_ |
+| `list_delivery_receipts` | Query delivery history | _(none)_ |
+
+All send tools optionally accept: `subject`, `template`, `params`, `priority`.
+
+### Usage example (from an AI agent)
+
+Once configured, you can simply ask your AI agent:
+
+> "Send a Discord message to #alerts saying the deploy is complete"
+
+The agent will call the `send_discord` tool with the appropriate parameters.
+
+---
+
 ## Running the Demo
 
 The demo app showcases every feature with a built-in SMTP server — **zero external config needed**.
@@ -1067,6 +1151,11 @@ notify-hub/
 │
 ├── notify-admin/                         # Admin dashboard (Thymeleaf)
 │   └── NotifyAdminController             # /notify-admin/*
+│
+├── notify-mcp/                           # MCP Server for AI agents
+│   ├── NotifyMcpServer                   # Spring Boot headless main
+│   ├── McpServerRunner                   # STDIO MCP server bootstrap
+│   └── tools/                            # 13 MCP tools (send_email, send_slack, etc.)
 │
 └── notify-demo/                          # Demo app (run it!)
 ```
@@ -1319,6 +1408,22 @@ Below is every module, what it does, when you need it, and how to add it.
 
 ---
 
+#### `notify-mcp` — MCP Server for AI Agents
+
+**What it does:** Exposes all NotifyHub channels as MCP (Model Context Protocol) tools, allowing AI agents (Claude Desktop, Claude Code, Cursor) to send notifications through natural language commands. Runs as a headless Spring Boot app communicating via STDIO JSON-RPC. Provides 13 tools: send via any channel, list channels, and query delivery receipts.
+
+**When to use:** You want AI agents to send notifications on your behalf. Configure the JAR path in your MCP client's config file and the agent will discover all available tools automatically.
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-mcp</artifactId>
+    <version>0.4.0</version>
+</dependency>
+```
+
+---
+
 ### What Do I Need?
 
 | I want to... | Add these dependencies |
@@ -1338,6 +1443,7 @@ Below is every module, what it does, when you need it, and how to add it.
 | Persist tracking to database | `notify-spring-boot-starter` + `notify-tracker-jpa` |
 | Admin dashboard UI | `notify-spring-boot-starter` + `notify-admin` |
 | Use without Spring Boot | `notify-core` + channel modules you need |
+| Let AI agents send notifications | `notify-mcp` (standalone JAR) |
 | Everything at once | `notify-spring-boot-starter` + all channel modules above |
 
 ---
@@ -1348,6 +1454,7 @@ Below is every module, what it does, when you need it, and how to add it.
 - [x] **v0.2.0** — Slack, Telegram, Discord, async sending, scheduling, delivery tracking
 - [x] **v0.3.0** — Teams, Firebase Push, Webhook, attachments, priority, rate limiting, DLQ, i18n, batch send, JPA tracker, Micrometer metrics, Actuator health, Spring events, conditional routing, admin dashboard (80+ tests)
 - [x] **v0.4.0** — WebSocket channel, Google Chat channel, message deduplication, template versioning (105+ tests, 16 modules)
+- [x] **v0.4.0** — MCP Server module: 13 AI agent tools for sending notifications via Claude Desktop, Claude Code, Cursor (130+ tests, 17 modules)
 
 ---
 

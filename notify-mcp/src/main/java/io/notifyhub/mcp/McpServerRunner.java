@@ -49,7 +49,7 @@ public class McpServerRunner implements CommandLineRunner {
         };
 
         McpSyncServer server = McpServer.sync(transport)
-                .serverInfo("notify-hub", "0.5.1")
+                .serverInfo("notify-hub", "0.6.0")
                 .capabilities(ServerCapabilities.builder()
                         .tools(true)
                         .build())

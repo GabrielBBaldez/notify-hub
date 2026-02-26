@@ -6,7 +6,7 @@
 
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-hub-parent</artifactId>
-    <version>0.5.1</version>
+    <version>0.6.0</version>
     <packaging>pom</packaging>
 
     <name>NotifyHub</name>

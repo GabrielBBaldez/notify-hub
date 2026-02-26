@@ -93,6 +93,7 @@ notify.to(user)
   - [Template Versioning](#template-versioning)
   - [Custom Channels](#custom-channels)
   - [Event Listeners + Spring Events](#event-listeners--spring-events)
+  - [Named Recipients](#named-recipients)
 - [Supported Channels](#supported-channels)
 - [Admin Dashboard](#admin-dashboard)
 - [Spring Boot Integration](#spring-boot-integration)
@@ -115,7 +116,7 @@ notify.to(user)
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-spring-boot-starter</artifactId>
-    <version>0.5.1</version>
+    <version>0.6.0</version>
 </dependency>
 ```
 
@@ -125,21 +126,21 @@ notify.to(user)
 > <dependency>
 >     <groupId>io.github.gabrielbbaldez</groupId>
 >     <artifactId>notify-sms</artifactId>
->     <version>0.5.1</version>
+>     <version>0.6.0</version>
 > </dependency>
 >
 > <!-- Slack / Telegram / Discord / Teams / Firebase Push / Webhook -->
 > <dependency>
 >     <groupId>io.github.gabrielbbaldez</groupId>
 >     <artifactId>notify-slack</artifactId>
->     <version>0.5.1</version>
+>     <version>0.6.0</version>
 > </dependency>
 >
 > <!-- WebSocket / Google Chat -->
 > <dependency>
 >     <groupId>io.github.gabrielbbaldez</groupId>
 >     <artifactId>notify-websocket</artifactId>
->     <version>0.5.1</version>
+>     <version>0.6.0</version>
 > </dependency>
 > ```
 
@@ -435,7 +436,7 @@ For database persistence, add the JPA tracker module:
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-tracker-jpa</artifactId>
-    <version>0.5.1</version>
+    <version>0.6.0</version>
 </dependency>
 ```
 
@@ -691,6 +692,82 @@ public class NotificationEventHandler {
 }
 ```
 
+### Named Recipients
+
+Send notifications to multiple destinations per channel using named aliases. Instead of one hardcoded webhook URL or chat ID, configure as many as you need:
+
+**Configure in `application.yml`:**
+
+```yaml
+notify:
+  channels:
+    discord:
+      webhook-url: ${DISCORD_DEFAULT}      # default destination
+      username: NotifyHub
+      avatar-url: https://example.com/logo.png
+      recipients:
+        alerts: https://discord.com/api/webhooks/111/aaa
+        devops: https://discord.com/api/webhooks/222/bbb
+        general: https://discord.com/api/webhooks/333/ccc
+
+    slack:
+      webhook-url: ${SLACK_DEFAULT}
+      recipients:
+        engineering: https://hooks.slack.com/services/XXX/YYY/ZZZ
+        marketing: https://hooks.slack.com/services/AAA/BBB/CCC
+
+    telegram:
+      bot-token: ${TELEGRAM_BOT_TOKEN}
+      chat-id: ${TELEGRAM_DEFAULT_CHAT}
+      recipients:
+        alerts: "-1001234567890"
+        devops: "-1009876543210"
+```
+
+**Use with the Java API:**
+
+```java
+// Send to a named alias
+notify.to("alerts").via(DISCORD).content("Server is down!").send();
+notify.to("engineering").via(SLACK).content("Deploy complete").send();
+notify.to("devops").via(TELEGRAM).content("CPU at 95%").send();
+
+// Send to default (no alias)
+notify.to("user").via(DISCORD).content("Hello!").send();
+
+// Pass a raw URL directly (no alias needed)
+notify.to("https://discord.com/api/webhooks/444/ddd").via(DISCORD).content("Direct!").send();
+```
+
+**Use with the MCP Server (AI Agents):**
+
+```
+send_discord(recipient="alerts", body="Server is down!")
+send_slack(recipient="engineering", body="Deploy complete")
+send_telegram(recipient="devops", body="CPU at 95%")
+```
+
+**Environment variables for MCP/Docker:**
+
+```bash
+# Default webhook
+NOTIFY_CHANNELS_DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/111/aaa
+
+# Named recipients (RECIPIENTS_<NAME>)
+NOTIFY_CHANNELS_DISCORD_RECIPIENTS_ALERTS=https://discord.com/api/webhooks/222/bbb
+NOTIFY_CHANNELS_DISCORD_RECIPIENTS_DEVOPS=https://discord.com/api/webhooks/333/ccc
+
+# Same pattern for all channels
+NOTIFY_CHANNELS_SLACK_RECIPIENTS_ENGINEERING=https://hooks.slack.com/services/XXX
+NOTIFY_CHANNELS_TELEGRAM_RECIPIENTS_ALERTS=-1001234567890
+NOTIFY_CHANNELS_TEAMS_RECIPIENTS_GENERAL=https://outlook.office.com/webhook/XXX
+NOTIFY_CHANNELS_GOOGLE_CHAT_RECIPIENTS_TEAM=https://chat.googleapis.com/v1/spaces/XXX
+```
+
+**Resolution order:** alias match in recipients map > raw URL/value passthrough > default from config.
+
+Supported on: **Discord, Slack, Telegram, Teams, Google Chat**.
+
 ---
 
 ## Supported Channels
@@ -726,7 +803,7 @@ notify:
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-admin</artifactId>
-    <version>0.5.1</version>
+    <version>0.6.0</version>
 </dependency>
 ```
 
@@ -788,7 +865,7 @@ GET /actuator/info
 ```json
 {
   "notifyhub": {
-    "version": "0.5.1",
+    "version": "0.6.0",
     "channels": ["email", "slack", "teams"],
     "tracking.enabled": true,
     "dlq.enabled": true
@@ -827,17 +904,29 @@ notify:
 
     slack:
       webhook-url: ${SLACK_WEBHOOK}
+      recipients:                          # named aliases (optional)
+        engineering: https://hooks.slack.com/services/XXX
+        marketing: https://hooks.slack.com/services/YYY
 
     telegram:
       bot-token: ${TELEGRAM_BOT_TOKEN}
       chat-id: ${TELEGRAM_CHAT_ID}
+      recipients:                          # named aliases (optional)
+        alerts: "-1001234567890"
+        devops: "-1009876543210"
 
     discord:
       webhook-url: ${DISCORD_WEBHOOK}
       username: NotifyHub
+      avatar-url: https://example.com/logo.png
+      recipients:                          # named aliases (optional)
+        alerts: https://discord.com/api/webhooks/111/aaa
+        devops: https://discord.com/api/webhooks/222/bbb
 
     teams:
       webhook-url: ${TEAMS_WEBHOOK}
+      recipients:                          # named aliases (optional)
+        general: https://outlook.office.com/webhook/XXX
 
     push:
       credentials-path: ${FIREBASE_CREDENTIALS}
@@ -863,6 +952,9 @@ notify:
     google-chat:
       webhook-url: ${GOOGLE_CHAT_WEBHOOK}
       timeout-ms: 10000
+      recipients:                          # named aliases (optional)
+        team-a: https://chat.googleapis.com/v1/spaces/XXX/messages?key=YYY
+        team-b: https://chat.googleapis.com/v1/spaces/ZZZ/messages?key=WWW
 
   retry:
     max-attempts: 3
@@ -910,6 +1002,7 @@ NotifyHub notify = NotifyHub.builder()
     .channel(new SlackChannel(
         SlackConfig.builder()
             .webhookUrl("https://hooks.slack.com/services/XXX/YYY/ZZZ")
+            .recipients(Map.of("engineering", "https://hooks.slack.com/services/AAA/BBB/CCC"))
             .build()
     ))
     .channel(new TeamsChannel(
@@ -1002,7 +1095,7 @@ mvn clean package -pl notify-mcp -am -DskipTests
   "mcpServers": {
     "notify-hub": {
       "command": "java",
-      "args": ["-jar", "path/to/notify-mcp-0.5.1.jar"],
+      "args": ["-jar", "path/to/notify-mcp-0.6.0.jar"],
       "env": {
         "NOTIFY_CHANNELS_EMAIL_HOST": "smtp.gmail.com",
         "NOTIFY_CHANNELS_EMAIL_PORT": "587",
@@ -1023,7 +1116,7 @@ mvn clean package -pl notify-mcp -am -DskipTests
   "mcpServers": {
     "notify-hub": {
       "command": "java",
-      "args": ["-jar", "path/to/notify-mcp-0.5.1.jar"],
+      "args": ["-jar", "path/to/notify-mcp-0.6.0.jar"],
       "env": {
         "NOTIFY_CHANNELS_DISCORD_WEBHOOK_URL": "https://discord.com/api/webhooks/..."
       }
@@ -1071,17 +1164,21 @@ docker build -t notifyhub-mcp .
 # Run with Discord
 docker run -i --rm \
   -e NOTIFY_CHANNELS_DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/..." \
-  notifyhub-mcp
+  -e NOTIFY_CHANNELS_DISCORD_USERNAME="NotifyHub" \
+  gabrielbbal10/notifyhub-mcp
 
-# Run with Discord + Email
+# Run with multiple Discord channels + Email
 docker run -i --rm \
   -e NOTIFY_CHANNELS_DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/..." \
+  -e NOTIFY_CHANNELS_DISCORD_USERNAME="NotifyHub" \
+  -e NOTIFY_CHANNELS_DISCORD_RECIPIENTS_ALERTS="https://discord.com/api/webhooks/111/aaa" \
+  -e NOTIFY_CHANNELS_DISCORD_RECIPIENTS_DEVOPS="https://discord.com/api/webhooks/222/bbb" \
   -e NOTIFY_CHANNELS_EMAIL_HOST="smtp.gmail.com" \
   -e NOTIFY_CHANNELS_EMAIL_PORT="587" \
   -e NOTIFY_CHANNELS_EMAIL_USERNAME="you@gmail.com" \
   -e NOTIFY_CHANNELS_EMAIL_PASSWORD="app-password" \
   -e NOTIFY_CHANNELS_EMAIL_FROM="you@gmail.com" \
-  notifyhub-mcp
+  gabrielbbal10/notifyhub-mcp
 ```
 
 **Configure in Claude Code** (`.mcp.json`):
@@ -1093,7 +1190,9 @@ docker run -i --rm \
       "command": "docker",
       "args": ["run", "-i", "--rm",
         "-e", "NOTIFY_CHANNELS_DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...",
-        "notifyhub-mcp"
+        "-e", "NOTIFY_CHANNELS_DISCORD_USERNAME=NotifyHub",
+        "-e", "NOTIFY_CHANNELS_DISCORD_RECIPIENTS_ALERTS=https://discord.com/api/webhooks/111/aaa",
+        "gabrielbbal10/notifyhub-mcp"
       ]
     }
   }
@@ -1234,7 +1333,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-spring-boot-starter</artifactId>
-    <version>0.5.1</version>
+    <version>0.6.0</version>
 </dependency>
 ```
 
@@ -1250,7 +1349,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-core</artifactId>
-    <version>0.5.1</version>
+    <version>0.6.0</version>
 </dependency>
 ```
 
@@ -1266,7 +1365,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-email</artifactId>
-    <version>0.5.1</version>
+    <version>0.6.0</version>
 </dependency>
 ```
 
@@ -1282,7 +1381,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-sms</artifactId>
-    <version>0.5.1</version>
+    <version>0.6.0</version>
 </dependency>
 ```
 
@@ -1298,7 +1397,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-slack</artifactId>
-    <version>0.5.1</version>
+    <version>0.6.0</version>
 </dependency>
 ```
 
@@ -1314,7 +1413,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-telegram</artifactId>
-    <version>0.5.1</version>
+    <version>0.6.0</version>
 </dependency>
 ```
 
@@ -1330,7 +1429,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-discord</artifactId>
-    <version>0.5.1</version>
+    <version>0.6.0</version>
 </dependency>
 ```
 
@@ -1346,7 +1445,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-teams</artifactId>
-    <version>0.5.1</version>
+    <version>0.6.0</version>
 </dependency>
 ```
 
@@ -1362,7 +1461,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-push-firebase</artifactId>
-    <version>0.5.1</version>
+    <version>0.6.0</version>
 </dependency>
 ```
 
@@ -1378,7 +1477,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-webhook</artifactId>
-    <version>0.5.1</version>
+    <version>0.6.0</version>
 </dependency>
 ```
 
@@ -1394,7 +1493,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-websocket</artifactId>
-    <version>0.5.1</version>
+    <version>0.6.0</version>
 </dependency>
 ```
 
@@ -1410,7 +1509,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-google-chat</artifactId>
-    <version>0.5.1</version>
+    <version>0.6.0</version>
 </dependency>
 ```
 
@@ -1426,7 +1525,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-tracker-jpa</artifactId>
-    <version>0.5.1</version>
+    <version>0.6.0</version>
 </dependency>
 ```
 
@@ -1442,7 +1541,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-admin</artifactId>
-    <version>0.5.1</version>
+    <version>0.6.0</version>
 </dependency>
 ```
 
@@ -1458,7 +1557,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-mcp</artifactId>
-    <version>0.5.1</version>
+    <version>0.6.0</version>
 </dependency>
 ```
 
@@ -1493,8 +1592,8 @@ Below is every module, what it does, when you need it, and how to add it.
 - [x] **v0.1.0** — Core API, Email, SMS, WhatsApp, Mustache templates, Spring Boot starter
 - [x] **v0.2.0** — Slack, Telegram, Discord, async sending, scheduling, delivery tracking
 - [x] **v0.3.0** — Teams, Firebase Push, Webhook, attachments, priority, rate limiting, DLQ, i18n, batch send, JPA tracker, Micrometer metrics, Actuator health, Spring events, conditional routing, admin dashboard (80+ tests)
-- [x] **v0.5.1** — WebSocket channel, Google Chat channel, message deduplication, template versioning (105+ tests, 16 modules)
-- [x] **v0.5.1** — MCP Server module: 13 AI agent tools for sending notifications via Claude Desktop, Claude Code, Cursor (130+ tests, 17 modules)
+- [x] **v0.6.0** — WebSocket channel, Google Chat channel, message deduplication, template versioning (105+ tests, 16 modules)
+- [x] **v0.6.0** — MCP Server module: 13 AI agent tools for sending notifications via Claude Desktop, Claude Code, Cursor (130+ tests, 17 modules)
 
 ---
 

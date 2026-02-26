@@ -30,8 +30,7 @@ public class McpServerRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // Restore stdout before creating STDIO transport — it was suppressed
-        // during Spring Boot startup to prevent non-JSON output on stdout
+        // Restore stdout — it was suppressed during Spring Boot startup
         System.setOut(NotifyMcpServer.ORIGINAL_STDOUT);
 
         log.info("Starting NotifyHub MCP Server...");

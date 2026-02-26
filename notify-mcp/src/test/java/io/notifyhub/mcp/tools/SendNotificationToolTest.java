@@ -1,8 +1,5 @@
 package io.notifyhub.mcp.tools;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.modelcontextprotocol.json.McpJsonMapper;
-import io.modelcontextprotocol.json.jackson2.JacksonMcpJsonMapper;
 import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 import io.notifyhub.core.*;
 import io.notifyhub.core.channel.NotificationChannel;
@@ -37,7 +34,6 @@ class SendNotificationToolTest {
 
     private NotifyHub notifyHub;
     private SendNotificationTool tool;
-    private McpJsonMapper jsonMapper;
 
     @BeforeEach
     void setUp() {
@@ -53,13 +49,12 @@ class SendNotificationToolTest {
                 .build();
 
         tool = new SendNotificationTool(notifyHub);
-        jsonMapper = new JacksonMcpJsonMapper(new ObjectMapper());
     }
 
     @Test
     @DisplayName("Sends notification via email channel")
     void sendViaEmail() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of(
                         "channel", "email",
@@ -77,7 +72,7 @@ class SendNotificationToolTest {
     @Test
     @DisplayName("Sends notification via SMS using toPhone()")
     void sendViaSms() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of(
                         "channel", "sms",
@@ -95,7 +90,7 @@ class SendNotificationToolTest {
     @Test
     @DisplayName("Sends notification via Slack")
     void sendViaSlack() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of(
                         "channel", "slack",
@@ -110,7 +105,7 @@ class SendNotificationToolTest {
     @Test
     @DisplayName("Returns error when body and template are both missing")
     void errorWhenNoContent() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of(
                         "channel", "email",
@@ -123,7 +118,7 @@ class SendNotificationToolTest {
     @Test
     @DisplayName("Sends with priority URGENT")
     void sendWithPriority() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of(
                         "channel", "email",

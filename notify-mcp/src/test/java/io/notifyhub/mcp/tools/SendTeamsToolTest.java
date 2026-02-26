@@ -1,8 +1,5 @@
 package io.notifyhub.mcp.tools;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.modelcontextprotocol.json.McpJsonMapper;
-import io.modelcontextprotocol.json.jackson2.JacksonMcpJsonMapper;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification;
 import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 import io.notifyhub.core.*;
@@ -33,7 +30,6 @@ class SendTeamsToolTest {
 
     private NotifyHub notifyHub;
     private SendTeamsTool tool;
-    private McpJsonMapper jsonMapper;
 
     @BeforeEach
     void setUp() {
@@ -45,13 +41,12 @@ class SendTeamsToolTest {
                 .build();
 
         tool = new SendTeamsTool(notifyHub);
-        jsonMapper = new JacksonMcpJsonMapper(new ObjectMapper());
     }
 
     @Test
     @DisplayName("specification() creates tool with correct name and schema")
     void specificationHasCorrectName() {
-        SyncToolSpecification spec = tool.specification(jsonMapper);
+        SyncToolSpecification spec = tool.specification();
         assertEquals("send_teams", spec.tool().name());
         assertNotNull(spec.tool().description());
         assertNotNull(spec.tool().inputSchema());
@@ -60,7 +55,7 @@ class SendTeamsToolTest {
     @Test
     @DisplayName("Sends Teams message successfully with body")
     void sendTeamsWithBody() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of(
                         "recipient", "my-team-channel",
@@ -78,7 +73,7 @@ class SendTeamsToolTest {
     @Test
     @DisplayName("Returns error when neither body nor template is provided")
     void errorWhenNoBodyOrTemplate() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of("recipient", "my-team-channel"));
 
@@ -91,7 +86,7 @@ class SendTeamsToolTest {
         doThrow(new NotificationSendException("teams", "Connection refused"))
                 .when(teamsChannel).send(any());
 
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of(
                         "recipient", "my-team-channel",
@@ -104,7 +99,7 @@ class SendTeamsToolTest {
     @Test
     @DisplayName("Sends Teams message with template and params")
     void sendTeamsWithTemplate() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of(
                         "recipient", "my-team-channel",

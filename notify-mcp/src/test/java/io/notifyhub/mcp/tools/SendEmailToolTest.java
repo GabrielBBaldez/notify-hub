@@ -1,8 +1,5 @@
 package io.notifyhub.mcp.tools;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.modelcontextprotocol.json.McpJsonMapper;
-import io.modelcontextprotocol.json.jackson2.JacksonMcpJsonMapper;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification;
 import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 import io.notifyhub.core.*;
@@ -33,7 +30,6 @@ class SendEmailToolTest {
 
     private NotifyHub notifyHub;
     private SendEmailTool tool;
-    private McpJsonMapper jsonMapper;
 
     @BeforeEach
     void setUp() {
@@ -45,13 +41,12 @@ class SendEmailToolTest {
                 .build();
 
         tool = new SendEmailTool(notifyHub);
-        jsonMapper = new JacksonMcpJsonMapper(new ObjectMapper());
     }
 
     @Test
     @DisplayName("specification() creates tool with correct name and schema")
     void specificationHasCorrectName() {
-        SyncToolSpecification spec = tool.specification(jsonMapper);
+        SyncToolSpecification spec = tool.specification();
         assertEquals("send_email", spec.tool().name());
         assertNotNull(spec.tool().description());
         assertNotNull(spec.tool().inputSchema());
@@ -60,7 +55,7 @@ class SendEmailToolTest {
     @Test
     @DisplayName("Sends email successfully with body")
     void sendEmailWithBody() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of(
                         "to", "user@test.com",
@@ -79,7 +74,7 @@ class SendEmailToolTest {
     @Test
     @DisplayName("Returns error when neither body nor template is provided")
     void errorWhenNoBodyOrTemplate() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of("to", "user@test.com"));
 
@@ -92,7 +87,7 @@ class SendEmailToolTest {
         doThrow(new NotificationSendException("email", "SMTP connection refused"))
                 .when(emailChannel).send(any());
 
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of(
                         "to", "user@test.com",
@@ -105,7 +100,7 @@ class SendEmailToolTest {
     @Test
     @DisplayName("Sends email with template and params")
     void sendEmailWithTemplate() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of(
                         "to", "user@test.com",
@@ -121,7 +116,7 @@ class SendEmailToolTest {
     @Test
     @DisplayName("Sends email with priority")
     void sendEmailWithPriority() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of(
                         "to", "user@test.com",

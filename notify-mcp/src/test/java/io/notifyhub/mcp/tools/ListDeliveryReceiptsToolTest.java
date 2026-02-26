@@ -1,8 +1,5 @@
 package io.notifyhub.mcp.tools;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.modelcontextprotocol.json.McpJsonMapper;
-import io.modelcontextprotocol.json.jackson2.JacksonMcpJsonMapper;
 import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 import io.notifyhub.core.*;
 import io.notifyhub.core.channel.NotificationChannel;
@@ -30,7 +27,6 @@ class ListDeliveryReceiptsToolTest {
     private NotifyHub notifyHub;
     private InMemoryNotificationTracker tracker;
     private ListDeliveryReceiptsTool tool;
-    private McpJsonMapper jsonMapper;
 
     @BeforeEach
     void setUp() {
@@ -43,13 +39,12 @@ class ListDeliveryReceiptsToolTest {
                 .build();
 
         tool = new ListDeliveryReceiptsTool(notifyHub);
-        jsonMapper = new JacksonMcpJsonMapper(new ObjectMapper());
     }
 
     @Test
     @DisplayName("Returns empty list when no receipts")
     void emptyReceipts() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of());
 
@@ -67,7 +62,7 @@ class ListDeliveryReceiptsToolTest {
                 .content("Hello!")
                 .sendTracked();
 
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of());
 
@@ -85,7 +80,7 @@ class ListDeliveryReceiptsToolTest {
                 .content("Test")
                 .sendTracked();
 
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of("status", "SENT"));
 
@@ -102,7 +97,7 @@ class ListDeliveryReceiptsToolTest {
                 .build();
         ListDeliveryReceiptsTool noTrackerTool = new ListDeliveryReceiptsTool(hubNoTracker);
 
-        CallToolResult result = noTrackerTool.specification(jsonMapper)
+        CallToolResult result = noTrackerTool.specification()
                 .call()
                 .apply(null, Map.of());
 
@@ -120,7 +115,7 @@ class ListDeliveryReceiptsToolTest {
                     .sendTracked();
         }
 
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of("limit", 2));
 

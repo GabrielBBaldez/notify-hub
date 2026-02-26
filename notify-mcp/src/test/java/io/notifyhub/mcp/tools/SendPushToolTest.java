@@ -1,8 +1,5 @@
 package io.notifyhub.mcp.tools;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.modelcontextprotocol.json.McpJsonMapper;
-import io.modelcontextprotocol.json.jackson2.JacksonMcpJsonMapper;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification;
 import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 import io.notifyhub.core.*;
@@ -33,7 +30,6 @@ class SendPushToolTest {
 
     private NotifyHub notifyHub;
     private SendPushTool tool;
-    private McpJsonMapper jsonMapper;
 
     @BeforeEach
     void setUp() {
@@ -45,13 +41,12 @@ class SendPushToolTest {
                 .build();
 
         tool = new SendPushTool(notifyHub);
-        jsonMapper = new JacksonMcpJsonMapper(new ObjectMapper());
     }
 
     @Test
     @DisplayName("specification() creates tool with correct name and schema")
     void specificationHasCorrectName() {
-        SyncToolSpecification spec = tool.specification(jsonMapper);
+        SyncToolSpecification spec = tool.specification();
         assertEquals("send_push", spec.tool().name());
         assertNotNull(spec.tool().description());
         assertNotNull(spec.tool().inputSchema());
@@ -60,7 +55,7 @@ class SendPushToolTest {
     @Test
     @DisplayName("Sends push notification successfully with body and push_token")
     void sendPushWithBodyAndToken() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of(
                         "push_token", "fcm-token-123",
@@ -78,7 +73,7 @@ class SendPushToolTest {
     @Test
     @DisplayName("Returns error when no body is provided")
     void errorWhenNoBody() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of("push_token", "fcm-token-123"));
 
@@ -88,7 +83,7 @@ class SendPushToolTest {
     @Test
     @DisplayName("Sends push notification with title")
     void sendPushWithTitle() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of(
                         "push_token", "fcm-token-123",
@@ -106,7 +101,7 @@ class SendPushToolTest {
         doThrow(new NotificationSendException("push", "FCM connection refused"))
                 .when(pushChannel).send(any());
 
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of(
                         "push_token", "fcm-token-123",

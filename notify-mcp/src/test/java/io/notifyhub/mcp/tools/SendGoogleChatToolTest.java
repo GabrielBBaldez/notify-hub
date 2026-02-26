@@ -1,8 +1,5 @@
 package io.notifyhub.mcp.tools;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.modelcontextprotocol.json.McpJsonMapper;
-import io.modelcontextprotocol.json.jackson2.JacksonMcpJsonMapper;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification;
 import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 import io.notifyhub.core.*;
@@ -33,7 +30,6 @@ class SendGoogleChatToolTest {
 
     private NotifyHub notifyHub;
     private SendGoogleChatTool tool;
-    private McpJsonMapper jsonMapper;
 
     @BeforeEach
     void setUp() {
@@ -45,13 +41,12 @@ class SendGoogleChatToolTest {
                 .build();
 
         tool = new SendGoogleChatTool(notifyHub);
-        jsonMapper = new JacksonMcpJsonMapper(new ObjectMapper());
     }
 
     @Test
     @DisplayName("specification() creates tool with correct name and schema")
     void specificationHasCorrectName() {
-        SyncToolSpecification spec = tool.specification(jsonMapper);
+        SyncToolSpecification spec = tool.specification();
         assertEquals("send_google_chat", spec.tool().name());
         assertNotNull(spec.tool().description());
         assertNotNull(spec.tool().inputSchema());
@@ -60,7 +55,7 @@ class SendGoogleChatToolTest {
     @Test
     @DisplayName("Sends Google Chat message successfully with body")
     void sendGoogleChatWithBody() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of(
                         "recipient", "my-space",
@@ -78,7 +73,7 @@ class SendGoogleChatToolTest {
     @Test
     @DisplayName("Returns error when neither body nor template is provided")
     void errorWhenNoBodyOrTemplate() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of("recipient", "my-space"));
 
@@ -91,7 +86,7 @@ class SendGoogleChatToolTest {
         doThrow(new NotificationSendException("google-chat", "Connection refused"))
                 .when(googleChatChannel).send(any());
 
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of(
                         "recipient", "my-space",
@@ -104,7 +99,7 @@ class SendGoogleChatToolTest {
     @Test
     @DisplayName("Sends Google Chat message with template and params")
     void sendGoogleChatWithTemplate() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of(
                         "recipient", "my-space",

@@ -1,8 +1,5 @@
 package io.notifyhub.mcp.tools;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.modelcontextprotocol.json.McpJsonMapper;
-import io.modelcontextprotocol.json.jackson2.JacksonMcpJsonMapper;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification;
 import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 import io.notifyhub.core.*;
@@ -37,7 +34,6 @@ class SendMultiChannelToolTest {
 
     private NotifyHub notifyHub;
     private SendMultiChannelTool tool;
-    private McpJsonMapper jsonMapper;
 
     @BeforeEach
     void setUp() {
@@ -51,13 +47,12 @@ class SendMultiChannelToolTest {
                 .build();
 
         tool = new SendMultiChannelTool(notifyHub);
-        jsonMapper = new JacksonMcpJsonMapper(new ObjectMapper());
     }
 
     @Test
     @DisplayName("specification() creates tool with correct name and schema")
     void specificationHasCorrectName() {
-        SyncToolSpecification spec = tool.specification(jsonMapper);
+        SyncToolSpecification spec = tool.specification();
         assertEquals("send_multi_channel", spec.tool().name());
         assertNotNull(spec.tool().description());
         assertNotNull(spec.tool().inputSchema());
@@ -66,7 +61,7 @@ class SendMultiChannelToolTest {
     @Test
     @DisplayName("Sends notification to multiple channels with body")
     void sendToMultipleChannelsWithBody() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of(
                         "channels", List.of("email", "slack"),
@@ -84,7 +79,7 @@ class SendMultiChannelToolTest {
     @Test
     @DisplayName("Returns error when neither body nor template is provided")
     void errorWhenNoBodyOrTemplate() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of(
                         "channels", List.of("email", "slack"),
@@ -102,7 +97,7 @@ class SendMultiChannelToolTest {
         doThrow(new NotificationSendException("slack", "Webhook failed"))
                 .when(slackChannel).send(any());
 
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of(
                         "channels", List.of("email", "slack"),
@@ -116,7 +111,7 @@ class SendMultiChannelToolTest {
     @Test
     @DisplayName("Sends notification with template and params")
     void sendWithTemplateAndParams() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of(
                         "channels", List.of("email", "slack"),

@@ -1,8 +1,5 @@
 package io.notifyhub.mcp.tools;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.modelcontextprotocol.json.McpJsonMapper;
-import io.modelcontextprotocol.json.jackson2.JacksonMcpJsonMapper;
 import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 import io.notifyhub.channel.discord.DiscordChannel;
 import io.notifyhub.channel.discord.DiscordConfig;
@@ -29,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class SendDiscordToolIntegrationTest {
 
     private SendDiscordTool tool;
-    private McpJsonMapper jsonMapper;
 
     @BeforeEach
     void setUp() {
@@ -48,13 +44,12 @@ class SendDiscordToolIntegrationTest {
                 .build();
 
         tool = new SendDiscordTool(notifyHub);
-        jsonMapper = new JacksonMcpJsonMapper(new ObjectMapper());
     }
 
     @Test
     @DisplayName("Sends a real Discord message via MCP tool")
     void sendRealDiscordMessage() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of(
                         "recipient", "mcp-test",

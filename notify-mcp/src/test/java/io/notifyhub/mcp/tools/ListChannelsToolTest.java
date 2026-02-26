@@ -1,8 +1,5 @@
 package io.notifyhub.mcp.tools;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.modelcontextprotocol.json.McpJsonMapper;
-import io.modelcontextprotocol.json.jackson2.JacksonMcpJsonMapper;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification;
 import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 import io.notifyhub.core.NotifyHub;
@@ -36,7 +33,6 @@ class ListChannelsToolTest {
 
     private NotifyHub notifyHub;
     private ListChannelsTool tool;
-    private McpJsonMapper jsonMapper;
 
     @BeforeEach
     void setUp() {
@@ -56,20 +52,19 @@ class ListChannelsToolTest {
                 .build();
 
         tool = new ListChannelsTool(notifyHub);
-        jsonMapper = new JacksonMcpJsonMapper(new ObjectMapper());
     }
 
     @Test
     @DisplayName("specification() creates tool with correct name")
     void specificationHasCorrectName() {
-        SyncToolSpecification spec = tool.specification(jsonMapper);
+        SyncToolSpecification spec = tool.specification();
         assertEquals("list_channels", spec.tool().name());
     }
 
     @Test
     @DisplayName("Lists all registered channels with availability")
     void listsAllChannels() {
-        CallToolResult result = tool.specification(jsonMapper)
+        CallToolResult result = tool.specification()
                 .call()
                 .apply(null, Map.of());
 
@@ -86,7 +81,7 @@ class ListChannelsToolTest {
         NotifyHub emptyHub = NotifyHub.builder().build();
         ListChannelsTool emptyTool = new ListChannelsTool(emptyHub);
 
-        CallToolResult result = emptyTool.specification(jsonMapper)
+        CallToolResult result = emptyTool.specification()
                 .call()
                 .apply(null, Map.of());
 

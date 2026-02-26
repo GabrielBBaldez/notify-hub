@@ -46,7 +46,7 @@ class SendSlackToolTest {
     @Test
     @DisplayName("specification() creates tool with correct name and schema")
     void specificationHasCorrectName() {
-        SyncToolSpecification spec = tool.specification();
+        SyncToolSpecification spec = tool.specification(jsonMapper);
         assertEquals("send_slack", spec.tool().name());
         assertNotNull(spec.tool().description());
         assertNotNull(spec.tool().inputSchema());
@@ -55,7 +55,7 @@ class SendSlackToolTest {
     @Test
     @DisplayName("Sends Slack message successfully with body")
     void sendSlackWithBody() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "recipient", "#general",
@@ -73,7 +73,7 @@ class SendSlackToolTest {
     @Test
     @DisplayName("Returns error when neither body nor template is provided")
     void errorWhenNoBodyOrTemplate() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of("recipient", "#general"));
 
@@ -86,7 +86,7 @@ class SendSlackToolTest {
         doThrow(new NotificationSendException("slack", "Webhook connection refused"))
                 .when(slackChannel).send(any());
 
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "recipient", "#general",
@@ -99,7 +99,7 @@ class SendSlackToolTest {
     @Test
     @DisplayName("Sends Slack message with template and params")
     void sendSlackWithTemplate() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "recipient", "#general",

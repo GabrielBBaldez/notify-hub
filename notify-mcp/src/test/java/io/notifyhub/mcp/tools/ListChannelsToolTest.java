@@ -57,14 +57,14 @@ class ListChannelsToolTest {
     @Test
     @DisplayName("specification() creates tool with correct name")
     void specificationHasCorrectName() {
-        SyncToolSpecification spec = tool.specification();
+        SyncToolSpecification spec = tool.specification(jsonMapper);
         assertEquals("list_channels", spec.tool().name());
     }
 
     @Test
     @DisplayName("Lists all registered channels with availability")
     void listsAllChannels() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of());
 
@@ -81,7 +81,7 @@ class ListChannelsToolTest {
         NotifyHub emptyHub = NotifyHub.builder().build();
         ListChannelsTool emptyTool = new ListChannelsTool(emptyHub);
 
-        CallToolResult result = emptyTool.specification()
+        CallToolResult result = emptyTool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of());
 

@@ -49,7 +49,7 @@ class SendDiscordToolIntegrationTest {
     @Test
     @DisplayName("Sends a real Discord message via MCP tool")
     void sendRealDiscordMessage() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "recipient", "mcp-test",

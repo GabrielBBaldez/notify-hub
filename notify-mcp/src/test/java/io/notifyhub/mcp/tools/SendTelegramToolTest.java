@@ -46,7 +46,7 @@ class SendTelegramToolTest {
     @Test
     @DisplayName("specification() creates tool with correct name and schema")
     void specificationHasCorrectName() {
-        SyncToolSpecification spec = tool.specification();
+        SyncToolSpecification spec = tool.specification(jsonMapper);
         assertEquals("send_telegram", spec.tool().name());
         assertNotNull(spec.tool().description());
         assertNotNull(spec.tool().inputSchema());
@@ -55,7 +55,7 @@ class SendTelegramToolTest {
     @Test
     @DisplayName("Sends Telegram message successfully with body")
     void sendTelegramWithBody() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "recipient", "123456789",
@@ -73,7 +73,7 @@ class SendTelegramToolTest {
     @Test
     @DisplayName("Returns error when neither body nor template is provided")
     void errorWhenNoBodyOrTemplate() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of("recipient", "123456789"));
 
@@ -86,7 +86,7 @@ class SendTelegramToolTest {
         doThrow(new NotificationSendException("telegram", "Bot API connection refused"))
                 .when(telegramChannel).send(any());
 
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "recipient", "123456789",
@@ -99,7 +99,7 @@ class SendTelegramToolTest {
     @Test
     @DisplayName("Sends Telegram message with template and params")
     void sendTelegramWithTemplate() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "recipient", "123456789",

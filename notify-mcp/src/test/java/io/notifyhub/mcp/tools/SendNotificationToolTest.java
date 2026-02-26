@@ -54,7 +54,7 @@ class SendNotificationToolTest {
     @Test
     @DisplayName("Sends notification via email channel")
     void sendViaEmail() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "channel", "email",
@@ -72,7 +72,7 @@ class SendNotificationToolTest {
     @Test
     @DisplayName("Sends notification via SMS using toPhone()")
     void sendViaSms() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "channel", "sms",
@@ -90,7 +90,7 @@ class SendNotificationToolTest {
     @Test
     @DisplayName("Sends notification via Slack")
     void sendViaSlack() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "channel", "slack",
@@ -105,7 +105,7 @@ class SendNotificationToolTest {
     @Test
     @DisplayName("Returns error when body and template are both missing")
     void errorWhenNoContent() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "channel", "email",
@@ -118,7 +118,7 @@ class SendNotificationToolTest {
     @Test
     @DisplayName("Sends with priority URGENT")
     void sendWithPriority() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "channel", "email",

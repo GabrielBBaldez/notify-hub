@@ -46,7 +46,7 @@ class SendSmsToolTest {
     @Test
     @DisplayName("specification() creates tool with correct name and schema")
     void specificationHasCorrectName() {
-        SyncToolSpecification spec = tool.specification();
+        SyncToolSpecification spec = tool.specification(jsonMapper);
         assertEquals("send_sms", spec.tool().name());
         assertNotNull(spec.tool().description());
         assertNotNull(spec.tool().inputSchema());
@@ -55,7 +55,7 @@ class SendSmsToolTest {
     @Test
     @DisplayName("Sends SMS successfully with body")
     void sendSmsWithBody() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "phone", "+5548999999999",
@@ -73,7 +73,7 @@ class SendSmsToolTest {
     @Test
     @DisplayName("Returns error when neither body nor template is provided")
     void errorWhenNoBodyOrTemplate() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of("phone", "+5548999999999"));
 
@@ -86,7 +86,7 @@ class SendSmsToolTest {
         doThrow(new NotificationSendException("sms", "SMS gateway unreachable"))
                 .when(smsChannel).send(any());
 
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "phone", "+5548999999999",
@@ -99,7 +99,7 @@ class SendSmsToolTest {
     @Test
     @DisplayName("Sends SMS with template and params")
     void sendSmsWithTemplate() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "phone", "+5548999999999",

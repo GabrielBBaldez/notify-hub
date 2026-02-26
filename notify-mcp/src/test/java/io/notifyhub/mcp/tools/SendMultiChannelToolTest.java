@@ -52,7 +52,7 @@ class SendMultiChannelToolTest {
     @Test
     @DisplayName("specification() creates tool with correct name and schema")
     void specificationHasCorrectName() {
-        SyncToolSpecification spec = tool.specification();
+        SyncToolSpecification spec = tool.specification(jsonMapper);
         assertEquals("send_multi_channel", spec.tool().name());
         assertNotNull(spec.tool().description());
         assertNotNull(spec.tool().inputSchema());
@@ -61,7 +61,7 @@ class SendMultiChannelToolTest {
     @Test
     @DisplayName("Sends notification to multiple channels with body")
     void sendToMultipleChannelsWithBody() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "channels", List.of("email", "slack"),
@@ -79,7 +79,7 @@ class SendMultiChannelToolTest {
     @Test
     @DisplayName("Returns error when neither body nor template is provided")
     void errorWhenNoBodyOrTemplate() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "channels", List.of("email", "slack"),
@@ -97,7 +97,7 @@ class SendMultiChannelToolTest {
         doThrow(new NotificationSendException("slack", "Webhook failed"))
                 .when(slackChannel).send(any());
 
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "channels", List.of("email", "slack"),
@@ -111,7 +111,7 @@ class SendMultiChannelToolTest {
     @Test
     @DisplayName("Sends notification with template and params")
     void sendWithTemplateAndParams() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "channels", List.of("email", "slack"),

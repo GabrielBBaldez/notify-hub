@@ -46,7 +46,7 @@ class SendGoogleChatToolTest {
     @Test
     @DisplayName("specification() creates tool with correct name and schema")
     void specificationHasCorrectName() {
-        SyncToolSpecification spec = tool.specification();
+        SyncToolSpecification spec = tool.specification(jsonMapper);
         assertEquals("send_google_chat", spec.tool().name());
         assertNotNull(spec.tool().description());
         assertNotNull(spec.tool().inputSchema());
@@ -55,7 +55,7 @@ class SendGoogleChatToolTest {
     @Test
     @DisplayName("Sends Google Chat message successfully with body")
     void sendGoogleChatWithBody() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "recipient", "my-space",
@@ -73,7 +73,7 @@ class SendGoogleChatToolTest {
     @Test
     @DisplayName("Returns error when neither body nor template is provided")
     void errorWhenNoBodyOrTemplate() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of("recipient", "my-space"));
 
@@ -86,7 +86,7 @@ class SendGoogleChatToolTest {
         doThrow(new NotificationSendException("google-chat", "Connection refused"))
                 .when(googleChatChannel).send(any());
 
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "recipient", "my-space",
@@ -99,7 +99,7 @@ class SendGoogleChatToolTest {
     @Test
     @DisplayName("Sends Google Chat message with template and params")
     void sendGoogleChatWithTemplate() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "recipient", "my-space",

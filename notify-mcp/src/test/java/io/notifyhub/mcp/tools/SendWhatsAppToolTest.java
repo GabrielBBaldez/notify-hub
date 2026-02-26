@@ -46,7 +46,7 @@ class SendWhatsAppToolTest {
     @Test
     @DisplayName("specification() creates tool with correct name and schema")
     void specificationHasCorrectName() {
-        SyncToolSpecification spec = tool.specification();
+        SyncToolSpecification spec = tool.specification(jsonMapper);
         assertEquals("send_whatsapp", spec.tool().name());
         assertNotNull(spec.tool().description());
         assertNotNull(spec.tool().inputSchema());
@@ -55,7 +55,7 @@ class SendWhatsAppToolTest {
     @Test
     @DisplayName("Sends WhatsApp message successfully with body")
     void sendWhatsAppWithBody() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "phone", "+5548999999999",
@@ -73,7 +73,7 @@ class SendWhatsAppToolTest {
     @Test
     @DisplayName("Returns error when neither body nor template is provided")
     void errorWhenNoBodyOrTemplate() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of("phone", "+5548999999999"));
 
@@ -86,7 +86,7 @@ class SendWhatsAppToolTest {
         doThrow(new NotificationSendException("whatsapp", "Connection refused"))
                 .when(whatsappChannel).send(any());
 
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "phone", "+5548999999999",
@@ -99,7 +99,7 @@ class SendWhatsAppToolTest {
     @Test
     @DisplayName("Sends WhatsApp message with template and params")
     void sendWhatsAppWithTemplate() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "phone", "+5548999999999",

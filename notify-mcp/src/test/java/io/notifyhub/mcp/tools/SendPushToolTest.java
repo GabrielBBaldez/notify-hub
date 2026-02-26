@@ -46,7 +46,7 @@ class SendPushToolTest {
     @Test
     @DisplayName("specification() creates tool with correct name and schema")
     void specificationHasCorrectName() {
-        SyncToolSpecification spec = tool.specification();
+        SyncToolSpecification spec = tool.specification(jsonMapper);
         assertEquals("send_push", spec.tool().name());
         assertNotNull(spec.tool().description());
         assertNotNull(spec.tool().inputSchema());
@@ -55,7 +55,7 @@ class SendPushToolTest {
     @Test
     @DisplayName("Sends push notification successfully with body and push_token")
     void sendPushWithBodyAndToken() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "push_token", "fcm-token-123",
@@ -73,7 +73,7 @@ class SendPushToolTest {
     @Test
     @DisplayName("Returns error when no body is provided")
     void errorWhenNoBody() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of("push_token", "fcm-token-123"));
 
@@ -83,7 +83,7 @@ class SendPushToolTest {
     @Test
     @DisplayName("Sends push notification with title")
     void sendPushWithTitle() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "push_token", "fcm-token-123",
@@ -101,7 +101,7 @@ class SendPushToolTest {
         doThrow(new NotificationSendException("push", "FCM connection refused"))
                 .when(pushChannel).send(any());
 
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "push_token", "fcm-token-123",

@@ -46,7 +46,7 @@ class SendTeamsToolTest {
     @Test
     @DisplayName("specification() creates tool with correct name and schema")
     void specificationHasCorrectName() {
-        SyncToolSpecification spec = tool.specification();
+        SyncToolSpecification spec = tool.specification(jsonMapper);
         assertEquals("send_teams", spec.tool().name());
         assertNotNull(spec.tool().description());
         assertNotNull(spec.tool().inputSchema());
@@ -55,7 +55,7 @@ class SendTeamsToolTest {
     @Test
     @DisplayName("Sends Teams message successfully with body")
     void sendTeamsWithBody() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "recipient", "my-team-channel",
@@ -73,7 +73,7 @@ class SendTeamsToolTest {
     @Test
     @DisplayName("Returns error when neither body nor template is provided")
     void errorWhenNoBodyOrTemplate() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of("recipient", "my-team-channel"));
 
@@ -86,7 +86,7 @@ class SendTeamsToolTest {
         doThrow(new NotificationSendException("teams", "Connection refused"))
                 .when(teamsChannel).send(any());
 
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "recipient", "my-team-channel",
@@ -99,7 +99,7 @@ class SendTeamsToolTest {
     @Test
     @DisplayName("Sends Teams message with template and params")
     void sendTeamsWithTemplate() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "recipient", "my-team-channel",

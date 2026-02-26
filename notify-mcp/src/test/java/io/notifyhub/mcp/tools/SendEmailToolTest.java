@@ -46,7 +46,7 @@ class SendEmailToolTest {
     @Test
     @DisplayName("specification() creates tool with correct name and schema")
     void specificationHasCorrectName() {
-        SyncToolSpecification spec = tool.specification();
+        SyncToolSpecification spec = tool.specification(jsonMapper);
         assertEquals("send_email", spec.tool().name());
         assertNotNull(spec.tool().description());
         assertNotNull(spec.tool().inputSchema());
@@ -55,7 +55,7 @@ class SendEmailToolTest {
     @Test
     @DisplayName("Sends email successfully with body")
     void sendEmailWithBody() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "to", "user@test.com",
@@ -74,7 +74,7 @@ class SendEmailToolTest {
     @Test
     @DisplayName("Returns error when neither body nor template is provided")
     void errorWhenNoBodyOrTemplate() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of("to", "user@test.com"));
 
@@ -87,7 +87,7 @@ class SendEmailToolTest {
         doThrow(new NotificationSendException("email", "SMTP connection refused"))
                 .when(emailChannel).send(any());
 
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "to", "user@test.com",
@@ -100,7 +100,7 @@ class SendEmailToolTest {
     @Test
     @DisplayName("Sends email with template and params")
     void sendEmailWithTemplate() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "to", "user@test.com",
@@ -116,7 +116,7 @@ class SendEmailToolTest {
     @Test
     @DisplayName("Sends email with priority")
     void sendEmailWithPriority() {
-        CallToolResult result = tool.specification()
+        CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
                         "to", "user@test.com",

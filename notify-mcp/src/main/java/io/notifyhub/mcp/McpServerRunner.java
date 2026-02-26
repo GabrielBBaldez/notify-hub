@@ -14,10 +14,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.CountDownLatch;
+
 @Component
 public class McpServerRunner implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(McpServerRunner.class);
+    private final CountDownLatch keepAlive = new CountDownLatch(1);
 
     private final NotifyHub notifyHub;
 
@@ -27,6 +30,10 @@ public class McpServerRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        // Restore stdout before creating STDIO transport — it was suppressed
+        // during Spring Boot startup to prevent non-JSON output on stdout
+        System.setOut(NotifyMcpServer.ORIGINAL_STDOUT);
+
         log.info("Starting NotifyHub MCP Server...");
         log.info("Registered channels: {}", notifyHub.getRegisteredChannels());
 
@@ -57,5 +64,9 @@ public class McpServerRunner implements CommandLineRunner {
         server.addTool(new ListDeliveryReceiptsTool(notifyHub).specification(jsonMapper));
 
         log.info("NotifyHub MCP Server ready — 13 tools registered");
+
+        // Keep the process alive — MCP STDIO transport needs the JVM running
+        Runtime.getRuntime().addShutdownHook(new Thread(keepAlive::countDown));
+        keepAlive.await();
     }
 }

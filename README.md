@@ -95,6 +95,7 @@ notify.to(user)
   - [Custom Channels](#custom-channels)
   - [Event Listeners + Spring Events](#event-listeners--spring-events)
   - [Named Recipients](#named-recipients)
+  - [Message Queue (RabbitMQ / Kafka)](#message-queue-rabbitmq--kafka)
 - [Supported Channels](#supported-channels)
 - [Admin Dashboard](#admin-dashboard)
 - [Spring Boot Integration](#spring-boot-integration)
@@ -768,6 +769,85 @@ NOTIFY_CHANNELS_GOOGLE_CHAT_RECIPIENTS_TEAM=https://chat.googleapis.com/v1/space
 **Resolution order:** alias match in recipients map > raw URL/value passthrough > default from config.
 
 Supported on: **Discord, Slack, Telegram, Teams, Google Chat**.
+
+### Message Queue (RabbitMQ / Kafka)
+
+Decouple notification sending with async message queues. NotifyHub provides two modules:
+
+#### RabbitMQ
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-queue-rabbitmq</artifactId>
+    <version>0.6.0</version>
+</dependency>
+```
+
+```yaml
+spring.rabbitmq.host: localhost
+spring.rabbitmq.port: 5672
+
+notify.queue.rabbitmq:
+  enabled: true
+  queue-name: notifyhub-notifications
+  exchange-name: notifyhub-exchange
+  routing-key: notification
+  consumer:
+    enabled: true
+    concurrency: 1
+    max-concurrency: 5
+```
+
+```java
+@Autowired RabbitNotificationProducer producer;
+
+// Enqueue for async delivery
+producer.enqueue(QueuedNotification.builder()
+    .recipient("user@example.com")
+    .channelName("email")
+    .subject("Welcome!")
+    .templateName("welcome")
+    .params(Map.of("name", "Gabriel"))
+    .build());
+// Consumer picks it up and sends via NotifyHub automatically
+```
+
+#### Apache Kafka
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-queue-kafka</artifactId>
+    <version>0.6.0</version>
+</dependency>
+```
+
+```yaml
+spring.kafka.bootstrap-servers: localhost:9092
+
+notify.queue.kafka:
+  enabled: true
+  topic: notifyhub-notifications
+  consumer:
+    enabled: true
+    group-id: notifyhub-group
+    concurrency: 1
+```
+
+```java
+@Autowired KafkaNotificationProducer producer;
+
+// Same API as RabbitMQ — just different transport
+producer.enqueue(QueuedNotification.builder()
+    .recipient("+5548999999999")
+    .channelName("sms")
+    .rawContent("Your code is 1234")
+    .priority("URGENT")
+    .build());
+```
+
+Both modules support: templates, priority, deduplication keys, delivery tracking, and phone number routing for SMS/WhatsApp.
 
 ---
 
@@ -1628,6 +1708,38 @@ Below is every module, what it does, when you need it, and how to add it.
 
 ---
 
+#### `notify-queue-rabbitmq` — RabbitMQ Message Queue
+
+**What it does:** Adds async notification processing via RabbitMQ. Includes a producer (enqueue notifications), a consumer (reads from queue and sends via NotifyHub), and Spring Boot auto-configuration with exchange/queue/binding setup.
+
+**When to use:** You need to decouple notification sending from your main application flow, or you're in a microservice architecture where one service enqueues and another sends.
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-queue-rabbitmq</artifactId>
+    <version>0.6.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-queue-kafka` — Apache Kafka Message Queue
+
+**What it does:** Same as RabbitMQ module but uses Apache Kafka as the message broker. Sends notifications to a Kafka topic with channel:recipient as the message key for partition ordering.
+
+**When to use:** You're already using Kafka in your infrastructure, or you need high-throughput notification processing at scale.
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-queue-kafka</artifactId>
+    <version>0.6.0</version>
+</dependency>
+```
+
+---
+
 #### `notify-mcp` — MCP Server for AI Agents
 
 **What it does:** Exposes all NotifyHub channels as MCP (Model Context Protocol) tools, allowing AI agents (Claude Desktop, Claude Code, Cursor) to send notifications through natural language commands. Runs as a headless Spring Boot app communicating via STDIO JSON-RPC. Provides 13 tools: send via any channel, list channels, and query delivery receipts.
@@ -1663,6 +1775,8 @@ Below is every module, what it does, when you need it, and how to add it.
 | Persist tracking to database | `notify-spring-boot-starter` + `notify-tracker-jpa` |
 | Admin dashboard UI | `notify-spring-boot-starter` + `notify-admin` |
 | Use without Spring Boot | `notify-core` + channel modules you need |
+| Async processing via RabbitMQ | `notify-spring-boot-starter` + `notify-queue-rabbitmq` |
+| Async processing via Kafka | `notify-spring-boot-starter` + `notify-queue-kafka` |
 | Let AI agents send notifications | `notify-mcp` (standalone JAR) |
 | Everything at once | `notify-spring-boot-starter` + all channel modules above |
 
@@ -1675,6 +1789,7 @@ Below is every module, what it does, when you need it, and how to add it.
 - [x] **v0.3.0** — Teams, Firebase Push, Webhook, attachments, priority, rate limiting, DLQ, i18n, batch send, JPA tracker, Micrometer metrics, Actuator health, Spring events, conditional routing, admin dashboard (80+ tests)
 - [x] **v0.6.0** — WebSocket channel, Google Chat channel, message deduplication, template versioning (105+ tests, 16 modules)
 - [x] **v0.6.0** — MCP Server module: 13 AI agent tools for sending notifications via Claude Desktop, Claude Code, Cursor (130+ tests, 17 modules)
+- [x] **v0.6.0** — Named recipients, Docker images (MCP + REST API), Swagger UI, RabbitMQ + Kafka message queue modules, JaCoCo coverage, GitHub Pages landing page
 
 ---
 

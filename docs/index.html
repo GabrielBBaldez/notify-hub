@@ -120,22 +120,108 @@ notify.to("user@example.com")
         </div>
     </section>
 
-    <section class="docker">
+    <section class="docker" id="docker">
         <h2>Docker</h2>
-        <div class="docker-cards">
-            <div class="code-block">
-                <div class="code-header">REST API</div>
-<pre><code>docker run -p 8080:8080 \
-  -e NOTIFY_CHANNELS_EMAIL_HOST=smtp.gmail.com \
+        <p class="section-desc">Run NotifyHub instantly with Docker — no Java required. Two images available: a <strong>REST API</strong> with Swagger UI for any language/platform, and an <strong>MCP Server</strong> for AI assistants like Claude.</p>
+
+        <div class="docker-images">
+            <div class="docker-image-card">
+                <div class="docker-image-header">
+                    <span class="docker-icon">&#128203;</span>
+                    <div>
+                        <h3>REST API</h3>
+                        <p class="docker-pull">gabrielbbal10/notifyhub-api</p>
+                    </div>
+                </div>
+                <p class="docker-desc">Full REST API with <strong>Swagger UI</strong> on port 8080. Send notifications via HTTP from any language — Python, Node.js, Go, cURL, etc. Just set environment variables for the channels you want and hit the endpoints.</p>
+                <div class="docker-links">
+                    <a href="https://hub.docker.com/r/gabrielbbal10/notifyhub-api" class="btn btn-sm">Docker Hub</a>
+                    <a href="https://github.com/GabrielBBaldez/notify-hub#docker-rest-api" class="btn btn-sm btn-outline">Docs</a>
+                </div>
+                <div class="code-block">
+                    <div class="code-header">Quick Start — Email + Discord</div>
+<pre><code>docker run -d -p 8080:8080 \
   -e NOTIFY_CHANNELS_EMAIL_USERNAME=you@gmail.com \
   -e NOTIFY_CHANNELS_EMAIL_PASSWORD=your-app-password \
   -e NOTIFY_CHANNELS_EMAIL_FROM=you@gmail.com \
-  gabrielbbaldez/notifyhub-api</code></pre>
+  -e NOTIFY_CHANNELS_DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/..." \
+  -e NOTIFY_CHANNELS_DISCORD_USERNAME="NotifyHub" \
+  gabrielbbal10/notifyhub-api:latest</code></pre>
+                </div>
+                <div class="code-block">
+                    <div class="code-header">Then call the API</div>
+<pre><code># Send email
+curl -X POST "http://localhost:8080/send/email?to=user@example.com&amp;subject=Hello&amp;body=Hi!"
+
+# Send Discord message
+curl -X POST "http://localhost:8080/send/discord?message=Deploy done!"
+
+# Swagger UI
+open http://localhost:8080/swagger-ui.html</code></pre>
+                </div>
             </div>
-            <div class="code-block">
-                <div class="code-header">MCP Server (for AI)</div>
-<pre><code>docker pull gabrielbbaldez/notifyhub-mcp</code></pre>
+
+            <div class="docker-image-card">
+                <div class="docker-image-header">
+                    <span class="docker-icon">&#129302;</span>
+                    <div>
+                        <h3>MCP Server</h3>
+                        <p class="docker-pull">gabrielbbal10/notifyhub-mcp</p>
+                    </div>
+                </div>
+                <p class="docker-desc">Model Context Protocol server with <strong>13 tools</strong> for AI assistants. Connect Claude Desktop, Claude Code, or any MCP-compatible client and let AI send notifications on your behalf.</p>
+                <div class="docker-links">
+                    <a href="https://hub.docker.com/r/gabrielbbal10/notifyhub-mcp" class="btn btn-sm">Docker Hub</a>
+                    <a href="https://github.com/GabrielBBaldez/notify-hub#mcp-server" class="btn btn-sm btn-outline">Docs</a>
+                </div>
+                <div class="code-block">
+                    <div class="code-header">Claude Desktop — claude_desktop_config.json</div>
+<pre><code>{
+  "mcpServers": {
+    "notify-hub": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm",
+        "-e", "NOTIFY_CHANNELS_DISCORD_WEBHOOK_URL=https://discord.com/...",
+        "-e", "NOTIFY_CHANNELS_EMAIL_HOST=smtp.gmail.com",
+        "-e", "NOTIFY_CHANNELS_EMAIL_USERNAME=you@gmail.com",
+        "-e", "NOTIFY_CHANNELS_EMAIL_PASSWORD=app-password",
+        "-e", "NOTIFY_CHANNELS_EMAIL_FROM=you@gmail.com",
+        "gabrielbbal10/notifyhub-mcp"
+      ]
+    }
+  }
+}</code></pre>
+                </div>
             </div>
+        </div>
+
+        <div class="env-table-wrapper">
+            <h3 class="env-title">Environment Variables</h3>
+            <p class="section-desc">Both images use the same <code>NOTIFY_CHANNELS_*</code> variables. Only set the channels you need.</p>
+            <table class="env-table">
+                <thead>
+                    <tr><th>Channel</th><th>Variable</th><th>Example</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td rowspan="4">Email</td><td>NOTIFY_CHANNELS_EMAIL_HOST</td><td>smtp.gmail.com</td></tr>
+                    <tr><td>NOTIFY_CHANNELS_EMAIL_PORT</td><td>587</td></tr>
+                    <tr><td>NOTIFY_CHANNELS_EMAIL_USERNAME</td><td>you@gmail.com</td></tr>
+                    <tr><td>NOTIFY_CHANNELS_EMAIL_PASSWORD</td><td>your-app-password</td></tr>
+                    <tr><td rowspan="2">Discord</td><td>NOTIFY_CHANNELS_DISCORD_WEBHOOK_URL</td><td>https://discord.com/api/webhooks/...</td></tr>
+                    <tr><td>NOTIFY_CHANNELS_DISCORD_USERNAME</td><td>NotifyHub</td></tr>
+                    <tr><td>Slack</td><td>NOTIFY_CHANNELS_SLACK_WEBHOOK_URL</td><td>https://hooks.slack.com/services/...</td></tr>
+                    <tr><td rowspan="2">Telegram</td><td>NOTIFY_CHANNELS_TELEGRAM_BOT_TOKEN</td><td>123456:ABC-DEF...</td></tr>
+                    <tr><td>NOTIFY_CHANNELS_TELEGRAM_CHAT_ID</td><td>123456789</td></tr>
+                    <tr><td>Teams</td><td>NOTIFY_CHANNELS_TEAMS_WEBHOOK_URL</td><td>https://outlook.office.com/webhook/...</td></tr>
+                    <tr><td>Google Chat</td><td>NOTIFY_CHANNELS_GOOGLE_CHAT_WEBHOOK_URL</td><td>https://chat.googleapis.com/v1/spaces/...</td></tr>
+                    <tr><td rowspan="3">SMS</td><td>NOTIFY_CHANNELS_SMS_ACCOUNT_SID</td><td>AC...</td></tr>
+                    <tr><td>NOTIFY_CHANNELS_SMS_AUTH_TOKEN</td><td>your-token</td></tr>
+                    <tr><td>NOTIFY_CHANNELS_SMS_FROM_NUMBER</td><td>+15551234567</td></tr>
+                    <tr><td rowspan="3">WhatsApp</td><td>NOTIFY_CHANNELS_WHATSAPP_ACCOUNT_SID</td><td>AC...</td></tr>
+                    <tr><td>NOTIFY_CHANNELS_WHATSAPP_AUTH_TOKEN</td><td>your-token</td></tr>
+                    <tr><td>NOTIFY_CHANNELS_WHATSAPP_FROM_NUMBER</td><td>+15551234567</td></tr>
+                </tbody>
+            </table>
         </div>
     </section>
 

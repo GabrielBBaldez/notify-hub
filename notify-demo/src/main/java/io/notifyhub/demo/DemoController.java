@@ -2,6 +2,9 @@ package io.notifyhub.demo;
 
 import io.notifyhub.core.*;
 import io.notifyhub.core.channel.NotificationSendException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Run the app and try each endpoint!
  */
 @RestController
+@Tag(name = "NotifyHub API", description = "Unified notification API — send via Email, SMS, WhatsApp, Slack, Telegram, Discord, Teams, Google Chat, and more")
 public class DemoController {
 
     private final NotifyHub notify;
@@ -40,6 +44,7 @@ public class DemoController {
 
     // ===================== HOME =====================
 
+    @Operation(summary = "Home", description = "Lists all available endpoints and registered channels")
     @GetMapping("/")
     public Map<String, Object> home() {
         Map<String, Object> response = new LinkedHashMap<>();
@@ -72,6 +77,7 @@ public class DemoController {
 
     // ===================== 1. SIMPLE EMAIL =====================
 
+    @Operation(summary = "Send email", description = "Send a simple email via SMTP")
     @PostMapping("/send/email")
     public Map<String, String> sendEmail(
             @RequestParam(defaultValue = "demo@test.com") String to,
@@ -96,6 +102,7 @@ public class DemoController {
 
     // ===================== 2. TEMPLATE EMAIL =====================
 
+    @Operation(summary = "Send email with template", description = "Send an email rendered with a Mustache template")
     @PostMapping("/send/template")
     public Map<String, String> sendTemplate(
             @RequestParam(defaultValue = "customer@test.com") String to,
@@ -125,6 +132,7 @@ public class DemoController {
 
     // ===================== 3. NOTIFIABLE USER =====================
 
+    @Operation(summary = "Send to Notifiable entity", description = "Send email to a user implementing the Notifiable interface")
     @PostMapping("/send/notifiable")
     public Map<String, String> sendToNotifiable(
             @RequestParam(defaultValue = "Maria Silva") String name,
@@ -151,6 +159,7 @@ public class DemoController {
 
     // ===================== 4. SMS (TWILIO) =====================
 
+    @Operation(summary = "Send SMS", description = "Send SMS via Twilio")
     @PostMapping("/send/sms")
     public Map<String, String> sendSms(
             @RequestParam String to,
@@ -171,6 +180,7 @@ public class DemoController {
 
     // ===================== 5. WHATSAPP (TWILIO) =====================
 
+    @Operation(summary = "Send WhatsApp", description = "Send WhatsApp message via Twilio")
     @PostMapping("/send/whatsapp")
     public Map<String, String> sendWhatsApp(
             @RequestParam String to,
@@ -191,6 +201,7 @@ public class DemoController {
 
     // ===================== 6. TELEGRAM =====================
 
+    @Operation(summary = "Send Telegram", description = "Send message via Telegram Bot API")
     @PostMapping("/send/telegram")
     public Map<String, String> sendTelegram(
             @RequestParam String chatId,
@@ -211,6 +222,7 @@ public class DemoController {
 
     // ===================== 7. DISCORD =====================
 
+    @Operation(summary = "Send Discord", description = "Send message to Discord channel via webhook. Use a named recipient alias or default.")
     @PostMapping("/send/discord")
     public Map<String, String> sendDiscord(
             @RequestParam(defaultValue = "discord-channel") String to,
@@ -231,6 +243,7 @@ public class DemoController {
 
     // ===================== 8. SLACK =====================
 
+    @Operation(summary = "Send Slack", description = "Send message to Slack channel via webhook")
     @PostMapping("/send/slack")
     public Map<String, String> sendSlack(
             @RequestParam(defaultValue = "#general") String channel,
@@ -251,6 +264,7 @@ public class DemoController {
 
     // ===================== 7. MULTI-CHANNEL =====================
 
+    @Operation(summary = "Send multi-channel", description = "Send to Email + Slack simultaneously")
     @PostMapping("/send/multi")
     public Map<String, String> sendMulti(
             @RequestParam(defaultValue = "security@test.com") String email,
@@ -276,6 +290,7 @@ public class DemoController {
 
     // ===================== 8. FALLBACK =====================
 
+    @Operation(summary = "Test fallback", description = "Test fallback chain: email fails, falls back to Slack")
     @PostMapping("/send/fallback")
     public Map<String, String> sendFallback() {
         if (smtpConfig == null) {
@@ -309,6 +324,7 @@ public class DemoController {
 
     // ===================== 9. TRACKED SEND =====================
 
+    @Operation(summary = "Send with tracking", description = "Send email and get a delivery receipt")
     @PostMapping("/send/tracked")
     public Map<String, Object> sendTracked(
             @RequestParam(defaultValue = "tracked@test.com") String to,
@@ -336,6 +352,7 @@ public class DemoController {
 
     // ===================== 10. SCHEDULED NOTIFICATION =====================
 
+    @Operation(summary = "Schedule notification", description = "Schedule a notification for future delivery")
     @PostMapping("/send/scheduled")
     public Map<String, Object> sendScheduled(
             @RequestParam(defaultValue = "scheduled@test.com") String to,
@@ -408,6 +425,7 @@ public class DemoController {
 
     // ===================== TRACKING =====================
 
+    @Operation(summary = "Delivery history", description = "View delivery tracking receipts")
     @GetMapping("/tracking")
     public Map<String, Object> trackingHistory() {
         if (tracker == null) {

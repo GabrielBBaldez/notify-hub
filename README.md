@@ -1199,6 +1199,77 @@ docker run -i --rm \
 }
 ```
 
+### Docker REST API
+
+Run a full REST API with Swagger UI — no Java required, just Docker:
+
+```bash
+docker run -d -p 8080:8080 \
+  -e GMAIL_USER=you@gmail.com \
+  -e GMAIL_PASS=your-app-password \
+  gabrielbbal10/notifyhub-api:latest
+```
+
+Open [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) for interactive API docs.
+
+**Environment variables — add only the channels you need:**
+
+| Channel | Variable | Required | Example |
+|---------|----------|----------|---------|
+| **Email** | `GMAIL_USER` | Yes (for email) | `you@gmail.com` |
+| | `GMAIL_PASS` | Yes (for email) | `abcd efgh ijkl mnop` ([App Password](https://myaccount.google.com/apppasswords)) |
+| **Discord** | `NOTIFY_CHANNELS_DISCORD_WEBHOOK_URL` | Yes (for discord) | `https://discord.com/api/webhooks/...` |
+| | `NOTIFY_CHANNELS_DISCORD_USERNAME` | No | `NotifyHub` |
+| | `NOTIFY_CHANNELS_DISCORD_AVATAR_URL` | No | `https://example.com/avatar.png` |
+| | `NOTIFY_CHANNELS_DISCORD_RECIPIENTS_<NAME>` | No | Named alias webhook URL |
+| **Slack** | `NOTIFY_CHANNELS_SLACK_WEBHOOK_URL` | Yes (for slack) | `https://hooks.slack.com/services/...` |
+| | `NOTIFY_CHANNELS_SLACK_RECIPIENTS_<NAME>` | No | Named alias webhook URL |
+| **Telegram** | `NOTIFY_CHANNELS_TELEGRAM_BOT_TOKEN` | Yes (for telegram) | `123456:ABC-DEF...` |
+| | `NOTIFY_CHANNELS_TELEGRAM_CHAT_ID` | Yes (for telegram) | `123456789` |
+| | `NOTIFY_CHANNELS_TELEGRAM_RECIPIENTS_<NAME>` | No | Named alias chat ID |
+| **Google Chat** | `NOTIFY_CHANNELS_GOOGLE_CHAT_WEBHOOK_URL` | Yes (for gchat) | `https://chat.googleapis.com/v1/spaces/...` |
+| | `NOTIFY_CHANNELS_GOOGLE_CHAT_RECIPIENTS_<NAME>` | No | Named alias webhook URL |
+| **Teams** | `NOTIFY_CHANNELS_TEAMS_WEBHOOK_URL` | Yes (for teams) | `https://outlook.office.com/webhook/...` |
+| | `NOTIFY_CHANNELS_TEAMS_RECIPIENTS_<NAME>` | No | Named alias webhook URL |
+| **SMS** | `NOTIFY_CHANNELS_SMS_ACCOUNT_SID` | Yes (for sms) | Twilio Account SID |
+| | `NOTIFY_CHANNELS_SMS_AUTH_TOKEN` | Yes (for sms) | Twilio Auth Token |
+| | `NOTIFY_CHANNELS_SMS_FROM_NUMBER` | Yes (for sms) | `+12025551234` |
+| **WhatsApp** | `NOTIFY_CHANNELS_WHATSAPP_ACCOUNT_SID` | Yes (for whatsapp) | Twilio Account SID |
+| | `NOTIFY_CHANNELS_WHATSAPP_AUTH_TOKEN` | Yes (for whatsapp) | Twilio Auth Token |
+| | `NOTIFY_CHANNELS_WHATSAPP_FROM_NUMBER` | Yes (for whatsapp) | `+14155238886` |
+
+**Example with multiple channels:**
+
+```bash
+docker run -d -p 8080:8080 \
+  -e GMAIL_USER=you@gmail.com \
+  -e GMAIL_PASS=your-app-password \
+  -e NOTIFY_CHANNELS_DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/..." \
+  -e NOTIFY_CHANNELS_DISCORD_USERNAME="NotifyHub" \
+  -e NOTIFY_CHANNELS_TELEGRAM_BOT_TOKEN="123456:ABC-DEF..." \
+  -e NOTIFY_CHANNELS_TELEGRAM_CHAT_ID="123456789" \
+  -e NOTIFY_CHANNELS_GOOGLE_CHAT_WEBHOOK_URL="https://chat.googleapis.com/v1/spaces/..." \
+  gabrielbbal10/notifyhub-api:latest
+```
+
+**Usage from any language:**
+
+```bash
+# Send email
+curl -X POST "http://localhost:8080/send/email?to=user@example.com&subject=Hello&body=Hi!"
+
+# Send Discord
+curl -X POST "http://localhost:8080/send/discord?message=Deploy done!"
+
+# Send Telegram
+curl -X POST "http://localhost:8080/send/telegram?chatId=123456789&message=Alert!"
+
+# Send Google Chat
+curl -X POST "http://localhost:8080/send/google-chat?message=Build passed!"
+```
+
+**Docker Hub:** [gabrielbbal10/notifyhub-api](https://hub.docker.com/r/gabrielbbal10/notifyhub-api)
+
 ---
 
 ## Running the Demo
@@ -1231,6 +1302,10 @@ Then open:
 | `POST` | `/send/telegram` | Send to Telegram via Bot |
 | `POST` | `/send/discord` | Send to Discord via Webhook |
 | `POST` | `/send/slack` | Send to Slack channel |
+| `POST` | `/send/teams` | Send to Microsoft Teams via Webhook |
+| `POST` | `/send/google-chat` | Send to Google Chat via Webhook |
+| `POST` | `/send/push` | Send push notification via Firebase |
+| `POST` | `/send/websocket` | Send message via WebSocket |
 | `POST` | `/send/multi` | Send to email + Slack simultaneously |
 | `POST` | `/send/fallback` | Test fallback (email fails -> Slack) |
 | `POST` | `/send/tracked` | Send with delivery tracking |

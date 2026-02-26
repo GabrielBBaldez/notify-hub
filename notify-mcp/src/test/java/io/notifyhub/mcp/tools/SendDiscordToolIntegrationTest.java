@@ -1,5 +1,8 @@
 package io.notifyhub.mcp.tools;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.modelcontextprotocol.json.McpJsonMapper;
+import io.modelcontextprotocol.json.jackson2.JacksonMcpJsonMapper;
 import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 import io.notifyhub.channel.discord.DiscordChannel;
 import io.notifyhub.channel.discord.DiscordConfig;
@@ -24,6 +27,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @Tag("integration")
 @EnabledIfEnvironmentVariable(named = "DISCORD_WEBHOOK_URL", matches = ".+")
 class SendDiscordToolIntegrationTest {
+
+    private final McpJsonMapper jsonMapper = new JacksonMcpJsonMapper(new ObjectMapper());
 
     private SendDiscordTool tool;
 

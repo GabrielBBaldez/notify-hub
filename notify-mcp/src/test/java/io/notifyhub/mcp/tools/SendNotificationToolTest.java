@@ -1,5 +1,8 @@
 package io.notifyhub.mcp.tools;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.modelcontextprotocol.json.McpJsonMapper;
+import io.modelcontextprotocol.json.jackson2.JacksonMcpJsonMapper;
 import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 import io.notifyhub.core.*;
 import io.notifyhub.core.channel.NotificationChannel;
@@ -22,6 +25,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class SendNotificationToolTest {
+
+    private final McpJsonMapper jsonMapper = new JacksonMcpJsonMapper(new ObjectMapper());
 
     @Mock
     private NotificationChannel emailChannel;

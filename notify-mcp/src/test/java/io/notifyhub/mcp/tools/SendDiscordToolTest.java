@@ -26,93 +26,93 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-class SendPushToolTest {
+class SendDiscordToolTest {
 
     private final McpJsonMapper jsonMapper = new JacksonMcpJsonMapper(new ObjectMapper());
 
     @Mock
-    private NotificationChannel pushChannel;
+    private NotificationChannel discordChannel;
 
     private NotifyHub notifyHub;
-    private SendPushTool tool;
+    private SendDiscordTool tool;
 
     @BeforeEach
     void setUp() {
-        when(pushChannel.getName()).thenReturn("push");
+        when(discordChannel.getName()).thenReturn("discord");
 
         notifyHub = NotifyHub.builder()
-                .channel(pushChannel)
+                .channel(discordChannel)
                 .tracker(new InMemoryNotificationTracker())
                 .build();
 
-        tool = new SendPushTool(notifyHub);
+        tool = new SendDiscordTool(notifyHub);
     }
 
     @Test
     @DisplayName("specification() creates tool with correct name and schema")
     void specificationHasCorrectName() {
         SyncToolSpecification spec = tool.specification(jsonMapper);
-        assertEquals("send_push", spec.tool().name());
+        assertEquals("send_discord", spec.tool().name());
         assertNotNull(spec.tool().description());
         assertNotNull(spec.tool().inputSchema());
     }
 
     @Test
-    @DisplayName("Sends push notification successfully with body and push_token")
-    void sendPushWithBodyAndToken() {
+    @DisplayName("Sends Discord message successfully with body")
+    void sendDiscordWithBody() {
         CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
-                        "push_token", "fcm-token-123",
-                        "body", "Hello from push!"
+                        "recipient", "mcp-test",
+                        "body", "Hello Discord!"
                 ));
 
         assertFalse(result.isError());
         assertNotNull(result.content());
 
         ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
-        verify(pushChannel).send(captor.capture());
-        assertEquals("fcm-token-123", captor.getValue().getRecipient());
+        verify(discordChannel).send(captor.capture());
+        assertEquals("mcp-test", captor.getValue().getRecipient());
     }
 
     @Test
-    @DisplayName("Returns error when no body is provided")
-    void errorWhenNoBody() {
+    @DisplayName("Returns error when neither body nor template is provided")
+    void errorWhenNoBodyOrTemplate() {
         CallToolResult result = tool.specification(jsonMapper)
                 .call()
-                .apply(null, Map.of("push_token", "fcm-token-123"));
+                .apply(null, Map.of("recipient", "mcp-test"));
 
         assertTrue(result.isError());
-    }
-
-    @Test
-    @DisplayName("Sends push notification with title")
-    void sendPushWithTitle() {
-        CallToolResult result = tool.specification(jsonMapper)
-                .call()
-                .apply(null, Map.of(
-                        "push_token", "fcm-token-123",
-                        "subject", "Alert",
-                        "body", "You have a new message"
-                ));
-
-        assertFalse(result.isError());
-        verify(pushChannel).send(any());
     }
 
     @Test
     @DisplayName("Returns error when channel send fails")
     void errorOnSendFailure() {
-        doThrow(new NotificationSendException("push", "FCM connection refused"))
-                .when(pushChannel).send(any());
+        doThrow(new NotificationSendException("discord", "Webhook connection refused"))
+                .when(discordChannel).send(any());
 
         CallToolResult result = tool.specification(jsonMapper)
                 .call()
                 .apply(null, Map.of(
-                        "push_token", "fcm-token-123",
+                        "recipient", "mcp-test",
                         "body", "Test"
                 ));
 
         assertTrue(result.isError());
+    }
+
+    @Test
+    @DisplayName("Sends Discord message with template and params")
+    void sendDiscordWithTemplate() {
+        CallToolResult result = tool.specification(jsonMapper)
+                .call()
+                .apply(null, Map.of(
+                        "recipient", "mcp-test",
+                        "template", "order-confirmed",
+                        "params", Map.of("orderId", "ORD-123")
+                ));
+
+        assertFalse(result.isError());
+        verify(discordChannel).send(any());
     }
 }

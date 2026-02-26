@@ -309,6 +309,17 @@ footer {
 .footer-col a { display: block; color: var(--text-muted); font-size: 0.88rem; padding: 3px 0; }
 .footer-col a:hover { color: var(--accent); }
 
+.coffee {
+    text-align: center; font-size: 0.82rem; color: var(--text-muted);
+    padding: 12px 0 20px; opacity: 0.7; transition: opacity 0.2s;
+}
+.coffee:hover { opacity: 1; }
+.coffee span { font-size: 0.9rem; }
+.coffee code {
+    background: var(--code-bg); padding: 2px 8px; border-radius: 4px;
+    font-size: 0.78rem; color: var(--text); user-select: all; cursor: pointer;
+}
+
 .footer-bottom {
     text-align: center; color: var(--text-muted); font-size: 0.85rem;
     padding-top: 24px; border-top: 1px solid var(--border);

@@ -1,0 +1,11 @@
+.git/
+.github/
+.idea/
+.vscode/
+.claude/
+.mcp.json
+docs/
+*/target/
+target/
+*.md
+LICENSE

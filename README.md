@@ -1060,6 +1060,46 @@ Once configured, you can simply ask your AI agent:
 
 The agent will call the `send_discord` tool with the appropriate parameters.
 
+### Docker
+
+Run the MCP server without Java installed — only Docker required:
+
+```bash
+# Build
+docker build -t notifyhub-mcp .
+
+# Run with Discord
+docker run -i --rm \
+  -e NOTIFY_CHANNELS_DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/..." \
+  notifyhub-mcp
+
+# Run with Discord + Email
+docker run -i --rm \
+  -e NOTIFY_CHANNELS_DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/..." \
+  -e NOTIFY_CHANNELS_EMAIL_HOST="smtp.gmail.com" \
+  -e NOTIFY_CHANNELS_EMAIL_PORT="587" \
+  -e NOTIFY_CHANNELS_EMAIL_USERNAME="you@gmail.com" \
+  -e NOTIFY_CHANNELS_EMAIL_PASSWORD="app-password" \
+  -e NOTIFY_CHANNELS_EMAIL_FROM="you@gmail.com" \
+  notifyhub-mcp
+```
+
+**Configure in Claude Code** (`.mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "notify-hub": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm",
+        "-e", "NOTIFY_CHANNELS_DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...",
+        "notifyhub-mcp"
+      ]
+    }
+  }
+}
+```
+
 ---
 
 ## Running the Demo

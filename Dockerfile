@@ -1,0 +1,23 @@
+# Stage 1: Build
+FROM maven:3.9-eclipse-temurin-17 AS build
+WORKDIR /app
+COPY pom.xml .
+COPY notify-core/pom.xml notify-core/
+COPY notify-channels/ notify-channels/
+COPY notify-tracker-jpa/pom.xml notify-tracker-jpa/
+COPY notify-spring-boot-starter/pom.xml notify-spring-boot-starter/
+COPY notify-admin/pom.xml notify-admin/
+COPY notify-demo/pom.xml notify-demo/
+COPY notify-mcp/pom.xml notify-mcp/
+RUN mvn dependency:go-offline -pl notify-mcp -am -B 2>/dev/null || true
+COPY . .
+RUN mvn clean package -pl notify-mcp -am -DskipTests -B -q
+
+# Stage 2: Runtime
+FROM eclipse-temurin:17-jre-alpine
+RUN addgroup -S notifyhub && adduser -S notifyhub -G notifyhub
+RUN mkdir -p /home/notifyhub/.notifyhub && chown notifyhub:notifyhub /home/notifyhub/.notifyhub
+USER notifyhub
+WORKDIR /app
+COPY --from=build /app/notify-mcp/target/notify-mcp-*.jar notify-mcp.jar
+ENTRYPOINT ["java", "-jar", "notify-mcp.jar"]

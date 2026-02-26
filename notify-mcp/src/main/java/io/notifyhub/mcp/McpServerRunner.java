@@ -35,7 +35,7 @@ public class McpServerRunner implements CommandLineRunner {
         StdioServerTransportProvider transport = new StdioServerTransportProvider(jsonMapper);
 
         McpSyncServer server = McpServer.sync(transport)
-                .serverInfo("notify-hub", "0.5.0")
+                .serverInfo("notify-hub", "0.5.1")
                 .capabilities(ServerCapabilities.builder()
                         .tools(true)
                         .build())

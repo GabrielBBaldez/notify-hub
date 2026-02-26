@@ -3,14 +3,13 @@
 ## ========================================
 ## Run with: mvn -pl notify-demo spring-boot:run -Dspring-boot.run.profiles=real
 ##
-## Required environment variables:
-##   GMAIL_USER           → Gmail address (e.g. you@gmail.com)
-##   GMAIL_PASS           → Google App Password (not your real password!)
-##   TWILIO_SID           → Twilio Account SID
-##   TWILIO_TOKEN         → Twilio Auth Token
-##   TWILIO_FROM_NUMBER   → Your Twilio phone number (e.g. +12025551234)
-##   TWILIO_WA_NUMBER     → Twilio WhatsApp sandbox number (default: +14155238886)
-##   SLACK_WEBHOOK        → Slack Incoming Webhook URL (optional)
+## Uses the same NOTIFY_CHANNELS_* env vars as the MCP image.
+## Example:
+##   NOTIFY_CHANNELS_EMAIL_HOST=smtp.gmail.com
+##   NOTIFY_CHANNELS_EMAIL_PORT=587
+##   NOTIFY_CHANNELS_EMAIL_USERNAME=you@gmail.com
+##   NOTIFY_CHANNELS_EMAIL_PASSWORD=your-app-password
+##   NOTIFY_CHANNELS_EMAIL_FROM=you@gmail.com
 
 server:
   error:
@@ -25,16 +24,18 @@ demo:
 notify:
   channels:
     email:
-      host: smtp.gmail.com
-      port: 587
-      username: ${GMAIL_USER:}
-      password: ${GMAIL_PASS:}
-      from: ${GMAIL_USER:}
+      host: ${NOTIFY_CHANNELS_EMAIL_HOST:smtp.gmail.com}
+      port: ${NOTIFY_CHANNELS_EMAIL_PORT:587}
+      username: ${NOTIFY_CHANNELS_EMAIL_USERNAME:}
+      password: ${NOTIFY_CHANNELS_EMAIL_PASSWORD:}
+      from: ${NOTIFY_CHANNELS_EMAIL_FROM:}
       from-name: NotifyHub
       tls: true
-    # SMS and WhatsApp (Twilio) — configure via env vars if needed:
-    #   NOTIFY_CHANNELS_SMS_ACCOUNT_SID, NOTIFY_CHANNELS_SMS_AUTH_TOKEN, NOTIFY_CHANNELS_SMS_FROM_NUMBER
-    #   NOTIFY_CHANNELS_WHATSAPP_ACCOUNT_SID, NOTIFY_CHANNELS_WHATSAPP_AUTH_TOKEN, NOTIFY_CHANNELS_WHATSAPP_FROM_NUMBER
+    # All other channels auto-configure via NOTIFY_CHANNELS_* env vars:
+    #   NOTIFY_CHANNELS_DISCORD_WEBHOOK_URL, NOTIFY_CHANNELS_SLACK_WEBHOOK_URL,
+    #   NOTIFY_CHANNELS_TELEGRAM_BOT_TOKEN, NOTIFY_CHANNELS_TELEGRAM_CHAT_ID,
+    #   NOTIFY_CHANNELS_GOOGLE_CHAT_WEBHOOK_URL, NOTIFY_CHANNELS_TEAMS_WEBHOOK_URL,
+    #   NOTIFY_CHANNELS_SMS_ACCOUNT_SID, NOTIFY_CHANNELS_SMS_AUTH_TOKEN, etc.
   retry:
     max-attempts: 3
     strategy: exponential

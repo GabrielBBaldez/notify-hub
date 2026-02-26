@@ -1205,19 +1205,23 @@ Run a full REST API with Swagger UI — no Java required, just Docker:
 
 ```bash
 docker run -d -p 8080:8080 \
-  -e GMAIL_USER=you@gmail.com \
-  -e GMAIL_PASS=your-app-password \
+  -e NOTIFY_CHANNELS_EMAIL_USERNAME=you@gmail.com \
+  -e NOTIFY_CHANNELS_EMAIL_PASSWORD=your-app-password \
+  -e NOTIFY_CHANNELS_EMAIL_FROM=you@gmail.com \
   gabrielbbal10/notifyhub-api:latest
 ```
 
 Open [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) for interactive API docs.
 
-**Environment variables — add only the channels you need:**
+**Environment variables — same for both MCP and API images, add only the channels you need:**
 
 | Channel | Variable | Required | Example |
 |---------|----------|----------|---------|
-| **Email** | `GMAIL_USER` | Yes (for email) | `you@gmail.com` |
-| | `GMAIL_PASS` | Yes (for email) | `abcd efgh ijkl mnop` ([App Password](https://myaccount.google.com/apppasswords)) |
+| **Email** | `NOTIFY_CHANNELS_EMAIL_HOST` | No (default: `smtp.gmail.com`) | `smtp.gmail.com` |
+| | `NOTIFY_CHANNELS_EMAIL_PORT` | No (default: `587`) | `587` |
+| | `NOTIFY_CHANNELS_EMAIL_USERNAME` | Yes (for email) | `you@gmail.com` |
+| | `NOTIFY_CHANNELS_EMAIL_PASSWORD` | Yes (for email) | `abcd efgh ijkl mnop` ([App Password](https://myaccount.google.com/apppasswords)) |
+| | `NOTIFY_CHANNELS_EMAIL_FROM` | Yes (for email) | `you@gmail.com` |
 | **Discord** | `NOTIFY_CHANNELS_DISCORD_WEBHOOK_URL` | Yes (for discord) | `https://discord.com/api/webhooks/...` |
 | | `NOTIFY_CHANNELS_DISCORD_USERNAME` | No | `NotifyHub` |
 | | `NOTIFY_CHANNELS_DISCORD_AVATAR_URL` | No | `https://example.com/avatar.png` |
@@ -1242,8 +1246,9 @@ Open [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.ht
 
 ```bash
 docker run -d -p 8080:8080 \
-  -e GMAIL_USER=you@gmail.com \
-  -e GMAIL_PASS=your-app-password \
+  -e NOTIFY_CHANNELS_EMAIL_USERNAME=you@gmail.com \
+  -e NOTIFY_CHANNELS_EMAIL_PASSWORD=your-app-password \
+  -e NOTIFY_CHANNELS_EMAIL_FROM=you@gmail.com \
   -e NOTIFY_CHANNELS_DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/..." \
   -e NOTIFY_CHANNELS_DISCORD_USERNAME="NotifyHub" \
   -e NOTIFY_CHANNELS_TELEGRAM_BOT_TOKEN="123456:ABC-DEF..." \

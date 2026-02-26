@@ -49,6 +49,7 @@
         <module>notify-tracker-jpa</module>
         <module>notify-spring-boot-starter</module>
         <module>notify-admin</module>
+        <module>notify-queue-rabbitmq</module>
         <module>notify-demo</module>
         <module>notify-mcp</module>
     </modules>

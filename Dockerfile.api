@@ -20,4 +20,5 @@ USER notifyhub
 WORKDIR /app
 COPY --from=build /app/notify-demo/target/notify-demo-*.jar notifyhub-api.jar
 EXPOSE 8080
+ENV SPRING_PROFILES_ACTIVE=real
 ENTRYPOINT ["java", "-jar", "notifyhub-api.jar"]

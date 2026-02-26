@@ -27,19 +27,14 @@ notify:
     email:
       host: smtp.gmail.com
       port: 587
-      username: ${GMAIL_USER}
-      password: ${GMAIL_PASS}
-      from: ${GMAIL_USER}
+      username: ${GMAIL_USER:}
+      password: ${GMAIL_PASS:}
+      from: ${GMAIL_USER:}
       from-name: NotifyHub
       tls: true
-    sms:
-      account-sid: ${TWILIO_SID}
-      auth-token: ${TWILIO_TOKEN}
-      from-number: ${TWILIO_FROM_NUMBER}
-    whatsapp:
-      account-sid: ${TWILIO_SID}
-      auth-token: ${TWILIO_TOKEN}
-      from-number: ${TWILIO_WA_NUMBER:+14155238886}
+    # SMS and WhatsApp (Twilio) — configure via env vars if needed:
+    #   NOTIFY_CHANNELS_SMS_ACCOUNT_SID, NOTIFY_CHANNELS_SMS_AUTH_TOKEN, NOTIFY_CHANNELS_SMS_FROM_NUMBER
+    #   NOTIFY_CHANNELS_WHATSAPP_ACCOUNT_SID, NOTIFY_CHANNELS_WHATSAPP_AUTH_TOKEN, NOTIFY_CHANNELS_WHATSAPP_FROM_NUMBER
   retry:
     max-attempts: 3
     strategy: exponential

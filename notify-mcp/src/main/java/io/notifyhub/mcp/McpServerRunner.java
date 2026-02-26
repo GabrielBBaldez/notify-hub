@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 @Component
@@ -38,7 +39,14 @@ public class McpServerRunner implements CommandLineRunner {
 
         McpJsonMapper jsonMapper = new JacksonMcpJsonMapper(new ObjectMapper());
 
-        StdioServerTransportProvider transport = new StdioServerTransportProvider(jsonMapper);
+        // SDK 0.18.x hardcodes protocolVersions to "2024-11-05" only.
+        // Override to also support "2025-11-25" which Claude Code requires.
+        StdioServerTransportProvider transport = new StdioServerTransportProvider(jsonMapper) {
+            @Override
+            public List<String> protocolVersions() {
+                return List.of("2024-11-05", "2025-03-26", "2025-06-18", "2025-11-25");
+            }
+        };
 
         McpSyncServer server = McpServer.sync(transport)
                 .serverInfo("notify-hub", "0.5.1")

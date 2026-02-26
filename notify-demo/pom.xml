@@ -70,6 +70,27 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- Teams channel -->
+        <dependency>
+            <groupId>io.github.gabrielbbaldez</groupId>
+            <artifactId>notify-teams</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Firebase Push channel -->
+        <dependency>
+            <groupId>io.github.gabrielbbaldez</groupId>
+            <artifactId>notify-push-firebase</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Generic Webhook channel -->
+        <dependency>
+            <groupId>io.github.gabrielbbaldez</groupId>
+            <artifactId>notify-webhook</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- Admin Dashboard -->
         <dependency>
             <groupId>io.github.gabrielbbaldez</groupId>

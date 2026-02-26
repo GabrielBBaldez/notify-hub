@@ -58,9 +58,14 @@ public class DemoController {
                 "POST /send/template             → send email with Mustache template",
                 "POST /send/notifiable           → send to a Notifiable user entity",
                 "POST /send/sms                  → send SMS via Twilio",
+                "POST /send/whatsapp             → send WhatsApp via Twilio",
                 "POST /send/telegram             → send to Telegram via Bot",
                 "POST /send/discord              → send to Discord via Webhook",
                 "POST /send/slack                → send to Slack channel",
+                "POST /send/teams                → send to Microsoft Teams via Webhook",
+                "POST /send/google-chat          → send to Google Chat via Webhook",
+                "POST /send/push                 → send push notification via Firebase",
+                "POST /send/websocket            → send message via WebSocket",
                 "POST /send/multi                → send to email + slack simultaneously",
                 "POST /send/fallback             → test fallback (email fails → slack)",
                 "POST /send/tracked              → send with delivery tracking",
@@ -238,6 +243,92 @@ public class DemoController {
                 "channel", "discord",
                 "to", to,
                 "tip", "Check your Discord channel!"
+        );
+    }
+
+    // ===================== TEAMS =====================
+
+    @Operation(summary = "Send Teams", description = "Send message to Microsoft Teams channel via webhook")
+    @PostMapping("/send/teams")
+    public Map<String, String> sendTeams(
+            @RequestParam(defaultValue = "default") String to,
+            @RequestParam(defaultValue = "Hello from NotifyHub via Teams!") String message) {
+
+        notify.to(to)
+                .via(Channel.TEAMS)
+                .content(message)
+                .send();
+
+        return Map.of(
+                "status", "sent",
+                "channel", "teams",
+                "to", to,
+                "tip", "Check your Teams channel!"
+        );
+    }
+
+    // ===================== GOOGLE CHAT =====================
+
+    @Operation(summary = "Send Google Chat", description = "Send message to Google Chat space via webhook. Use a named recipient alias or default.")
+    @PostMapping("/send/google-chat")
+    public Map<String, String> sendGoogleChat(
+            @RequestParam(defaultValue = "default") String to,
+            @RequestParam(defaultValue = "Hello from NotifyHub via Google Chat!") String message) {
+
+        notify.to(to)
+                .via(Channel.GOOGLE_CHAT)
+                .content(message)
+                .send();
+
+        return Map.of(
+                "status", "sent",
+                "channel", "google-chat",
+                "to", to,
+                "tip", "Check your Google Chat space!"
+        );
+    }
+
+    // ===================== PUSH (FIREBASE) =====================
+
+    @Operation(summary = "Send Push Notification", description = "Send push notification via Firebase Cloud Messaging (FCM). Requires a device token.")
+    @PostMapping("/send/push")
+    public Map<String, String> sendPush(
+            @RequestParam String deviceToken,
+            @RequestParam(defaultValue = "NotifyHub Alert") String title,
+            @RequestParam(defaultValue = "Hello from NotifyHub via Push!") String message) {
+
+        notify.to(deviceToken)
+                .via(Channel.PUSH)
+                .subject(title)
+                .content(message)
+                .send();
+
+        return Map.of(
+                "status", "sent",
+                "channel", "push",
+                "to", deviceToken,
+                "tip", "Check your device for the push notification!"
+        );
+    }
+
+    // ===================== WEBSOCKET =====================
+
+    @Operation(summary = "Send WebSocket", description = "Send message via WebSocket connection. Connects, sends, and closes.")
+    @PostMapping("/send/websocket")
+    public Map<String, String> sendWebSocket(
+            @RequestParam(defaultValue = "default") String to,
+            @RequestParam(defaultValue = "Hello from NotifyHub via WebSocket!") String message) {
+
+        notify.to(to)
+                .via(Channel.WEBSOCKET)
+                .content(message)
+                .send();
+
+        return Map.of(
+                "status", "sent",
+                "channel", "websocket",
+                "to", to,
+                "tip", "Message sent via WebSocket!"
         );
     }
 

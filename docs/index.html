@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NotifyHub — One API. Every Channel.</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="logo.png" type="image/png">
+</head>
+<body>
+    <header class="hero">
+        <img src="logo.png" alt="NotifyHub" class="logo" width="140">
+        <h1>NotifyHub</h1>
+        <p class="tagline">One API. Every channel.</p>
+        <p class="subtitle">Unified notification library for Java and Spring Boot.<br>Send via Email, SMS, Slack, Discord, Telegram, Teams, WhatsApp, Google Chat, Push, WebSocket — with one fluent API.</p>
+        <div class="badges">
+            <a href="https://central.sonatype.com/namespace/io.github.gabrielbbaldez"><img src="https://img.shields.io/maven-central/v/io.github.gabrielbbaldez/notify-spring-boot-starter" alt="Maven Central"></a>
+            <a href="https://github.com/GabrielBBaldez/notify-hub/actions/workflows/ci.yml"><img src="https://github.com/GabrielBBaldez/notify-hub/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+            <a href="https://codecov.io/gh/GabrielBBaldez/notify-hub"><img src="https://codecov.io/gh/GabrielBBaldez/notify-hub/graph/badge.svg" alt="Coverage"></a>
+            <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT License"></a>
+        </div>
+        <div class="cta">
+            <a href="https://github.com/GabrielBBaldez/notify-hub" class="btn btn-primary">GitHub</a>
+            <a href="https://central.sonatype.com/namespace/io.github.gabrielbbaldez" class="btn btn-secondary">Maven Central</a>
+        </div>
+    </header>
+
+    <section class="quick-start">
+        <h2>Quick Start</h2>
+        <div class="code-block">
+            <div class="code-header">pom.xml</div>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;io.github.gabrielbbaldez&lt;/groupId&gt;
+    &lt;artifactId&gt;notify-spring-boot-starter&lt;/artifactId&gt;
+    &lt;version&gt;0.6.0&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;io.github.gabrielbbaldez&lt;/groupId&gt;
+    &lt;artifactId&gt;notify-email&lt;/artifactId&gt;
+    &lt;version&gt;0.6.0&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+        </div>
+        <div class="code-block">
+            <div class="code-header">Java</div>
+<pre><code>@Autowired NotifyHub notify;
+
+notify.to("user@example.com")
+    .via(Channel.EMAIL)
+    .fallback(Channel.SMS)
+    .subject("Order Confirmed")
+    .template("order-confirmed")
+    .param("orderId", "ORD-2024")
+    .send();</code></pre>
+        </div>
+    </section>
+
+    <section class="features">
+        <h2>Features</h2>
+        <div class="grid">
+            <div class="card">
+                <div class="card-icon">11+</div>
+                <h3>Channels</h3>
+                <p>Email, SMS, WhatsApp, Slack, Telegram, Discord, Teams, Google Chat, Push, WebSocket, Webhooks</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">&#9881;</div>
+                <h3>Fluent API</h3>
+                <p>Builder pattern with chaining: .to().via().fallback().template().send()</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">&#128260;</div>
+                <h3>Fallback Chains</h3>
+                <p>If email fails, try SMS. If SMS fails, try Slack. Automatic failover.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">&#128203;</div>
+                <h3>Templates</h3>
+                <p>Mustache HTML templates with i18n, versioning, and dynamic params.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">&#128101;</div>
+                <h3>Batch Send</h3>
+                <p>Send to thousands of recipients with toAll() and failure isolation.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">&#9203;</div>
+                <h3>Scheduling</h3>
+                <p>Schedule for later: .schedule(Duration.ofMinutes(30)) or at a specific time.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">&#128257;</div>
+                <h3>Retry & DLQ</h3>
+                <p>Exponential/fixed backoff with dead letter queue for exhausted retries.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">&#128200;</div>
+                <h3>Rate Limiting</h3>
+                <p>Per-channel token bucket. URGENT priority bypasses limits.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">&#128269;</div>
+                <h3>Delivery Tracking</h3>
+                <p>DeliveryReceipt with status, timestamp. In-memory or JPA persistence.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">&#129302;</div>
+                <h3>MCP Server</h3>
+                <p>13 tools for AI assistants (Claude, etc.) via Model Context Protocol.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">&#128640;</div>
+                <h3>REST API</h3>
+                <p>Docker image with Swagger UI. Just set env vars and call endpoints.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">&#127760;</div>
+                <h3>Admin Dashboard</h3>
+                <p>Web UI for monitoring channels, tracking, and dead letter queue.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="docker">
+        <h2>Docker</h2>
+        <div class="docker-cards">
+            <div class="code-block">
+                <div class="code-header">REST API</div>
+<pre><code>docker run -p 8080:8080 \
+  -e NOTIFY_CHANNELS_EMAIL_HOST=smtp.gmail.com \
+  -e NOTIFY_CHANNELS_EMAIL_USERNAME=you@gmail.com \
+  -e NOTIFY_CHANNELS_EMAIL_PASSWORD=your-app-password \
+  -e NOTIFY_CHANNELS_EMAIL_FROM=you@gmail.com \
+  gabrielbbaldez/notifyhub-api</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">MCP Server (for AI)</div>
+<pre><code>docker pull gabrielbbaldez/notifyhub-mcp</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <section class="channels-grid">
+        <h2>Supported Channels</h2>
+        <div class="channels">
+            <span class="channel">Email (SMTP)</span>
+            <span class="channel">SMS (Twilio)</span>
+            <span class="channel">WhatsApp</span>
+            <span class="channel">Slack</span>
+            <span class="channel">Telegram</span>
+            <span class="channel">Discord</span>
+            <span class="channel">Microsoft Teams</span>
+            <span class="channel">Google Chat</span>
+            <span class="channel">Firebase Push</span>
+            <span class="channel">WebSocket</span>
+            <span class="channel">Generic Webhooks</span>
+        </div>
+    </section>
+
+    <footer>
+        <p>MIT License &mdash; Built by <a href="https://github.com/GabrielBBaldez">Gabriel Baldez</a></p>
+        <p><a href="https://github.com/GabrielBBaldez/notify-hub">GitHub</a> &middot; <a href="https://central.sonatype.com/namespace/io.github.gabrielbbaldez">Maven Central</a> &middot; <a href="https://hub.docker.com/u/gabrielbbaldez">Docker Hub</a></p>
+    </footer>
+</body>
+</html>

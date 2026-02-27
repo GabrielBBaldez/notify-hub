@@ -49,7 +49,7 @@ public class McpServerRunner implements CommandLineRunner {
         };
 
         McpSyncServer server = McpServer.sync(transport)
-                .serverInfo("notify-hub", "0.6.0")
+                .serverInfo("notify-hub", "0.7.0")
                 .capabilities(ServerCapabilities.builder()
                         .tools(true)
                         .build())
@@ -66,11 +66,14 @@ public class McpServerRunner implements CommandLineRunner {
         server.addTool(new SendTeamsTool(notifyHub).specification(jsonMapper));
         server.addTool(new SendGoogleChatTool(notifyHub).specification(jsonMapper));
         server.addTool(new SendPushTool(notifyHub).specification(jsonMapper));
+        server.addTool(new SendTwitterTool(notifyHub).specification(jsonMapper));
+        server.addTool(new SendLinkedInTool(notifyHub).specification(jsonMapper));
+        server.addTool(new SendNotionTool(notifyHub).specification(jsonMapper));
         server.addTool(new SendMultiChannelTool(notifyHub).specification(jsonMapper));
         server.addTool(new ListChannelsTool(notifyHub).specification(jsonMapper));
         server.addTool(new ListDeliveryReceiptsTool(notifyHub).specification(jsonMapper));
 
-        log.info("NotifyHub MCP Server ready — 13 tools registered");
+        log.info("NotifyHub MCP Server ready — 16 tools registered");
 
         // Keep the process alive — MCP STDIO transport needs the JVM running
         Runtime.getRuntime().addShutdownHook(new Thread(keepAlive::countDown));

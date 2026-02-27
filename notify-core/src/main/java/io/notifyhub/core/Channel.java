@@ -15,7 +15,10 @@ public enum Channel {
     DISCORD,
     TEAMS,
     WEBSOCKET,
-    GOOGLE_CHAT;
+    GOOGLE_CHAT,
+    TWITTER,
+    LINKEDIN,
+    NOTION;
 
     /**
      * Creates a reference to a custom channel by name.

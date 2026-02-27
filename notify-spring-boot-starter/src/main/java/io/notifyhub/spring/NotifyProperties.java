@@ -45,6 +45,9 @@ public class NotifyProperties {
         private List<WebhookEntry> webhooks = new ArrayList<>();
         private WebSocket websocket;
         private GoogleChat googleChat;
+        private Twitter twitter;
+        private LinkedIn linkedin;
+        private Notion notion;
 
         public Email getEmail() { return email; }
         public void setEmail(Email email) { this.email = email; }
@@ -68,6 +71,12 @@ public class NotifyProperties {
         public void setWebsocket(WebSocket websocket) { this.websocket = websocket; }
         public GoogleChat getGoogleChat() { return googleChat; }
         public void setGoogleChat(GoogleChat googleChat) { this.googleChat = googleChat; }
+        public Twitter getTwitter() { return twitter; }
+        public void setTwitter(Twitter twitter) { this.twitter = twitter; }
+        public LinkedIn getLinkedin() { return linkedin; }
+        public void setLinkedin(LinkedIn linkedin) { this.linkedin = linkedin; }
+        public Notion getNotion() { return notion; }
+        public void setNotion(Notion notion) { this.notion = notion; }
     }
 
     public static class Email {
@@ -204,6 +213,48 @@ public class NotifyProperties {
         public void setWebhookUrl(String webhookUrl) { this.webhookUrl = webhookUrl; }
         public int getTimeoutMs() { return timeoutMs; }
         public void setTimeoutMs(int timeoutMs) { this.timeoutMs = timeoutMs; }
+        public Map<String, String> getRecipients() { return recipients; }
+        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
+    }
+
+    public static class Twitter {
+        private String apiKey;
+        private String apiSecret;
+        private String accessToken;
+        private String accessTokenSecret;
+        private Map<String, String> recipients = new LinkedHashMap<>();
+        public String getApiKey() { return apiKey; }
+        public void setApiKey(String apiKey) { this.apiKey = apiKey; }
+        public String getApiSecret() { return apiSecret; }
+        public void setApiSecret(String apiSecret) { this.apiSecret = apiSecret; }
+        public String getAccessToken() { return accessToken; }
+        public void setAccessToken(String accessToken) { this.accessToken = accessToken; }
+        public String getAccessTokenSecret() { return accessTokenSecret; }
+        public void setAccessTokenSecret(String accessTokenSecret) { this.accessTokenSecret = accessTokenSecret; }
+        public Map<String, String> getRecipients() { return recipients; }
+        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
+    }
+
+    public static class LinkedIn {
+        private String accessToken;
+        private String authorId;
+        private Map<String, String> recipients = new LinkedHashMap<>();
+        public String getAccessToken() { return accessToken; }
+        public void setAccessToken(String accessToken) { this.accessToken = accessToken; }
+        public String getAuthorId() { return authorId; }
+        public void setAuthorId(String authorId) { this.authorId = authorId; }
+        public Map<String, String> getRecipients() { return recipients; }
+        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
+    }
+
+    public static class Notion {
+        private String apiKey;
+        private String databaseId;
+        private Map<String, String> recipients = new LinkedHashMap<>();
+        public String getApiKey() { return apiKey; }
+        public void setApiKey(String apiKey) { this.apiKey = apiKey; }
+        public String getDatabaseId() { return databaseId; }
+        public void setDatabaseId(String databaseId) { this.databaseId = databaseId; }
         public Map<String, String> getRecipients() { return recipients; }
         public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
     }

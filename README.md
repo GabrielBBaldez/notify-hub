@@ -20,7 +20,7 @@
 
 ---
 
-Stop writing different code for each notification channel. NotifyHub gives you a single fluent API to send notifications via **Email, SMS, WhatsApp, Slack, Telegram, Discord, Microsoft Teams, Firebase Push, Webhooks, WebSocket, Google Chat** — or any custom channel you create.
+Stop writing different code for each notification channel. NotifyHub gives you a single fluent API to send notifications via **Email, SMS, WhatsApp, Slack, Telegram, Discord, Microsoft Teams, Firebase Push, Webhooks, WebSocket, Google Chat, Twitter/X, LinkedIn, Notion** — or any custom channel you create.
 
 ```java
 notify.to(user)
@@ -51,6 +51,9 @@ notify.to(user)
 | Webhook | Custom HTTP, payload template | `.via(Channel.custom("pagerduty"))` |
 | WebSocket | Java WebSocket API, reconnect logic | `.via(WEBSOCKET)` |
 | Google Chat | Webhook HTTP, JSON payload | `.via(GOOGLE_CHAT)` |
+| Twitter/X | OAuth 1.0a, API v2 setup | `.via(TWITTER)` |
+| LinkedIn | OAuth 2.0, REST API setup | `.via(LINKEDIN)` |
+| Notion | Integration Token, API setup | `.via(NOTION)` |
 | Multiple channels | Completely different code for each | Same fluent API |
 | Fallback | Manual try/catch chain | `.fallback(SMS)` |
 | Retry | Implement yourself | Built-in exponential backoff |
@@ -118,7 +121,7 @@ notify.to(user)
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-spring-boot-starter</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -128,21 +131,21 @@ notify.to(user)
 > <dependency>
 >     <groupId>io.github.gabrielbbaldez</groupId>
 >     <artifactId>notify-sms</artifactId>
->     <version>0.6.0</version>
+>     <version>0.7.0</version>
 > </dependency>
 >
 > <!-- Slack / Telegram / Discord / Teams / Firebase Push / Webhook -->
 > <dependency>
 >     <groupId>io.github.gabrielbbaldez</groupId>
 >     <artifactId>notify-slack</artifactId>
->     <version>0.6.0</version>
+>     <version>0.7.0</version>
 > </dependency>
 >
 > <!-- WebSocket / Google Chat -->
 > <dependency>
 >     <groupId>io.github.gabrielbbaldez</groupId>
 >     <artifactId>notify-websocket</artifactId>
->     <version>0.6.0</version>
+>     <version>0.7.0</version>
 > </dependency>
 > ```
 
@@ -438,7 +441,7 @@ For database persistence, add the JPA tracker module:
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-tracker-jpa</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -780,7 +783,7 @@ Decouple notification sending with async message queues. NotifyHub provides two 
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-queue-rabbitmq</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -819,7 +822,7 @@ producer.enqueue(QueuedNotification.builder()
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-queue-kafka</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -866,6 +869,9 @@ Both modules support: templates, priority, deduplication keys, delivery tracking
 | Webhook | Any HTTP endpoint | `notify-webhook` | Stable |
 | WebSocket | JDK WebSocket (`java.net.http`) | `notify-websocket` | Stable |
 | Google Chat | Webhooks | `notify-google-chat` | Stable |
+| Twitter/X | API v2 (OAuth 1.0a) | `notify-twitter` | Stable |
+| LinkedIn | REST API (OAuth 2.0) | `notify-linkedin` | Stable |
+| Notion | API (Integration Token) | `notify-notion` | Stable |
 | Custom | Any | `notify-core` | Stable |
 
 ---
@@ -884,7 +890,7 @@ notify:
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-admin</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -946,7 +952,7 @@ GET /actuator/info
 ```json
 {
   "notifyhub": {
-    "version": "0.6.0",
+    "version": "0.7.0",
     "channels": ["email", "slack", "teams"],
     "tracking.enabled": true,
     "dlq.enabled": true
@@ -1176,7 +1182,7 @@ mvn clean package -pl notify-mcp -am -DskipTests
   "mcpServers": {
     "notify-hub": {
       "command": "java",
-      "args": ["-jar", "path/to/notify-mcp-0.6.0.jar"],
+      "args": ["-jar", "path/to/notify-mcp-0.7.0.jar"],
       "env": {
         "NOTIFY_CHANNELS_EMAIL_HOST": "smtp.gmail.com",
         "NOTIFY_CHANNELS_EMAIL_PORT": "587",
@@ -1197,7 +1203,7 @@ mvn clean package -pl notify-mcp -am -DskipTests
   "mcpServers": {
     "notify-hub": {
       "command": "java",
-      "args": ["-jar", "path/to/notify-mcp-0.6.0.jar"],
+      "args": ["-jar", "path/to/notify-mcp-0.7.0.jar"],
       "env": {
         "NOTIFY_CHANNELS_DISCORD_WEBHOOK_URL": "https://discord.com/api/webhooks/..."
       }
@@ -1494,7 +1500,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-spring-boot-starter</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -1510,7 +1516,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-core</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -1526,7 +1532,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-email</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -1542,7 +1548,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-sms</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -1558,7 +1564,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-slack</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -1574,7 +1580,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-telegram</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -1590,7 +1596,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-discord</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -1606,7 +1612,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-teams</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -1622,7 +1628,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-push-firebase</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -1638,7 +1644,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-webhook</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -1654,7 +1660,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-websocket</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -1670,7 +1676,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-google-chat</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -1686,7 +1692,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-tracker-jpa</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -1702,7 +1708,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-admin</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -1718,7 +1724,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-queue-rabbitmq</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -1734,7 +1740,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-queue-kafka</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -1750,7 +1756,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-mcp</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -1787,9 +1793,10 @@ Below is every module, what it does, when you need it, and how to add it.
 - [x] **v0.1.0** — Core API, Email, SMS, WhatsApp, Mustache templates, Spring Boot starter
 - [x] **v0.2.0** — Slack, Telegram, Discord, async sending, scheduling, delivery tracking
 - [x] **v0.3.0** — Teams, Firebase Push, Webhook, attachments, priority, rate limiting, DLQ, i18n, batch send, JPA tracker, Micrometer metrics, Actuator health, Spring events, conditional routing, admin dashboard (80+ tests)
-- [x] **v0.6.0** — WebSocket channel, Google Chat channel, message deduplication, template versioning (105+ tests, 16 modules)
-- [x] **v0.6.0** — MCP Server module: 13 AI agent tools for sending notifications via Claude Desktop, Claude Code, Cursor (130+ tests, 17 modules)
-- [x] **v0.6.0** — Named recipients, Docker images (MCP + REST API), Swagger UI, RabbitMQ + Kafka message queue modules, JaCoCo coverage, GitHub Pages landing page
+- [x] **v0.7.0** — WebSocket channel, Google Chat channel, message deduplication, template versioning (105+ tests, 16 modules)
+- [x] **v0.7.0** — MCP Server module: 13 AI agent tools for sending notifications via Claude Desktop, Claude Code, Cursor (130+ tests, 17 modules)
+- [x] **v0.7.0** — Named recipients, Docker images (MCP + REST API), Swagger UI, RabbitMQ + Kafka message queue modules, JaCoCo coverage, GitHub Pages landing page
+- [x] **v0.7.0** — Twitter/X, LinkedIn, Notion channels (14 channels, 16 MCP tools, 22 modules)
 
 ---
 

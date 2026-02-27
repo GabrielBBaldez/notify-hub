@@ -66,6 +66,9 @@ public class DemoController {
                 "POST /send/google-chat          → send to Google Chat via Webhook",
                 "POST /send/push                 → send push notification via Firebase",
                 "POST /send/websocket            → send message via WebSocket",
+                "POST /send/twitter              → post a tweet on Twitter/X",
+                "POST /send/linkedin             → publish a post on LinkedIn",
+                "POST /send/notion               → create a page in Notion",
                 "POST /send/multi                → send to email + slack simultaneously",
                 "POST /send/fallback             → test fallback (email fails → slack)",
                 "POST /send/tracked              → send with delivery tracking",
@@ -329,6 +332,69 @@ public class DemoController {
                 "channel", "websocket",
                 "to", to,
                 "tip", "Message sent via WebSocket!"
+        );
+    }
+
+    // ===================== TWITTER/X =====================
+
+    @Operation(summary = "Post Tweet", description = "Post a tweet on Twitter/X via API v2")
+    @PostMapping("/send/twitter")
+    public Map<String, String> sendTwitter(
+            @RequestParam(defaultValue = "Hello from NotifyHub via Twitter/X!") String message) {
+
+        notify.to("default")
+                .via(Channel.TWITTER)
+                .content(message)
+                .send();
+
+        return Map.of(
+                "status", "sent",
+                "channel", "twitter",
+                "tip", "Check your Twitter/X profile for the tweet!"
+        );
+    }
+
+    // ===================== LINKEDIN =====================
+
+    @Operation(summary = "Publish LinkedIn Post", description = "Publish a post on LinkedIn via REST API")
+    @PostMapping("/send/linkedin")
+    public Map<String, String> sendLinkedIn(
+            @RequestParam(defaultValue = "default") String to,
+            @RequestParam(defaultValue = "Hello from NotifyHub via LinkedIn!") String message) {
+
+        notify.to(to)
+                .via(Channel.LINKEDIN)
+                .content(message)
+                .send();
+
+        return Map.of(
+                "status", "sent",
+                "channel", "linkedin",
+                "to", to,
+                "tip", "Check your LinkedIn feed for the post!"
+        );
+    }
+
+    // ===================== NOTION =====================
+
+    @Operation(summary = "Create Notion Page", description = "Create a page in a Notion database via API")
+    @PostMapping("/send/notion")
+    public Map<String, String> sendNotion(
+            @RequestParam(defaultValue = "default") String to,
+            @RequestParam(defaultValue = "Notification") String title,
+            @RequestParam(defaultValue = "Hello from NotifyHub via Notion!") String message) {
+
+        notify.to(to)
+                .via(Channel.NOTION)
+                .subject(title)
+                .content(message)
+                .send();
+
+        return Map.of(
+                "status", "sent",
+                "channel", "notion",
+                "to", to,
+                "tip", "Check your Notion database for the new page!"
         );
     }
 

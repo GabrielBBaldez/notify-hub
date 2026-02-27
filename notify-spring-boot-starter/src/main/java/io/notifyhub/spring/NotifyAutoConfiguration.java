@@ -44,7 +44,10 @@ import java.util.concurrent.ScheduledExecutorService;
     NotifyFirebasePushAutoConfiguration.class,
     NotifyWebhookAutoConfiguration.class,
     NotifyWebSocketAutoConfiguration.class,
-    NotifyGoogleChatAutoConfiguration.class
+    NotifyGoogleChatAutoConfiguration.class,
+    NotifyTwitterAutoConfiguration.class,
+    NotifyLinkedInAutoConfiguration.class,
+    NotifyNotionAutoConfiguration.class
 })
 public class NotifyAutoConfiguration {
 

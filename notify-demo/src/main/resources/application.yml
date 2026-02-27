@@ -21,5 +21,7 @@ notify:
     pool-size: 2
   tracking:
     enabled: true
+  audit:
+    enabled: true
   admin:
     enabled: true

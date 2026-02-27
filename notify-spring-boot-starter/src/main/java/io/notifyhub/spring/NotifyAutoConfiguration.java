@@ -2,6 +2,9 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.email.SmtpConfig;
 import io.notifyhub.channel.email.SmtpEmailChannel;
+import io.notifyhub.core.AuditLog;
+import io.notifyhub.core.AuditNotificationListener;
+import io.notifyhub.core.InMemoryAuditLog;
 import io.notifyhub.core.NotifyHub;
 import io.notifyhub.core.InMemoryNotificationTracker;
 import io.notifyhub.core.NotificationListener;
@@ -181,6 +184,24 @@ public class NotifyAutoConfiguration {
         }
     }
 
+    // ===================== AUDIT LOG =====================
+
+    @Bean
+    @ConditionalOnProperty(prefix = "notify.audit", name = "enabled", havingValue = "true")
+    @ConditionalOnMissingBean(AuditLog.class)
+    public AuditLog inMemoryAuditLog() {
+        log.info("NotifyHub: Audit log enabled (in-memory)");
+        return new InMemoryAuditLog();
+    }
+
+    @Bean
+    @ConditionalOnBean(AuditLog.class)
+    @ConditionalOnMissingBean(AuditNotificationListener.class)
+    public AuditNotificationListener auditNotificationListener(AuditLog auditLog) {
+        log.info("NotifyHub: Audit notification listener enabled");
+        return new AuditNotificationListener(auditLog);
+    }
+
     // ===================== SPRING EVENTS =====================
 
     @Bean
@@ -203,6 +224,7 @@ public class NotifyAutoConfiguration {
             ObjectProvider<ScheduledExecutorService> schedulerProvider,
             ObjectProvider<NotificationTracker> trackerProvider,
             ObjectProvider<DeduplicationStore> deduplicationStoreProvider,
+            ObjectProvider<AuditLog> auditLogProvider,
             NotifyProperties properties) {
 
         NotifyHub.Builder builder = NotifyHub.builder()
@@ -258,6 +280,13 @@ public class NotifyAutoConfiguration {
         if (dedupStore != null) {
             builder.deduplicationStore(dedupStore);
             log.info("NotifyHub: Deduplication store configured");
+        }
+
+        // Configure audit log
+        AuditLog auditLog = auditLogProvider.getIfAvailable();
+        if (auditLog != null) {
+            builder.auditLog(auditLog);
+            log.info("NotifyHub: Audit log configured");
         }
 
         return builder.build();

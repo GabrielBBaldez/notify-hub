@@ -52,6 +52,7 @@
         <module>notify-channels/notify-twitch</module>
         <module>notify-channels/notify-youtube</module>
         <module>notify-tracker-jpa</module>
+        <module>notify-audit-jpa</module>
         <module>notify-spring-boot-starter</module>
         <module>notify-admin</module>
         <module>notify-queue-rabbitmq</module>
@@ -161,6 +162,11 @@
             <dependency>
                 <groupId>io.github.gabrielbbaldez</groupId>
                 <artifactId>notify-tracker-jpa</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.gabrielbbaldez</groupId>
+                <artifactId>notify-audit-jpa</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

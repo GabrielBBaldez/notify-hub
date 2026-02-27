@@ -1,5 +1,8 @@
 package io.notifyhub.admin;
 
+import io.notifyhub.core.AuditEntry;
+import io.notifyhub.core.AuditEventType;
+import io.notifyhub.core.AuditLog;
 import io.notifyhub.core.DeliveryReceipt;
 import io.notifyhub.core.DeliveryStatus;
 import io.notifyhub.core.NotificationTracker;
@@ -136,6 +139,29 @@ public class NotifyAdminController {
     @GetMapping("/analytics")
     public String analytics() {
         return "notify-admin/analytics";
+    }
+
+    /** Audit Log -- list all audit entries with optional event type filter. */
+    @GetMapping("/audit-log")
+    public String auditLog(@RequestParam(name = "event", required = false) String event, Model model) {
+        AuditLog auditLog = hub.getAuditLog();
+        List<AuditEntry> entries = Collections.emptyList();
+        if (auditLog != null) {
+            if (event != null && !event.isBlank()) {
+                try {
+                    entries = auditLog.findByEventType(AuditEventType.valueOf(event));
+                } catch (IllegalArgumentException e) {
+                    entries = auditLog.findAll();
+                }
+            } else {
+                entries = auditLog.findAll();
+            }
+        }
+        model.addAttribute("entries", entries);
+        model.addAttribute("eventTypes", AuditEventType.values());
+        model.addAttribute("selectedEvent", event);
+        model.addAttribute("auditEnabled", auditLog != null);
+        return "notify-admin/audit-log";
     }
 
     /** API: overview stats — count by status. */

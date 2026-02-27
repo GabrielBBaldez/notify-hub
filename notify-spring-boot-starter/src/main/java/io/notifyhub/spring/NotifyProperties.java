@@ -17,6 +17,7 @@ public class NotifyProperties {
     private Events events = new Events();
     private RateLimit rateLimit = new RateLimit();
     private Deduplication deduplication = new Deduplication();
+    private Audit audit = new Audit();
 
     public Channels getChannels() { return channels; }
     public void setChannels(Channels channels) { this.channels = channels; }
@@ -32,6 +33,8 @@ public class NotifyProperties {
     public void setRateLimit(RateLimit rateLimit) { this.rateLimit = rateLimit; }
     public Deduplication getDeduplication() { return deduplication; }
     public void setDeduplication(Deduplication deduplication) { this.deduplication = deduplication; }
+    public Audit getAudit() { return audit; }
+    public void setAudit(Audit audit) { this.audit = audit; }
 
     public static class Channels {
         private Email email;
@@ -386,5 +389,14 @@ public class NotifyProperties {
         public void setMaxRequests(int maxRequests) { this.maxRequests = maxRequests; }
         public String getWindow() { return window; }
         public void setWindow(String window) { this.window = window; }
+    }
+
+    public static class Audit {
+        private boolean enabled = false;
+        private String type = "memory";
+        public boolean isEnabled() { return enabled; }
+        public void setEnabled(boolean enabled) { this.enabled = enabled; }
+        public String getType() { return type; }
+        public void setType(String type) { this.type = type; }
     }
 }

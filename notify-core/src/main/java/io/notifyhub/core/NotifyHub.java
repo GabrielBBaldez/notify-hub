@@ -66,6 +66,7 @@ public class NotifyHub {
     private final DeadLetterQueue deadLetterQueue;
     private final NotificationRouter router;
     private final DeduplicationStore deduplicationStore;
+    private final AuditLog auditLog;
 
     private NotifyHub(Builder builder) {
         this.channels = new ConcurrentHashMap<>(builder.channels);
@@ -81,6 +82,7 @@ public class NotifyHub {
         this.deadLetterQueue = builder.deadLetterQueue;
         this.router = builder.router;
         this.deduplicationStore = builder.deduplicationStore;
+        this.auditLog = builder.auditLog;
     }
 
     // ===================== FLUENT API ENTRY POINTS =====================
@@ -173,6 +175,11 @@ public class NotifyHub {
     /** Get the dead letter queue (if configured). */
     public DeadLetterQueue getDeadLetterQueue() {
         return deadLetterQueue;
+    }
+
+    /** Get the audit log, or null if not configured. */
+    public AuditLog getAuditLog() {
+        return auditLog;
     }
 
     /**
@@ -643,6 +650,7 @@ public class NotifyHub {
         private DeadLetterQueue deadLetterQueue;
         private NotificationRouter router;
         private DeduplicationStore deduplicationStore;
+        private AuditLog auditLog;
 
         public Builder channel(NotificationChannel channel) {
             this.channels.put(channel.getName().toLowerCase(), channel);
@@ -735,6 +743,16 @@ public class NotifyHub {
          */
         public Builder deduplicationStore(DeduplicationStore deduplicationStore) {
             this.deduplicationStore = deduplicationStore;
+            return this;
+        }
+
+        /**
+         * Set the audit log for recording system events.
+         *
+         * @see InMemoryAuditLog
+         */
+        public Builder auditLog(AuditLog auditLog) {
+            this.auditLog = auditLog;
             return this;
         }
 

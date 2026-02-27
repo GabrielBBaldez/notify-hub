@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>NotifyHub Admin - Tracking</title>
+    <title>NotifyHub Admin - Audit Log</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -136,7 +136,6 @@
         }
         .badge-sent { background: rgba(52, 211, 153, 0.15); color: #34d399; }
         .badge-failed { background: rgba(248, 113, 113, 0.15); color: #f87171; }
-        .badge-pending { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
         .badge-scheduled { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
         .badge-cancelled { background: rgba(139, 135, 168, 0.15); color: #8b87a8; }
         .disabled-msg {
@@ -152,9 +151,13 @@
             padding: 2rem 1rem;
             font-size: 0.9rem;
         }
-        .error-text {
-            color: #f87171;
+        .details-text {
+            color: #8b87a8;
             font-size: 0.8rem;
+            max-width: 250px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .count-badge {
             background: rgba(167, 139, 250, 0.15);
@@ -184,62 +187,59 @@
         <div class="nav-links">
             <a th:href="@{/notify-admin}">Dashboard</a>
             <a th:href="@{/notify-admin/analytics}">Analytics</a>
-            <a th:href="@{/notify-admin/tracking}" class="active">Tracking</a>
+            <a th:href="@{/notify-admin/tracking}">Tracking</a>
             <a th:href="@{/notify-admin/dlq}">DLQ</a>
             <a th:href="@{/notify-admin/channels}">Channels</a>
-            <a th:href="@{/notify-admin/audit-log}">Audit Log</a>
+            <a th:href="@{/notify-admin/audit-log}" class="active">Audit Log</a>
         </div>
     </nav>
 
     <div class="container">
-        <h1>Delivery Tracking <span class="count-badge" th:text="${#lists.size(receipts)}">0</span></h1>
-        <p class="subtitle">Notification delivery history and status</p>
+        <h1>Audit Log <span class="count-badge" th:text="${#lists.size(entries)}">0</span></h1>
+        <p class="subtitle">Complete history of all notification system events</p>
 
-        <div th:if="${!trackingEnabled}" class="table-wrapper">
-            <p class="disabled-msg">Notification tracking is not enabled. Configure a NotificationTracker bean to see delivery history.</p>
+        <div th:if="${!auditEnabled}" class="table-wrapper">
+            <p class="disabled-msg">Audit log is not enabled. Set <code>notify.audit.enabled=true</code> in your configuration.</p>
         </div>
 
-        <div th:if="${trackingEnabled}">
-            <form th:action="@{/notify-admin/tracking}" method="get" class="filter-bar">
-                <label for="channel-filter">Filter by channel:</label>
-                <select id="channel-filter" name="channel" onchange="this.form.submit()">
-                    <option value="">All Channels</option>
-                    <option th:each="ch : ${channels}" th:value="${ch}" th:text="${ch}"
-                            th:selected="${ch == selectedChannel}">channel</option>
+        <div th:if="${auditEnabled}">
+            <form th:action="@{/notify-admin/audit-log}" method="get" class="filter-bar">
+                <label for="event-filter">Filter by event:</label>
+                <select id="event-filter" name="event" onchange="this.form.submit()">
+                    <option value="">All Events</option>
+                    <option th:each="et : ${eventTypes}" th:value="${et.name()}" th:text="${et.name()}"
+                            th:selected="${et.name() == selectedEvent}">event</option>
                 </select>
             </form>
 
             <div class="table-wrapper">
-                <div th:if="${#lists.isEmpty(receipts)}" class="empty-msg">
-                    No delivery receipts found.
+                <div th:if="${#lists.isEmpty(entries)}" class="empty-msg">
+                    No audit entries found.
                 </div>
-                <table th:unless="${#lists.isEmpty(receipts)}">
+                <table th:unless="${#lists.isEmpty(entries)}">
                     <thead>
                         <tr>
-                            <th>Status</th>
+                            <th>Timestamp</th>
+                            <th>Event</th>
                             <th>Channel</th>
                             <th>Recipient</th>
-                            <th>Template</th>
-                            <th>Timestamp</th>
-                            <th>Error</th>
+                            <th>Details</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="r : ${receipts}">
+                        <tr th:each="e : ${entries}">
+                            <td th:text="${#temporals.format(e.timestamp, 'yyyy-MM-dd HH:mm:ss')}">2024-01-01</td>
                             <td>
-                                <span class="badge badge-sent" th:if="${r.status.name() == 'SENT'}">Sent</span>
-                                <span class="badge badge-failed" th:if="${r.status.name() == 'FAILED'}">Failed</span>
-                                <span class="badge badge-pending" th:if="${r.status.name() == 'PENDING'}">Pending</span>
-                                <span class="badge badge-scheduled" th:if="${r.status.name() == 'SCHEDULED'}">Scheduled</span>
-                                <span class="badge badge-cancelled" th:if="${r.status.name() == 'CANCELLED'}">Cancelled</span>
+                                <span class="badge badge-sent" th:if="${e.eventType.name() == 'NOTIFICATION_SENT'}">Sent</span>
+                                <span class="badge badge-failed" th:if="${e.eventType.name() == 'NOTIFICATION_FAILED'}">Failed</span>
+                                <span class="badge badge-scheduled" th:if="${e.eventType.name() == 'NOTIFICATION_SCHEDULED'}">Scheduled</span>
+                                <span class="badge badge-cancelled" th:if="${e.eventType.name() == 'NOTIFICATION_CANCELLED'}">Cancelled</span>
                             </td>
-                            <td th:text="${r.channelName}">email</td>
-                            <td th:text="${r.recipient}">user@example.com</td>
-                            <td th:text="${r.templateName ?: '-'}">welcome</td>
-                            <td th:text="${#temporals.format(r.timestamp, 'yyyy-MM-dd HH:mm:ss')}">2024-01-01</td>
+                            <td th:text="${e.channelName ?: '-'}">email</td>
+                            <td th:text="${e.recipient ?: '-'}">user@example.com</td>
                             <td>
-                                <span class="error-text" th:if="${r.errorMessage}" th:text="${r.errorMessage}">error</span>
-                                <span th:unless="${r.errorMessage}">-</span>
+                                <span class="details-text" th:if="${e.details}" th:text="${e.details}" th:title="${e.details}">details</span>
+                                <span th:unless="${e.details}">-</span>
                             </td>
                         </tr>
                     </tbody>

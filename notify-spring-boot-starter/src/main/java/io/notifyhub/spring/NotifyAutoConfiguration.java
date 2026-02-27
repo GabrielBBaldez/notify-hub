@@ -47,7 +47,9 @@ import java.util.concurrent.ScheduledExecutorService;
     NotifyGoogleChatAutoConfiguration.class,
     NotifyTwitterAutoConfiguration.class,
     NotifyLinkedInAutoConfiguration.class,
-    NotifyNotionAutoConfiguration.class
+    NotifyNotionAutoConfiguration.class,
+    NotifyTwitchAutoConfiguration.class,
+    NotifyYouTubeAutoConfiguration.class
 })
 public class NotifyAutoConfiguration {
 

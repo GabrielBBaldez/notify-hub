@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NotifyHub — One API. Every Channel.</title>
-    <meta name="description" content="Unified notification library for Java and Spring Boot. Send via Email, SMS, Slack, Discord, Telegram, Teams, WhatsApp, Google Chat, Push, WebSocket, Twitter/X, LinkedIn, Notion with one fluent API.">
+    <meta name="description" content="Unified notification library for Java and Spring Boot. Send via Email, SMS, Slack, Discord, Telegram, Teams, WhatsApp, Google Chat, Push, WebSocket, Twitter/X, LinkedIn, Notion, Twitch, YouTube with one fluent API.">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="logo.png" type="image/png">
 </head>
@@ -33,7 +33,7 @@
         <h1>Notify<span class="accent">Hub</span></h1>
         <p class="tagline">One API. Every channel.</p>
         <p class="subtitle">Stop writing different code for each notification channel.<br>
-            NotifyHub gives you a single fluent Java API to send via <strong>14 channels</strong>,<br>
+            NotifyHub gives you a single fluent Java API to send via <strong>16 channels</strong>,<br>
             with fallback chains, templates, retry, scheduling, and more.</p>
         <div class="badges">
             <a href="https://central.sonatype.com/namespace/io.github.gabrielbbaldez"><img src="https://img.shields.io/maven-central/v/io.github.gabrielbbaldez/notify-spring-boot-starter?style=flat-square&color=f97316" alt="Maven Central"></a>
@@ -66,14 +66,14 @@
             <div class="what-card">
                 <div class="what-icon">&#129302;</div>
                 <h3>AI Ready</h3>
-                <p>MCP Server with 16 tools. Let Claude, Cursor, or any AI assistant send notifications on your behalf.</p>
+                <p>MCP Server with 18 tools. Let Claude, Cursor, or any AI assistant send notifications on your behalf.</p>
             </div>
         </div>
     </section>
 
     <!-- CHANNELS -->
     <section class="channels-section" id="channels">
-        <h2>14 Channels. Zero Friction.</h2>
+        <h2>16 Channels. Zero Friction.</h2>
         <p class="section-lead">Every channel uses the same API. Most use <strong>zero external SDKs</strong> — just the JDK HttpClient. Add only the channels you need.</p>
         <div class="channels-grid">
             <div class="ch-card">
@@ -145,6 +145,16 @@
                 <div class="ch-icon">&#128221;</div>
                 <h4>Notion</h4>
                 <p>API. Create pages in any database. Integration Token.</p>
+            </div>
+            <div class="ch-card">
+                <div class="ch-icon">&#127918;</div>
+                <h4>Twitch</h4>
+                <p>Helix API. Chat messages + polls. No SDK needed.</p>
+            </div>
+            <div class="ch-card">
+                <div class="ch-icon">&#9654;</div>
+                <h4>YouTube</h4>
+                <p>Data API v3. Live chat messages. No SDK needed.</p>
             </div>
             <div class="ch-card ch-custom">
                 <div class="ch-icon">&#10010;</div>
@@ -388,7 +398,7 @@ open http://localhost:8080/swagger-ui.html</code></pre>
                     <span class="docker-badge mcp-badge">MCP Server</span>
                     <code class="docker-image">gabrielbbal10/notifyhub-mcp</code>
                 </div>
-                <p>Model Context Protocol server with <strong>16 tools</strong> for AI assistants. Connect to Claude Desktop, Claude Code, or Cursor.</p>
+                <p>Model Context Protocol server with <strong>18 tools</strong> for AI assistants. Connect to Claude Desktop, Claude Code, or Cursor.</p>
                 <div class="docker-links">
                     <a href="https://hub.docker.com/r/gabrielbbal10/notifyhub-mcp">Docker Hub</a>
                     <a href="https://github.com/GabrielBBaldez/notify-hub#mcp-server">Docs</a>
@@ -468,10 +478,10 @@ open http://localhost:8080/swagger-ui.html</code></pre>
     <!-- MCP / AI -->
     <section class="mcp-section" id="mcp">
         <h2>Built for AI</h2>
-        <p class="section-lead">NotifyHub includes an <strong>MCP Server</strong> (Model Context Protocol) that exposes 16 tools. Connect it to Claude Desktop, Claude Code, Cursor, or any MCP-compatible AI client.</p>
+        <p class="section-lead">NotifyHub includes an <strong>MCP Server</strong> (Model Context Protocol) that exposes 18 tools. Connect it to Claude Desktop, Claude Code, Cursor, or any MCP-compatible AI client.</p>
         <div class="mcp-grid">
             <div class="mcp-tools">
-                <h4>16 MCP Tools</h4>
+                <h4>18 MCP Tools</h4>
                 <div class="tool-list">
                     <span class="tool">send_email</span>
                     <span class="tool">send_sms</span>
@@ -485,6 +495,8 @@ open http://localhost:8080/swagger-ui.html</code></pre>
                     <span class="tool">send_twitter</span>
                     <span class="tool">send_linkedin</span>
                     <span class="tool">send_notion</span>
+                    <span class="tool">send_twitch</span>
+                    <span class="tool">send_youtube</span>
                     <span class="tool">send_notification</span>
                     <span class="tool">send_multi_channel</span>
                     <span class="tool">list_channels</span>
@@ -562,7 +574,7 @@ open http://localhost:8080/swagger-ui.html</code></pre>
 
     <!-- MODULES -->
     <section class="modules-section" id="modules">
-        <h2>20 Modules. Pick What You Need.</h2>
+        <h2>24 Modules. Pick What You Need.</h2>
         <p class="section-lead">NotifyHub is modular. The core has zero Spring dependency. Add only the channels and features you use.</p>
         <div class="modules-table">
             <table>
@@ -585,9 +597,11 @@ open http://localhost:8080/swagger-ui.html</code></pre>
                     <tr><td><code>notify-twitter</code></td><td>Twitter/X via API v2 with OAuth 1.0a. No SDK.</td></tr>
                     <tr><td><code>notify-linkedin</code></td><td>LinkedIn via REST API with OAuth 2.0. No SDK.</td></tr>
                     <tr><td><code>notify-notion</code></td><td>Notion via API. Create pages in any database.</td></tr>
+                    <tr><td><code>notify-twitch</code></td><td>Twitch via Helix API. Chat messages + polls.</td></tr>
+                    <tr><td><code>notify-youtube</code></td><td>YouTube via Data API v3. Live chat messages.</td></tr>
                     <tr><td><code>notify-tracker-jpa</code></td><td>JPA-backed delivery tracking. Persist receipts to any database.</td></tr>
                     <tr><td><code>notify-admin</code></td><td>Web dashboard for monitoring and DLQ management.</td></tr>
-                    <tr><td><code>notify-mcp</code></td><td>MCP Server for AI assistants (16 tools).</td></tr>
+                    <tr><td><code>notify-mcp</code></td><td>MCP Server for AI assistants (18 tools).</td></tr>
                     <tr><td><code>notify-queue-rabbitmq</code></td><td>RabbitMQ producer/consumer for async notifications.</td></tr>
                     <tr><td><code>notify-queue-kafka</code></td><td>Apache Kafka producer/consumer for async notifications.</td></tr>
                 </tbody>

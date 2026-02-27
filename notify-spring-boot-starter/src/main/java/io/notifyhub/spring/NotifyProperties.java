@@ -48,6 +48,8 @@ public class NotifyProperties {
         private Twitter twitter;
         private LinkedIn linkedin;
         private Notion notion;
+        private Twitch twitch;
+        private YouTube youtube;
 
         public Email getEmail() { return email; }
         public void setEmail(Email email) { this.email = email; }
@@ -77,6 +79,10 @@ public class NotifyProperties {
         public void setLinkedin(LinkedIn linkedin) { this.linkedin = linkedin; }
         public Notion getNotion() { return notion; }
         public void setNotion(Notion notion) { this.notion = notion; }
+        public Twitch getTwitch() { return twitch; }
+        public void setTwitch(Twitch twitch) { this.twitch = twitch; }
+        public YouTube getYoutube() { return youtube; }
+        public void setYoutube(YouTube youtube) { this.youtube = youtube; }
     }
 
     public static class Email {
@@ -255,6 +261,39 @@ public class NotifyProperties {
         public void setApiKey(String apiKey) { this.apiKey = apiKey; }
         public String getDatabaseId() { return databaseId; }
         public void setDatabaseId(String databaseId) { this.databaseId = databaseId; }
+        public Map<String, String> getRecipients() { return recipients; }
+        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
+    }
+
+    public static class Twitch {
+        private String clientId;
+        private String accessToken;
+        private String broadcasterId;
+        private String senderId;
+        private Map<String, String> recipients = new LinkedHashMap<>();
+        public String getClientId() { return clientId; }
+        public void setClientId(String clientId) { this.clientId = clientId; }
+        public String getAccessToken() { return accessToken; }
+        public void setAccessToken(String accessToken) { this.accessToken = accessToken; }
+        public String getBroadcasterId() { return broadcasterId; }
+        public void setBroadcasterId(String broadcasterId) { this.broadcasterId = broadcasterId; }
+        public String getSenderId() { return senderId; }
+        public void setSenderId(String senderId) { this.senderId = senderId; }
+        public Map<String, String> getRecipients() { return recipients; }
+        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
+    }
+
+    public static class YouTube {
+        private String accessToken;
+        private String channelId;
+        private String liveChatId;
+        private Map<String, String> recipients = new LinkedHashMap<>();
+        public String getAccessToken() { return accessToken; }
+        public void setAccessToken(String accessToken) { this.accessToken = accessToken; }
+        public String getChannelId() { return channelId; }
+        public void setChannelId(String channelId) { this.channelId = channelId; }
+        public String getLiveChatId() { return liveChatId; }
+        public void setLiveChatId(String liveChatId) { this.liveChatId = liveChatId; }
         public Map<String, String> getRecipients() { return recipients; }
         public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
     }

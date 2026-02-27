@@ -18,7 +18,9 @@ public enum Channel {
     GOOGLE_CHAT,
     TWITTER,
     LINKEDIN,
-    NOTION;
+    NOTION,
+    TWITCH,
+    YOUTUBE;
 
     /**
      * Creates a reference to a custom channel by name.

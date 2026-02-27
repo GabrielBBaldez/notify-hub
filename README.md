@@ -20,7 +20,7 @@
 
 ---
 
-Stop writing different code for each notification channel. NotifyHub gives you a single fluent API to send notifications via **Email, SMS, WhatsApp, Slack, Telegram, Discord, Microsoft Teams, Firebase Push, Webhooks, WebSocket, Google Chat, Twitter/X, LinkedIn, Notion** — or any custom channel you create.
+Stop writing different code for each notification channel. NotifyHub gives you a single fluent API to send notifications via **Email, SMS, WhatsApp, Slack, Telegram, Discord, Microsoft Teams, Firebase Push, Webhooks, WebSocket, Google Chat, Twitter/X, LinkedIn, Notion, Twitch, YouTube** — or any custom channel you create.
 
 ```java
 notify.to(user)
@@ -54,6 +54,8 @@ notify.to(user)
 | Twitter/X | OAuth 1.0a, API v2 setup | `.via(TWITTER)` |
 | LinkedIn | OAuth 2.0, REST API setup | `.via(LINKEDIN)` |
 | Notion | Integration Token, API setup | `.via(NOTION)` |
+| Twitch | OAuth 2.0, Twitch API setup | `.via(TWITCH)` |
+| YouTube | YouTube Data API v3 setup | `.via(YOUTUBE)` |
 | Multiple channels | Completely different code for each | Same fluent API |
 | Fallback | Manual try/catch chain | `.fallback(SMS)` |
 | Retry | Implement yourself | Built-in exponential backoff |
@@ -872,6 +874,8 @@ Both modules support: templates, priority, deduplication keys, delivery tracking
 | Twitter/X | API v2 (OAuth 1.0a) | `notify-twitter` | Stable |
 | LinkedIn | REST API (OAuth 2.0) | `notify-linkedin` | Stable |
 | Notion | API (Integration Token) | `notify-notion` | Stable |
+| Twitch | Helix API (OAuth 2.0) | `notify-twitch` | Stable |
+| YouTube | YouTube Data API v3 | `notify-youtube` | Stable |
 | Custom | Any | `notify-core` | Stable |
 
 ---
@@ -1226,6 +1230,11 @@ mvn clean package -pl notify-mcp -am -DskipTests
 | `send_teams` | Send to Microsoft Teams | `recipient`, `body` or `template` |
 | `send_google_chat` | Send to Google Chat | `recipient`, `body` or `template` |
 | `send_push` | Send push via Firebase | `push_token`, `body` |
+| `send_twitter` | Post a tweet on Twitter/X | `body` or `template` |
+| `send_linkedin` | Publish a post on LinkedIn | `body` or `template` |
+| `send_notion` | Create a page in Notion | `recipient`, `body` or `template` |
+| `send_twitch` | Send Twitch chat message + polls | `recipient`, `body` or `template` |
+| `send_youtube` | Send YouTube live chat message | `recipient`, `body` or `template` |
 | `send_multi_channel` | Send to multiple channels | `channels[]`, `recipient`, `body` or `template` |
 | `list_channels` | List configured channels | _(none)_ |
 | `list_delivery_receipts` | Query delivery history | _(none)_ |
@@ -1443,7 +1452,9 @@ notify-hub/
 │   ├── notify-push-firebase/             # Firebase Cloud Messaging (FCM)
 │   ├── notify-webhook/                   # Generic webhook (configurable)
 │   ├── notify-websocket/                 # WebSocket (JDK java.net.http)
-│   └── notify-google-chat/              # Google Chat webhooks (JDK HttpClient)
+│   ├── notify-google-chat/              # Google Chat webhooks (JDK HttpClient)
+│   ├── notify-twitch/                   # Twitch chat + polls via Helix API (JDK HttpClient)
+│   └── notify-youtube/                  # YouTube live chat via Data API v3 (JDK HttpClient)
 │
 ├── notify-tracker-jpa/                   # JPA-backed delivery tracker
 │
@@ -1461,7 +1472,7 @@ notify-hub/
 ├── notify-mcp/                           # MCP Server for AI agents
 │   ├── NotifyMcpServer                   # Spring Boot headless main
 │   ├── McpServerRunner                   # STDIO MCP server bootstrap
-│   └── tools/                            # 13 MCP tools (send_email, send_slack, etc.)
+│   └── tools/                            # 18 MCP tools (send_email, send_slack, etc.)
 │
 └── notify-demo/                          # Demo app (run it!)
 ```
@@ -1682,6 +1693,38 @@ Below is every module, what it does, when you need it, and how to add it.
 
 ---
 
+#### `notify-twitch` — Twitch Channel
+
+**What it does:** Sends chat messages and polls to Twitch channels via the Helix API. Uses the JDK `HttpClient` — no external SDK needed.
+
+**When to use:** You want to send notifications to Twitch chat or create polls. Requires Twitch API OAuth 2.0 credentials (Client ID + OAuth token).
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-twitch</artifactId>
+    <version>0.8.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-youtube` — YouTube Channel
+
+**What it does:** Sends live chat messages to YouTube live streams via the YouTube Data API v3. Uses the JDK `HttpClient` — no external SDK needed.
+
+**When to use:** You want to send notifications to YouTube live chat. Requires a Google API key or OAuth 2.0 credentials with YouTube Data API v3 enabled.
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-youtube</artifactId>
+    <version>0.8.0</version>
+</dependency>
+```
+
+---
+
 #### `notify-tracker-jpa` — JPA Delivery Tracker
 
 **What it does:** Persists delivery receipts to a relational database (MySQL, PostgreSQL, H2, etc.) using Spring Data JPA. Stores notification ID, channel, recipient, status, timestamp, and error messages. Provides query methods for filtering and counting.
@@ -1748,7 +1791,7 @@ Below is every module, what it does, when you need it, and how to add it.
 
 #### `notify-mcp` — MCP Server for AI Agents
 
-**What it does:** Exposes all NotifyHub channels as MCP (Model Context Protocol) tools, allowing AI agents (Claude Desktop, Claude Code, Cursor) to send notifications through natural language commands. Runs as a headless Spring Boot app communicating via STDIO JSON-RPC. Provides 13 tools: send via any channel, list channels, and query delivery receipts.
+**What it does:** Exposes all NotifyHub channels as MCP (Model Context Protocol) tools, allowing AI agents (Claude Desktop, Claude Code, Cursor) to send notifications through natural language commands. Runs as a headless Spring Boot app communicating via STDIO JSON-RPC. Provides 18 tools: send via any channel, list channels, and query delivery receipts.
 
 **When to use:** You want AI agents to send notifications on your behalf. Configure the JAR path in your MCP client's config file and the agent will discover all available tools automatically.
 
@@ -1776,6 +1819,8 @@ Below is every module, what it does, when you need it, and how to add it.
 | Send to any HTTP API | `notify-spring-boot-starter` + `notify-webhook` |
 | Send via WebSocket | `notify-spring-boot-starter` + `notify-websocket` |
 | Send to Google Chat | `notify-spring-boot-starter` + `notify-google-chat` |
+| Send to Twitch chat | `notify-spring-boot-starter` + `notify-twitch` |
+| Send to YouTube live chat | `notify-spring-boot-starter` + `notify-youtube` |
 | Prevent duplicate sends | `notify-spring-boot-starter` (built-in, config-driven) |
 | A/B test templates | `notify-spring-boot-starter` (built-in, use `.templateVersion()`) |
 | Persist tracking to database | `notify-spring-boot-starter` + `notify-tracker-jpa` |
@@ -1795,8 +1840,9 @@ Below is every module, what it does, when you need it, and how to add it.
 - [x] **v0.3.0** — Teams, Firebase Push, Webhook, attachments, priority, rate limiting, DLQ, i18n, batch send, JPA tracker, Micrometer metrics, Actuator health, Spring events, conditional routing, admin dashboard (80+ tests)
 - [x] **v0.7.0** — WebSocket channel, Google Chat channel, message deduplication, template versioning (105+ tests, 16 modules)
 - [x] **v0.7.0** — MCP Server module: 13 AI agent tools for sending notifications via Claude Desktop, Claude Code, Cursor (130+ tests, 17 modules)
-- [x] **v0.7.0** — Named recipients, Docker images (MCP + REST API), Swagger UI, RabbitMQ + Kafka message queue modules, JaCoCo coverage, GitHub Pages landing page
+- [x] **v0.7.0** — Named recipients, Docker images (MCP + REST API), Swagger UI, RabbitMQ + Kafka message queue modules, GitHub Pages landing page
 - [x] **v0.7.0** — Twitter/X, LinkedIn, Notion channels (14 channels, 16 MCP tools, 22 modules)
+- [x] **v0.8.0** — Twitch, YouTube channels (16 channels, 18 MCP tools, 24 modules)
 
 ---
 

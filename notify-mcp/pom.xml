@@ -82,6 +82,14 @@
             <groupId>io.github.gabrielbbaldez</groupId>
             <artifactId>notify-notion</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.github.gabrielbbaldez</groupId>
+            <artifactId>notify-twitch</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.gabrielbbaldez</groupId>
+            <artifactId>notify-youtube</artifactId>
+        </dependency>
 
         <!-- MCP Java SDK (core — STDIO transport) -->
         <dependency>

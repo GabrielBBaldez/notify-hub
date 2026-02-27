@@ -14,15 +14,15 @@ import java.time.Duration;
 import java.util.Map;
 
 /**
- * LinkedIn notification channel using the REST API.
+ * LinkedIn notification channel using the v2 UGC Posts API.
  *
- * <p>Publishes posts via {@code POST https://api.linkedin.com/rest/posts}
+ * <p>Publishes posts via {@code POST https://api.linkedin.com/v2/ugcPosts}
  * using OAuth 2.0 Bearer token authentication.</p>
  */
 public class LinkedInChannel implements NotificationChannel {
 
     private static final Logger log = LoggerFactory.getLogger(LinkedInChannel.class);
-    private static final String POSTS_URL = "https://api.linkedin.com/rest/posts";
+    private static final String POSTS_URL = "https://api.linkedin.com/v2/ugcPosts";
 
     private final LinkedInConfig config;
     private final HttpClient httpClient;
@@ -51,7 +51,6 @@ public class LinkedInChannel implements NotificationChannel {
                     .uri(URI.create(POSTS_URL))
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + config.getAccessToken())
-                    .header("LinkedIn-Version", "202401")
                     .header("X-Restli-Protocol-Version", "2.0.0")
                     .POST(HttpRequest.BodyPublishers.ofString(payload))
                     .build();
@@ -97,9 +96,13 @@ public class LinkedInChannel implements NotificationChannel {
         return "{" +
                 "\"author\": \"" + escapeJson(authorId) + "\", " +
                 "\"lifecycleState\": \"PUBLISHED\", " +
-                "\"visibility\": \"PUBLIC\", " +
-                "\"commentary\": \"" + escapeJson(content) + "\", " +
-                "\"distribution\": {\"feedDistribution\": \"MAIN_FEED\"}" +
+                "\"specificContent\": {" +
+                    "\"com.linkedin.ugc.ShareContent\": {" +
+                        "\"shareCommentary\": {\"text\": \"" + escapeJson(content) + "\"}, " +
+                        "\"shareMediaCategory\": \"NONE\"" +
+                    "}" +
+                "}, " +
+                "\"visibility\": {\"com.linkedin.ugc.MemberNetworkVisibility\": \"PUBLIC\"}" +
                 "}";
     }
 

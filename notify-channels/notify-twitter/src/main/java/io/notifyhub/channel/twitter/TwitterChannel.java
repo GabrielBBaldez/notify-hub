@@ -20,13 +20,13 @@ import java.util.*;
 /**
  * Twitter/X notification channel using API v2.
  *
- * <p>Posts tweets via {@code POST https://api.twitter.com/2/tweets} using
+ * <p>Posts tweets via {@code POST https://api.x.com/2/tweets} using
  * OAuth 1.0a authentication. No external SDK needed.</p>
  */
 public class TwitterChannel implements NotificationChannel {
 
     private static final Logger log = LoggerFactory.getLogger(TwitterChannel.class);
-    private static final String TWEETS_URL = "https://api.twitter.com/2/tweets";
+    private static final String TWEETS_URL = "https://api.x.com/2/tweets";
 
     private final TwitterConfig config;
     private final HttpClient httpClient;

@@ -91,7 +91,7 @@ class TwitterChannelTest {
     @DisplayName("OAuth header is well-formed")
     void oauthHeader() {
         TwitterChannel channel = new TwitterChannel(validConfig());
-        String header = channel.buildOAuthHeader("POST", "https://api.twitter.com/2/tweets");
+        String header = channel.buildOAuthHeader("POST", "https://api.x.com/2/tweets");
         assertTrue(header.startsWith("OAuth "));
         assertTrue(header.contains("oauth_consumer_key"));
         assertTrue(header.contains("oauth_signature"));

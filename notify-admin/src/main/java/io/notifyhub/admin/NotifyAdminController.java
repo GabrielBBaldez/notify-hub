@@ -14,7 +14,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -22,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/notify-admin")
@@ -126,5 +130,91 @@ public class NotifyAdminController {
         }
         model.addAttribute("channelInfos", channelInfos);
         return "notify-admin/channels";
+    }
+
+    /** Analytics -- charts page. */
+    @GetMapping("/analytics")
+    public String analytics() {
+        return "notify-admin/analytics";
+    }
+
+    /** API: overview stats — count by status. */
+    @GetMapping("/api/stats/overview")
+    @ResponseBody
+    public Map<String, Long> statsOverview() {
+        NotificationTracker tracker = hub.getTracker();
+        if (tracker == null) return Collections.emptyMap();
+        Map<String, Long> result = new LinkedHashMap<>();
+        tracker.countByStatus().forEach((status, count) -> result.put(status.name(), count));
+        return result;
+    }
+
+    /** API: messages per channel. */
+    @GetMapping("/api/stats/by-channel")
+    @ResponseBody
+    public Map<String, Long> statsByChannel() {
+        NotificationTracker tracker = hub.getTracker();
+        if (tracker == null) return Collections.emptyMap();
+        return tracker.countByChannel();
+    }
+
+    /** API: timeline — sent/failed per day for the last N days. */
+    @GetMapping("/api/stats/timeline")
+    @ResponseBody
+    public List<Map<String, Object>> statsTimeline(@RequestParam(name = "days", defaultValue = "7") int days) {
+        NotificationTracker tracker = hub.getTracker();
+        List<Map<String, Object>> timeline = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+
+        for (int i = days - 1; i >= 0; i--) {
+            LocalDate date = today.minusDays(i);
+            Map<String, Object> entry = new LinkedHashMap<>();
+            entry.put("date", date.toString());
+            entry.put("sent", 0L);
+            entry.put("failed", 0L);
+            timeline.add(entry);
+        }
+
+        if (tracker != null) {
+            for (DeliveryReceipt r : tracker.findAll()) {
+                if (r.getTimestamp() == null) continue;
+                LocalDate rDate = r.getTimestamp().atZone(ZoneId.systemDefault()).toLocalDate();
+                for (Map<String, Object> entry : timeline) {
+                    if (entry.get("date").equals(rDate.toString())) {
+                        if (r.getStatus() == DeliveryStatus.SENT) {
+                            entry.put("sent", (Long) entry.get("sent") + 1);
+                        } else if (r.getStatus() == DeliveryStatus.FAILED) {
+                            entry.put("failed", (Long) entry.get("failed") + 1);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        return timeline;
+    }
+
+    /** API: top error messages. */
+    @GetMapping("/api/stats/errors")
+    @ResponseBody
+    public List<Map<String, Object>> statsErrors() {
+        NotificationTracker tracker = hub.getTracker();
+        if (tracker == null) return Collections.emptyList();
+
+        Map<String, Long> errorCounts = tracker.findByStatus(DeliveryStatus.FAILED).stream()
+                .filter(r -> r.getErrorMessage() != null && !r.getErrorMessage().isBlank())
+                .collect(Collectors.groupingBy(DeliveryReceipt::getErrorMessage, Collectors.counting()));
+
+        return errorCounts.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .limit(10)
+                .map(e -> {
+                    Map<String, Object> m = new LinkedHashMap<>();
+                    m.put("message", e.getKey());
+                    m.put("count", e.getValue());
+                    return m;
+                })
+                .collect(Collectors.toList());
     }
 }

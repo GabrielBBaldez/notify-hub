@@ -1,7 +1,9 @@
 package io.notifyhub.core;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Interface for tracking notification delivery history.
@@ -76,4 +78,24 @@ public interface NotificationTracker {
      * Clear all tracked receipts.
      */
     void clear();
+
+    /**
+     * Count delivery receipts grouped by channel name.
+     *
+     * @return map of channel name to count
+     */
+    default Map<String, Long> countByChannel() {
+        return findAll().stream()
+                .collect(Collectors.groupingBy(DeliveryReceipt::getChannelName, Collectors.counting()));
+    }
+
+    /**
+     * Count delivery receipts grouped by status.
+     *
+     * @return map of delivery status to count
+     */
+    default Map<DeliveryStatus, Long> countByStatus() {
+        return findAll().stream()
+                .collect(Collectors.groupingBy(DeliveryReceipt::getStatus, Collectors.counting()));
+    }
 }

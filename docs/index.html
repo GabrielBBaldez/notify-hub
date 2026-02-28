@@ -22,7 +22,6 @@
             <a href="#code">Code</a>
             <a href="#docker">Docker</a>
             <a href="#mcp">AI / MCP</a>
-            <a href="#pricing">Pricing</a>
             <a href="https://github.com/GabrielBBaldez/notify-hub" class="nav-gh">GitHub</a>
         </div>
     </nav>
@@ -639,83 +638,6 @@ open http://localhost:8080/swagger-ui.html</code></pre>
         </div>
     </section>
 
-    <!-- PRICING -->
-    <section id="pricing" class="section">
-        <h2>Pricing</h2>
-        <p class="section-sub">Start free, upgrade when you need all 16 channels.</p>
-        <div class="pricing-grid">
-            <div class="pricing-card">
-                <h3>Free</h3>
-                <div class="pricing-price">$0</div>
-                <p class="pricing-period">forever</p>
-                <ul class="pricing-features">
-                    <li>Email channel</li>
-                    <li>Fluent API</li>
-                    <li>Mustache templates</li>
-                    <li>Retry & scheduling</li>
-                    <li>MIT License</li>
-                </ul>
-                <a href="#code" class="btn btn-outline" style="width:100%;text-align:center;">Get Started</a>
-            </div>
-            <div class="pricing-card pricing-featured">
-                <div class="pricing-badge">Most Popular</div>
-                <h3>Pro</h3>
-                <div class="pricing-price">$49</div>
-                <p class="pricing-period">one-time payment &middot; 1 year of updates</p>
-                <ul class="pricing-features">
-                    <li><strong>All 16 channels</strong></li>
-                    <li>Fallback chains</li>
-                    <li>Batch send & audiences</li>
-                    <li>Delivery tracking & DLQ</li>
-                    <li>Deduplication</li>
-                    <li>Rate limiting</li>
-                    <li>OpenTelemetry tracing</li>
-                    <li>Priority support via email</li>
-                </ul>
-                <button id="btn-buy-pro" class="btn btn-primary" style="width:100%;">Buy Pro License</button>
-            </div>
-        </div>
-    </section>
-
-    <!-- Stripe Checkout Script -->
-    <script>
-    document.getElementById('btn-buy-pro').addEventListener('click', async function() {
-        const email = prompt('Enter your email to receive the license key:');
-        if (!email) return;
-
-        this.textContent = 'Redirecting to Stripe...';
-        this.disabled = true;
-
-        try {
-            const res = await fetch('https://notifyhub-checkout.up.railway.app/api/checkout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ plan: 'pro', email: email })
-            });
-            const data = await res.json();
-            if (data.url) {
-                window.location.href = data.url;
-            } else {
-                alert('Error: ' + (data.error || 'Unknown error'));
-                this.textContent = 'Buy Pro License';
-                this.disabled = false;
-            }
-        } catch (err) {
-            alert('Could not connect to payment server. Please try again later.');
-            this.textContent = 'Buy Pro License';
-            this.disabled = false;
-        }
-    });
-
-    // Show success message if redirected from Stripe
-    if (new URLSearchParams(window.location.search).get('purchase') === 'success') {
-        const banner = document.createElement('div');
-        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#10b981;color:white;padding:16px;text-align:center;font-weight:600;z-index:9999;font-size:1.1rem;';
-        banner.textContent = 'Payment successful! Check your email for your license key.';
-        document.body.prepend(banner);
-        setTimeout(() => banner.remove(), 10000);
-    }
-    </script>
 
     <!-- FOOTER -->
     <footer>

@@ -20,7 +20,6 @@ import io.notifyhub.core.retry.RetryPolicy;
 import io.notifyhub.core.template.MustacheTemplateEngine;
 import io.notifyhub.core.template.TemplateEngine;
 import io.notifyhub.spring.event.SpringEventNotificationListener;
-import io.notifyhub.spring.license.LicenseValidator;
 import io.notifyhub.spring.metrics.MicrometerNotificationListener;
 import io.notifyhub.spring.metrics.TracingNotificationListener;
 import org.slf4j.Logger;
@@ -63,14 +62,6 @@ import java.util.concurrent.ScheduledExecutorService;
 public class NotifyAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(NotifyAutoConfiguration.class);
-
-    // ===================== LICENSE VALIDATION =====================
-
-    @Bean
-    @ConditionalOnMissingBean(LicenseValidator.class)
-    public LicenseValidator licenseValidator(NotifyProperties properties) {
-        return new LicenseValidator(properties.getLicenseKey());
-    }
 
     // ===================== TEMPLATE ENGINE =====================
 
@@ -287,28 +278,14 @@ public class NotifyAutoConfiguration {
             ObjectProvider<DeduplicationStore> deduplicationStoreProvider,
             ObjectProvider<AuditLog> auditLogProvider,
             ObjectProvider<AudienceManager> audienceManagerProvider,
-            LicenseValidator licenseValidator,
             NotifyProperties properties) {
 
         NotifyHub.Builder builder = NotifyHub.builder()
                 .templateEngine(templateEngine);
 
-        // Register channels (free tier: email only, max 3 channels)
+        // Register all discovered channels
         List<NotificationChannel> channels = channelsProvider.getIfAvailable(List::of);
-        if (licenseValidator.isFree() && !channels.isEmpty()) {
-            List<NotificationChannel> allowed = channels.stream()
-                    .filter(ch -> "email".equalsIgnoreCase(ch.getName()))
-                    .toList();
-            if (allowed.isEmpty()) {
-                log.warn("NotifyHub FREE tier: no email channel configured. Add notify.license-key for all channels.");
-                builder.channels(channels.stream().limit(1).toList());
-            } else {
-                builder.channels(allowed);
-            }
-            log.info("NotifyHub FREE tier: limited to email channel. Upgrade at https://gabrielbbaldez.github.io/notify-hub/");
-        } else {
-            builder.channels(channels);
-        }
+        builder.channels(channels);
         log.info("NotifyHub: Registered {} channel(s): {}",
                 channels.size(),
                 channels.stream().map(NotificationChannel::getName).toList());

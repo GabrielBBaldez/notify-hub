@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>NotifyHub Demo</title>
+    <link rel="icon" th:href="@{/logo.png}" type="image/png"/>
+    <style>
+        :root {
+            --bg: #0a0e17;
+            --bg-card: #111827;
+            --border: #1e293b;
+            --accent: #f97316;
+            --accent2: #fb923c;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --green: #22c55e;
+            --red: #ef4444;
+            --blue: #3b82f6;
+            --yellow: #eab308;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .hero {
+            border-bottom: 1px solid var(--border);
+            padding: 3rem 2rem 2.5rem;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(249,115,22,0.06) 0%, transparent 100%);
+        }
+        .hero-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .hero-brand svg { color: var(--accent); }
+        .hero h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .hero h1 span { color: var(--accent); }
+        .hero p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            margin-top: 0.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .hero-badges {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-top: 1.25rem;
+            flex-wrap: wrap;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .hero-badge .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--green);
+        }
+        .hero-badge .dot.off { background: var(--text-muted); }
+
+        /* Container */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+        }
+
+        /* Quick Links */
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+        .quick-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            text-decoration: none;
+            color: var(--text);
+            transition: border-color 0.2s, transform 0.2s;
+        }
+        .quick-link:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        .quick-link svg {
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+        .quick-link .link-text {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .quick-link .link-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.15rem;
+        }
+
+        /* Channels grid */
+        .section-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .section-title svg { color: var(--accent); }
+        .count-badge {
+            background: rgba(249,115,22,0.15);
+            color: var(--accent);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.15rem 0.55rem;
+            border-radius: 10px;
+        }
+
+        .channels-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 2.5rem;
+        }
+        .channel-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 0.4rem 0.85rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+        .channel-badge .ch-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+        }
+
+        /* Endpoints table */
+        .table-wrap {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 2.5rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        thead th {
+            background: rgba(249,115,22,0.06);
+            text-align: left;
+            padding: 0.7rem 1rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+        tbody td {
+            padding: 0.6rem 1rem;
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(30,41,59,0.5);
+        }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: rgba(249,115,22,0.03); }
+
+        .method-badge {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            font-family: 'SFMono-Regular', Consolas, monospace;
+            min-width: 50px;
+            text-align: center;
+        }
+        .method-GET { background: rgba(59,130,246,0.15); color: var(--blue); }
+        .method-POST { background: rgba(34,197,94,0.15); color: var(--green); }
+        .method-DELETE { background: rgba(239,68,68,0.15); color: var(--red); }
+
+        .endpoint-path {
+            font-family: 'SFMono-Regular', Consolas, monospace;
+            font-size: 0.8rem;
+            color: var(--accent2);
+        }
+        .endpoint-desc {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        .group-row td {
+            background: rgba(249,115,22,0.04);
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--accent);
+            letter-spacing: 0.3px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .footer a:hover { text-decoration: underline; }
+
+        @media (max-width: 640px) {
+            .hero { padding: 2rem 1rem; }
+            .hero h1 { font-size: 1.5rem; }
+            .quick-links { grid-template-columns: 1fr; }
+            thead th, tbody td { padding: 0.5rem 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero -->
+    <div class="hero">
+        <div class="hero-brand">
+            <img th:src="@{/logo.png}" alt="NotifyHub" width="48" height="48" style="border-radius: 10px;"/>
+            <h1>Notify<span>Hub</span> Demo</h1>
+        </div>
+        <p>Unified notification API running with <strong th:text="${channelCount}">0</strong> channels. Try the endpoints below or explore the interactive docs.</p>
+        <div class="hero-badges">
+            <span class="hero-badge">
+                <span class="dot"></span>
+                <span th:text="${profile}">embedded SMTP</span>
+            </span>
+            <span class="hero-badge">
+                <span class="dot" th:classappend="${trackingEnabled} ? '' : 'off'"></span>
+                Tracking <span th:text="${trackingEnabled} ? 'ON' : 'OFF'">ON</span>
+            </span>
+            <span class="hero-badge">
+                <span class="dot" th:classappend="${audienceEnabled} ? '' : 'off'"></span>
+                Audiences <span th:text="${audienceEnabled} ? 'ON' : 'OFF'">ON</span>
+            </span>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Quick Links -->
+        <div class="quick-links">
+            <a class="quick-link" th:href="@{/swagger-ui.html}">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+                <div>
+                    <div class="link-text">Swagger UI</div>
+                    <div class="link-desc">Interactive API documentation</div>
+                </div>
+            </a>
+            <a class="quick-link" th:href="@{/notify-admin}">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                </svg>
+                <div>
+                    <div class="link-text">Admin Panel</div>
+                    <div class="link-desc">Dashboard, tracking, DLQ</div>
+                </div>
+            </a>
+            <a class="quick-link" th:href="@{/inbox}">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
+                </svg>
+                <div>
+                    <div class="link-text">Email Inbox</div>
+                    <div class="link-desc">View received emails</div>
+                </div>
+            </a>
+            <a class="quick-link" th:href="@{/api/info}">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+                </svg>
+                <div>
+                    <div class="link-text">JSON API</div>
+                    <div class="link-desc">Raw API info endpoint</div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Channels -->
+        <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            Registered Channels
+            <span class="count-badge" th:text="${channelCount}">0</span>
+        </h2>
+        <div class="channels-grid">
+            <span class="channel-badge" th:each="ch : ${channels}">
+                <span class="ch-dot"></span>
+                <span th:text="${ch}">email</span>
+            </span>
+        </div>
+
+        <!-- Endpoints -->
+        <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            API Endpoints
+        </h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Endpoint</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Send Notifications -->
+                    <tr class="group-row"><td colspan="3">Send Notifications</td></tr>
+                    <tr>
+                        <td><span class="method-badge method-POST">POST</span></td>
+                        <td><span class="endpoint-path">/send/email</span></td>
+                        <td class="endpoint-desc">Send a simple email via SMTP</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-POST">POST</span></td>
+                        <td><span class="endpoint-path">/send/template</span></td>
+                        <td class="endpoint-desc">Send email with Mustache template</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-POST">POST</span></td>
+                        <td><span class="endpoint-path">/send/notifiable</span></td>
+                        <td class="endpoint-desc">Send to a Notifiable user entity</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-POST">POST</span></td>
+                        <td><span class="endpoint-path">/send/sms</span></td>
+                        <td class="endpoint-desc">Send SMS via Twilio</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-POST">POST</span></td>
+                        <td><span class="endpoint-path">/send/whatsapp</span></td>
+                        <td class="endpoint-desc">Send WhatsApp via Twilio</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-POST">POST</span></td>
+                        <td><span class="endpoint-path">/send/telegram</span></td>
+                        <td class="endpoint-desc">Send message via Telegram Bot</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-POST">POST</span></td>
+                        <td><span class="endpoint-path">/send/discord</span></td>
+                        <td class="endpoint-desc">Send message to Discord via webhook</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-POST">POST</span></td>
+                        <td><span class="endpoint-path">/send/slack</span></td>
+                        <td class="endpoint-desc">Send message to Slack channel</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-POST">POST</span></td>
+                        <td><span class="endpoint-path">/send/teams</span></td>
+                        <td class="endpoint-desc">Send to Microsoft Teams via webhook</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-POST">POST</span></td>
+                        <td><span class="endpoint-path">/send/google-chat</span></td>
+                        <td class="endpoint-desc">Send to Google Chat via webhook</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-POST">POST</span></td>
+                        <td><span class="endpoint-path">/send/push</span></td>
+                        <td class="endpoint-desc">Push notification via Firebase</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-POST">POST</span></td>
+                        <td><span class="endpoint-path">/send/websocket</span></td>
+                        <td class="endpoint-desc">Send message via WebSocket</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-POST">POST</span></td>
+                        <td><span class="endpoint-path">/send/twitter</span></td>
+                        <td class="endpoint-desc">Post a tweet on Twitter/X</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-POST">POST</span></td>
+                        <td><span class="endpoint-path">/send/linkedin</span></td>
+                        <td class="endpoint-desc">Publish a post on LinkedIn</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-POST">POST</span></td>
+                        <td><span class="endpoint-path">/send/notion</span></td>
+                        <td class="endpoint-desc">Create a page in Notion</td>
+                    </tr>
+
+                    <!-- Advanced Features -->
+                    <tr class="group-row"><td colspan="3">Advanced Features</td></tr>
+                    <tr>
+                        <td><span class="method-badge method-POST">POST</span></td>
+                        <td><span class="endpoint-path">/send/multi</span></td>
+                        <td class="endpoint-desc">Send to email + slack simultaneously</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-POST">POST</span></td>
+                        <td><span class="endpoint-path">/send/fallback</span></td>
+                        <td class="endpoint-desc">Test fallback chain (email fails, falls back to slack)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-POST">POST</span></td>
+                        <td><span class="endpoint-path">/send/tracked</span></td>
+                        <td class="endpoint-desc">Send with delivery tracking</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-POST">POST</span></td>
+                        <td><span class="endpoint-path">/send/scheduled</span></td>
+                        <td class="endpoint-desc">Schedule notification for future delivery</td>
+                    </tr>
+
+                    <!-- Scheduling -->
+                    <tr class="group-row"><td colspan="3">Scheduling</td></tr>
+                    <tr>
+                        <td><span class="method-badge method-GET">GET</span></td>
+                        <td><span class="endpoint-path">/scheduled</span></td>
+                        <td class="endpoint-desc">List all scheduled notifications</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-DELETE">DELETE</span></td>
+                        <td><span class="endpoint-path">/scheduled/{id}</span></td>
+                        <td class="endpoint-desc">Cancel a scheduled notification</td>
+                    </tr>
+
+                    <!-- Monitoring -->
+                    <tr class="group-row"><td colspan="3">Monitoring</td></tr>
+                    <tr>
+                        <td><span class="method-badge method-GET">GET</span></td>
+                        <td><span class="endpoint-path">/tracking</span></td>
+                        <td class="endpoint-desc">Delivery tracking history</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-GET">GET</span></td>
+                        <td><span class="endpoint-path">/inbox</span></td>
+                        <td class="endpoint-desc">View received emails (embedded SMTP)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-GET">GET</span></td>
+                        <td><span class="endpoint-path">/inbox/slack</span></td>
+                        <td class="endpoint-desc">View Slack messages</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-DELETE">DELETE</span></td>
+                        <td><span class="endpoint-path">/inbox</span></td>
+                        <td class="endpoint-desc">Clear all inboxes and tracking data</td>
+                    </tr>
+
+                    <!-- Audiences -->
+                    <tr class="group-row"><td colspan="3">Audiences</td></tr>
+                    <tr>
+                        <td><span class="method-badge method-POST">POST</span></td>
+                        <td><span class="endpoint-path">/contacts</span></td>
+                        <td class="endpoint-desc">Create a contact with tags</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-GET">GET</span></td>
+                        <td><span class="endpoint-path">/contacts</span></td>
+                        <td class="endpoint-desc">List all contacts</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-POST">POST</span></td>
+                        <td><span class="endpoint-path">/contacts/seed</span></td>
+                        <td class="endpoint-desc">Seed sample contacts for testing</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-POST">POST</span></td>
+                        <td><span class="endpoint-path">/audiences</span></td>
+                        <td class="endpoint-desc">Create a named audience with tag filters</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge method-POST">POST</span></td>
+                        <td><span class="endpoint-path">/send/audience</span></td>
+                        <td class="endpoint-desc">Send to all contacts in an audience</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        NotifyHub &mdash; One API, every channel.
+        &nbsp;&middot;&nbsp;
+        <a href="https://github.com/GabrielBBaldez/notify-hub" target="_blank">GitHub</a>
+        &nbsp;&middot;&nbsp;
+        <a th:href="@{/swagger-ui.html}">API Docs</a>
+        &nbsp;&middot;&nbsp;
+        <a th:href="@{/notify-admin}">Admin</a>
+    </div>
+</body>
+</html>

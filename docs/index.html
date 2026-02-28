@@ -551,11 +551,15 @@ open http://localhost:8080/swagger-ui.html</code></pre>
     <!-- ADMIN DASHBOARD -->
     <section class="admin-section" id="admin">
         <h2>Admin Dashboard</h2>
-        <p class="section-lead">Built-in web UI at <code>/notify-admin</code>. Monitor channels, track deliveries, inspect the dead letter queue, and reprocess failed notifications. Dark theme, responsive.</p>
+        <p class="section-lead">Built-in web UI at <code>/notify-admin</code> with 8 pages. Dark/light theme toggle, responsive design, shared CSS architecture.</p>
         <div class="admin-features">
             <div class="admin-feat">
                 <h4>&#128200; Dashboard</h4>
-                <p>Total sent, failed, pending, DLQ count, channel status.</p>
+                <p>Metric cards, recent activity feed, system status, channel overview.</p>
+            </div>
+            <div class="admin-feat">
+                <h4>&#128202; Analytics</h4>
+                <p>Chart.js charts: volume, distribution, success rate, hourly heatmap.</p>
             </div>
             <div class="admin-feat">
                 <h4>&#128269; Tracking</h4>
@@ -563,11 +567,23 @@ open http://localhost:8080/swagger-ui.html</code></pre>
             </div>
             <div class="admin-feat">
                 <h4>&#128465; Dead Letter Queue</h4>
-                <p>Failed after all retries. Inspect error, reprocess, or remove.</p>
+                <p>Failed after all retries. Inspect error, remove from queue.</p>
             </div>
             <div class="admin-feat">
                 <h4>&#128225; Channels</h4>
-                <p>All registered channels with availability status.</p>
+                <p>All registered channels with health indicators and type info.</p>
+            </div>
+            <div class="admin-feat">
+                <h4>&#128221; Audit Log</h4>
+                <p>Complete event history with type filter. Sent, failed, scheduled, cancelled.</p>
+            </div>
+            <div class="admin-feat">
+                <h4>&#128101; Audiences</h4>
+                <p>Manage contacts and segments with tag-based filtering.</p>
+            </div>
+            <div class="admin-feat">
+                <h4>&#128279; Status Webhook</h4>
+                <p>HTTP callback config, recent deliveries, payload inspection.</p>
             </div>
         </div>
     </section>

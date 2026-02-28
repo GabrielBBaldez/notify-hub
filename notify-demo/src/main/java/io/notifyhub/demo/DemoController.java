@@ -52,10 +52,10 @@ public class DemoController {
         this.slackChannel = slackChannel;
     }
 
-    // ===================== HOME =====================
+    // ===================== API INFO =====================
 
-    @Operation(summary = "Home", description = "Lists all available endpoints and registered channels")
-    @GetMapping("/")
+    @Operation(summary = "API Info", description = "Lists all available endpoints and registered channels")
+    @GetMapping("/api/info")
     public Map<String, Object> home() {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("app", "NotifyHub Demo");
@@ -63,7 +63,8 @@ public class DemoController {
         response.put("profile", smtpConfig != null ? "default (embedded SMTP)" : "real (external SMTP)");
         response.put("tracking", tracker != null ? "enabled" : "disabled");
         response.put("endpoints", List.of(
-                "GET  /                          → this page",
+                "GET  /                          → home page (HTML)",
+                "GET  /api/info                  → this endpoint (JSON)",
                 "POST /send/email                → send a simple email",
                 "POST /send/template             → send email with Mustache template",
                 "POST /send/notifiable           → send to a Notifiable user entity",

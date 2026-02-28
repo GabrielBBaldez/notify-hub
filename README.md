@@ -900,10 +900,16 @@ notify:
 
 Access at **`/notify-admin`** to see:
 
-- **Dashboard** — overview with sent/failed/pending totals, DLQ count, active channels
-- **Tracking** — delivery receipts with channel filter
-- **Dead Letter Queue** — failed notifications with reprocess action
-- **Channels** — status of each registered channel
+- **Dashboard** — metric cards (sent/failed/pending/DLQ/channels/contacts), recent activity feed, system status grid, registered channels
+- **Analytics** — Chart.js charts with send volume, channel distribution, success rate, hourly heatmap
+- **Tracking** — delivery receipts with channel filter and status badges
+- **Dead Letter Queue** — failed notifications with error details and remove action
+- **Channels** — status of each registered channel with health indicators
+- **Audit Log** — complete history of all notification events with event type filter
+- **Audiences** — manage contacts and audience segments with tag-based filtering
+- **Status Webhook** — real-time HTTP callback configuration and delivery history
+
+Dark/light theme toggle included — persists across pages via `localStorage`.
 
 ---
 
@@ -1843,6 +1849,7 @@ Below is every module, what it does, when you need it, and how to add it.
 - [x] **v0.8.0** — Named recipients, Docker images (MCP + REST API), Swagger UI, RabbitMQ + Kafka message queue modules, GitHub Pages landing page
 - [x] **v0.8.0** — Twitter/X, LinkedIn, Notion channels (14 channels, 16 MCP tools, 22 modules)
 - [x] **v0.8.0** — Twitch, YouTube channels (16 channels, 18 MCP tools, 24 modules)
+- [x] **v0.8.0** — Admin dashboard redesign: shared CSS, Thymeleaf fragments, dark/light theme, 8 pages (Dashboard, Analytics, Tracking, DLQ, Channels, Audit Log, Audiences, Status Webhook)
 
 ---
 

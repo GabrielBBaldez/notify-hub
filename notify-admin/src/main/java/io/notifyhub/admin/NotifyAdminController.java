@@ -50,17 +50,29 @@ public class NotifyAdminController {
         this.audienceManager = audienceManagerProvider.getIfAvailable();
     }
 
-    /** Dashboard -- overview with totals. */
+    /** Dashboard -- overview with totals, recent activity, system status. */
     @GetMapping
     public String dashboard(Model model) {
-        Set<String> channels = hub.getRegisteredChannels();
-        model.addAttribute("channelCount", channels.size());
-        model.addAttribute("channels", channels);
+        Set<String> channelNames = hub.getRegisteredChannels();
+        model.addAttribute("channelCount", channelNames.size());
+
+        // Channel infos with availability status
+        List<Map<String, Object>> channelInfos = new ArrayList<>();
+        for (String name : channelNames) {
+            Map<String, Object> info = new LinkedHashMap<>();
+            info.put("name", name);
+            Optional<NotificationChannel> ch = hub.getChannel(name);
+            info.put("available", ch.map(NotificationChannel::isAvailable).orElse(false));
+            info.put("type", ch.map(c -> c.getClass().getSimpleName()).orElse("Unknown"));
+            channelInfos.add(info);
+        }
+        model.addAttribute("channelInfos", channelInfos);
 
         NotificationTracker tracker = hub.getTracker();
         long totalSent = 0;
         long totalFailed = 0;
         long totalPending = 0;
+        List<DeliveryReceipt> recentReceipts = Collections.emptyList();
         if (tracker != null) {
             List<DeliveryReceipt> all = tracker.findAll();
             totalSent = all.stream()
@@ -73,21 +85,37 @@ public class NotifyAdminController {
                     .filter(r -> r.getStatus() == DeliveryStatus.PENDING
                             || r.getStatus() == DeliveryStatus.SCHEDULED)
                     .count();
+            recentReceipts = all.stream()
+                    .sorted((a, b) -> {
+                        if (a.getTimestamp() == null && b.getTimestamp() == null) return 0;
+                        if (a.getTimestamp() == null) return 1;
+                        if (b.getTimestamp() == null) return -1;
+                        return b.getTimestamp().compareTo(a.getTimestamp());
+                    })
+                    .limit(10)
+                    .toList();
         }
         model.addAttribute("totalSent", totalSent);
         model.addAttribute("totalFailed", totalFailed);
         model.addAttribute("totalPending", totalPending);
         model.addAttribute("trackingEnabled", tracker != null);
+        model.addAttribute("recentReceipts", recentReceipts);
 
         DeadLetterQueue dlq = hub.getDeadLetterQueue();
         model.addAttribute("dlqCount", dlq != null ? dlq.count() : 0);
         model.addAttribute("dlqEnabled", dlq != null);
+
+        AuditLog auditLog = hub.getAuditLog();
+        model.addAttribute("auditEnabled", auditLog != null);
+        model.addAttribute("auditCount", auditLog != null ? auditLog.findAll().size() : 0);
 
         model.addAttribute("audienceEnabled", audienceManager != null);
         model.addAttribute("contactCount", audienceManager != null
                 ? audienceManager.getContactRepository().count() : 0);
         model.addAttribute("audienceCount", audienceManager != null
                 ? audienceManager.listAudiences().size() : 0);
+
+        model.addAttribute("webhookConfigured", statusWebhookListener != null);
 
         return "notify-admin/dashboard";
     }

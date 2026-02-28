@@ -16,7 +16,7 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("NotifyHub API")
                         .description("Unified notification REST API — send via Email, SMS, WhatsApp, Slack, Telegram, Discord, Teams, Google Chat, and more. One API, every channel.")
-                        .version("0.6.0")
+                        .version("0.8.0")
                         .contact(new Contact()
                                 .name("Gabriel Baldez")
                                 .url("https://github.com/GabrielBBaldez/notify-hub"))

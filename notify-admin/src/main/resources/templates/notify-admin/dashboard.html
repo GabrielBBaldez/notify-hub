@@ -4,244 +4,185 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>NotifyHub Admin - Dashboard</title>
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: #0f0e17;
-            color: #e0def4;
-            min-height: 100vh;
-        }
-        nav {
-            background: linear-gradient(135deg, #1a1730 0%, #2d2b55 100%);
-            border-bottom: 1px solid #3d3a6e;
-            padding: 0 2rem;
-            display: flex;
-            align-items: center;
-            height: 60px;
-        }
-        nav .brand {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #a78bfa;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        nav .brand img {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-        }
-        nav .nav-links {
-            display: flex;
-            gap: 0.25rem;
-            margin-left: 2rem;
-        }
-        nav .nav-links a {
-            color: #c4b5fd;
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            transition: background 0.2s, color 0.2s;
-        }
-        nav .nav-links a:hover, nav .nav-links a.active {
-            background: rgba(167, 139, 250, 0.15);
-            color: #a78bfa;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        h1 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #e0def4;
-            margin-bottom: 0.5rem;
-        }
-        .subtitle {
-            color: #8b87a8;
-            font-size: 0.95rem;
-            margin-bottom: 2rem;
-        }
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.25rem;
-            margin-bottom: 2.5rem;
-        }
-        .card {
-            background: linear-gradient(135deg, #1a1730 0%, #221f3d 100%);
-            border: 1px solid #2d2b55;
-            border-radius: 12px;
-            padding: 1.5rem;
-            transition: border-color 0.2s, transform 0.2s;
-        }
-        .card:hover {
-            border-color: #a78bfa;
-            transform: translateY(-2px);
-        }
-        .card .label {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #8b87a8;
-            margin-bottom: 0.5rem;
-        }
-        .card .value {
-            font-size: 2rem;
-            font-weight: 700;
-        }
-        .card .value.green { color: #34d399; }
-        .card .value.red { color: #f87171; }
-        .card .value.yellow { color: #fbbf24; }
-        .card .value.purple { color: #a78bfa; }
-        .card .value.blue { color: #60a5fa; }
-        .section {
-            background: linear-gradient(135deg, #1a1730 0%, #221f3d 100%);
-            border: 1px solid #2d2b55;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .section h2 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #c4b5fd;
-            margin-bottom: 1rem;
-        }
-        .channel-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-        .channel-badge {
-            background: rgba(167, 139, 250, 0.12);
-            border: 1px solid #3d3a6e;
-            color: #c4b5fd;
-            padding: 0.35rem 0.85rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-        .disabled-msg {
-            color: #6b6889;
-            font-style: italic;
-            font-size: 0.9rem;
-        }
-        .quick-links {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-        .quick-link {
-            display: block;
-            text-decoration: none;
-            background: rgba(167, 139, 250, 0.08);
-            border: 1px solid #2d2b55;
-            border-radius: 8px;
-            padding: 1rem;
-            text-align: center;
-            color: #c4b5fd;
-            font-weight: 500;
-            font-size: 0.9rem;
-            transition: background 0.2s, border-color 0.2s;
-        }
-        .quick-link:hover {
-            background: rgba(167, 139, 250, 0.18);
-            border-color: #a78bfa;
-        }
-        @media (max-width: 640px) {
-            .container { padding: 1rem; }
-            .cards { grid-template-columns: repeat(2, 1fr); }
-            nav { padding: 0 1rem; }
-            nav .nav-links { margin-left: 1rem; gap: 0; }
-            nav .nav-links a { padding: 0.5rem 0.5rem; font-size: 0.8rem; }
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/notify-admin/admin.css}"/>
+    <script th:src="@{/notify-admin/theme.js}"></script>
 </head>
 <body>
-    <nav>
-        <a class="brand" th:href="@{/notify-admin}">
-            <img th:src="@{/notify-admin/logo.png}" alt="NotifyHub"/>
-            NotifyHub Admin
-        </a>
-        <div class="nav-links">
-            <a th:href="@{/notify-admin}" class="active">Dashboard</a>
-            <a th:href="@{/notify-admin/analytics}">Analytics</a>
-            <a th:href="@{/notify-admin/tracking}">Tracking</a>
-            <a th:href="@{/notify-admin/dlq}">DLQ</a>
-            <a th:href="@{/notify-admin/channels}">Channels</a>
-            <a th:href="@{/notify-admin/audit-log}">Audit Log</a>
-            <a th:href="@{/notify-admin/audiences}">Audiences</a>
-            <a th:href="@{/notify-admin/status-webhook}">Status Webhook</a>
-        </div>
-    </nav>
+    <nav th:replace="~{notify-admin/fragments/layout :: nav('dashboard')}"></nav>
 
     <div class="container">
         <h1>Dashboard</h1>
         <p class="subtitle">Overview of your notification system</p>
 
+        <!-- Metric Cards -->
         <div class="cards">
             <div class="card">
-                <div class="label">Total Sent</div>
+                <div class="label">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;opacity:0.6"><polyline points="20 6 9 17 4 12"/></svg>
+                    Total Sent
+                </div>
                 <div class="value green" th:text="${totalSent}">0</div>
             </div>
             <div class="card">
-                <div class="label">Total Failed</div>
+                <div class="label">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;opacity:0.6"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    Total Failed
+                </div>
                 <div class="value red" th:text="${totalFailed}">0</div>
             </div>
             <div class="card">
-                <div class="label">Pending / Scheduled</div>
+                <div class="label">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;opacity:0.6"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Pending / Scheduled
+                </div>
                 <div class="value yellow" th:text="${totalPending}">0</div>
             </div>
             <div class="card">
-                <div class="label">Dead Letters</div>
+                <div class="label">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;opacity:0.6"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Dead Letters
+                </div>
                 <div class="value purple" th:text="${dlqCount}">0</div>
             </div>
             <div class="card">
-                <div class="label">Active Channels</div>
+                <div class="label">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;opacity:0.6"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    Active Channels
+                </div>
                 <div class="value blue" th:text="${channelCount}">0</div>
             </div>
             <div class="card" th:if="${audienceEnabled}">
-                <div class="label">Contacts</div>
+                <div class="label">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;opacity:0.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Contacts
+                </div>
                 <div class="value purple" th:text="${contactCount}">0</div>
             </div>
-            <div class="card" th:if="${audienceEnabled}">
-                <div class="label">Audiences</div>
-                <div class="value blue" th:text="${audienceCount}">0</div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="section" th:if="${trackingEnabled}">
+            <div class="section-header">
+                <h2>Recent Activity <span class="count-badge" th:text="${#lists.size(recentReceipts)}">0</span></h2>
+                <a th:href="@{/notify-admin/tracking}">View all &rarr;</a>
+            </div>
+            <div th:if="${#lists.isEmpty(recentReceipts)}" class="empty-msg">
+                No delivery receipts yet. Send a notification to see activity here.
+            </div>
+            <div th:unless="${#lists.isEmpty(recentReceipts)}" class="table-wrapper" style="margin-bottom:0;border:none;background:none;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Channel</th>
+                            <th>Recipient</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="r : ${recentReceipts}">
+                            <td th:text="${r.timestamp != null ? #temporals.format(r.timestamp, 'yyyy-MM-dd HH:mm:ss') : '-'}">2024-01-01</td>
+                            <td th:text="${r.channelName}">email</td>
+                            <td th:text="${r.recipient}">user@example.com</td>
+                            <td>
+                                <span class="badge badge-sent" th:if="${r.status.name() == 'SENT'}">Sent</span>
+                                <span class="badge badge-failed" th:if="${r.status.name() == 'FAILED'}">Failed</span>
+                                <span class="badge badge-pending" th:if="${r.status.name() == 'PENDING'}">Pending</span>
+                                <span class="badge badge-scheduled" th:if="${r.status.name() == 'SCHEDULED'}">Scheduled</span>
+                                <span class="badge badge-cancelled" th:if="${r.status.name() == 'CANCELLED'}">Cancelled</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
+        <!-- System Status -->
         <div class="section">
-            <h2>Registered Channels</h2>
-            <div th:if="${#sets.isEmpty(channels)}" class="disabled-msg">No channels registered.</div>
-            <div class="channel-list" th:unless="${#sets.isEmpty(channels)}">
-                <span class="channel-badge" th:each="ch : ${channels}" th:text="${ch}">email</span>
+            <h2>System Status</h2>
+            <div class="status-grid">
+                <div class="status-card">
+                    <span class="status-dot" th:classappend="${trackingEnabled} ? 'online' : 'offline'"></span>
+                    <div class="status-info">
+                        <div class="status-name">Tracking</div>
+                        <div class="status-detail" th:text="${trackingEnabled ? (totalSent + totalFailed + totalPending) + ' receipts' : 'Not configured'}">-</div>
+                    </div>
+                </div>
+                <div class="status-card">
+                    <span class="status-dot" th:classappend="${dlqEnabled} ? 'online' : 'offline'"></span>
+                    <div class="status-info">
+                        <div class="status-name">Dead Letter Queue</div>
+                        <div class="status-detail" th:text="${dlqEnabled ? dlqCount + ' dead letters' : 'Not configured'}">-</div>
+                    </div>
+                </div>
+                <div class="status-card">
+                    <span class="status-dot" th:classappend="${auditEnabled} ? 'online' : 'offline'"></span>
+                    <div class="status-info">
+                        <div class="status-name">Audit Log</div>
+                        <div class="status-detail" th:text="${auditEnabled ? auditCount + ' entries' : 'Not configured'}">-</div>
+                    </div>
+                </div>
+                <div class="status-card">
+                    <span class="status-dot" th:classappend="${audienceEnabled} ? 'online' : 'offline'"></span>
+                    <div class="status-info">
+                        <div class="status-name">Audiences</div>
+                        <div class="status-detail" th:text="${audienceEnabled ? contactCount + ' contacts, ' + audienceCount + ' segments' : 'Not enabled'}">-</div>
+                    </div>
+                </div>
+                <div class="status-card">
+                    <span class="status-dot" th:classappend="${webhookConfigured} ? 'online' : 'offline'"></span>
+                    <div class="status-info">
+                        <div class="status-name">Status Webhook</div>
+                        <div class="status-detail" th:text="${webhookConfigured ? 'Configured' : 'Not configured'}">-</div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="section" th:if="${!trackingEnabled}">
-            <h2>Tracking</h2>
-            <p class="disabled-msg">Notification tracking is not enabled. Configure a NotificationTracker to see delivery stats.</p>
+        <!-- Registered Channels -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Registered Channels <span class="count-badge" th:text="${channelCount}">0</span></h2>
+                <a th:href="@{/notify-admin/channels}">Details &rarr;</a>
+            </div>
+            <div th:if="${#lists.isEmpty(channelInfos)}" class="empty-msg">No channels registered.</div>
+            <div th:unless="${#lists.isEmpty(channelInfos)}" style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+                <span th:each="ch : ${channelInfos}" style="display:inline-flex;align-items:center;gap:0.4rem;"
+                      class="channel-badge">
+                    <span class="status-dot" th:classappend="${ch.available} ? 'online' : 'offline'" style="margin-right:0;"></span>
+                    <span th:text="${ch.name}">email</span>
+                </span>
+            </div>
         </div>
 
-        <div class="section" th:if="${!dlqEnabled}">
-            <h2>Dead Letter Queue</h2>
-            <p class="disabled-msg">DLQ is not enabled. Configure a DeadLetterQueue to capture failed notifications.</p>
-        </div>
-
+        <!-- Quick Links -->
         <div class="section">
             <h2>Quick Links</h2>
             <div class="quick-links">
-                <a class="quick-link" th:href="@{/notify-admin/tracking}">View Delivery Tracking</a>
-                <a class="quick-link" th:href="@{/notify-admin/dlq}">Manage Dead Letters</a>
-                <a class="quick-link" th:href="@{/notify-admin/channels}">Channel Status</a>
+                <a class="quick-link" th:href="@{/notify-admin/analytics}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    Analytics
+                </a>
+                <a class="quick-link" th:href="@{/notify-admin/tracking}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    Delivery Tracking
+                </a>
+                <a class="quick-link" th:href="@{/notify-admin/dlq}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Dead Letters
+                </a>
+                <a class="quick-link" th:href="@{/notify-admin/channels}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                    Channel Status
+                </a>
+                <a class="quick-link" th:href="@{/notify-admin/audit-log}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    Audit Log
+                </a>
+                <a class="quick-link" th:if="${audienceEnabled}" th:href="@{/notify-admin/audiences}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Audiences
+                </a>
             </div>
         </div>
     </div>

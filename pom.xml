@@ -59,6 +59,7 @@
         <module>notify-queue-kafka</module>
         <module>notify-demo</module>
         <module>notify-mcp</module>
+        <module>notify-checkout</module>
     </modules>
 
     <properties>

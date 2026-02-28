@@ -20,7 +20,10 @@ public class NotifyProperties {
     private Audit audit = new Audit();
     private StatusWebhook statusWebhook = new StatusWebhook();
     private Audience audience = new Audience();
+    private String licenseKey;
 
+    public String getLicenseKey() { return licenseKey; }
+    public void setLicenseKey(String licenseKey) { this.licenseKey = licenseKey; }
     public Channels getChannels() { return channels; }
     public void setChannels(Channels channels) { this.channels = channels; }
     public Retry getRetry() { return retry; }

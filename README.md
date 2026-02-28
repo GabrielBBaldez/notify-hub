@@ -970,6 +970,40 @@ GET /actuator/info
 }
 ```
 
+### OpenTelemetry Tracing
+
+Auto-configured when Micrometer Observation and an OTel bridge are on the classpath.
+Add these dependencies to export distributed traces via OTLP:
+
+```xml
+<dependency>
+    <groupId>io.micrometer</groupId>
+    <artifactId>micrometer-tracing-bridge-otel</artifactId>
+</dependency>
+<dependency>
+    <groupId>io.opentelemetry</groupId>
+    <artifactId>opentelemetry-exporter-otlp</artifactId>
+</dependency>
+```
+
+Configure the OTLP endpoint in `application.yml`:
+
+```yaml
+management:
+  tracing:
+    sampling:
+      probability: 1.0       # 100% sampling (adjust for production)
+  otlp:
+    tracing:
+      endpoint: http://localhost:4318/v1/traces
+```
+
+Creates observations (spans):
+- `notifyhub.send` (tags: channel, template, outcome)
+- `notifyhub.schedule` (tags: channel, outcome)
+
+Compatible with Jaeger, Zipkin, Grafana Tempo, Datadog, and any OTLP-compatible collector.
+
 ---
 
 ## Configuration Reference
@@ -1475,6 +1509,7 @@ notify-hub/
 ├── notify-spring-boot-starter/           # Auto-config for Spring Boot
 │   ├── NotifyAutoConfiguration           # Auto-discovers all channels
 │   ├── MicrometerNotificationListener    # Metrics (counters per channel)
+│   ├── TracingNotificationListener       # OpenTelemetry tracing (Observation API)
 │   ├── NotifyHubHealthIndicator          # Actuator health check
 │   ├── NotifyHubInfoContributor          # Actuator info endpoint
 │   ├── SpringEventNotificationListener   # Spring ApplicationEvents
@@ -1517,7 +1552,7 @@ Below is every module, what it does, when you need it, and how to add it.
 
 #### `notify-spring-boot-starter` — The Main Dependency
 
-**What it does:** Auto-configures NotifyHub inside a Spring Boot application. Automatically discovers channel beans, wires retry policies, tracking, rate limiting, DLQ, Micrometer metrics, Actuator health checks, and Spring events. Includes `notify-core` and `notify-email` transitively.
+**What it does:** Auto-configures NotifyHub inside a Spring Boot application. Automatically discovers channel beans, wires retry policies, tracking, rate limiting, DLQ, Micrometer metrics, OpenTelemetry tracing, Actuator health checks, and Spring events. Includes `notify-core` and `notify-email` transitively.
 
 **When to use:** You're building a Spring Boot app and want automatic setup. This is the **only required dependency** for most projects.
 

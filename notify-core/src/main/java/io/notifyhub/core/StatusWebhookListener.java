@@ -3,10 +3,14 @@ package io.notifyhub.core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
@@ -40,16 +44,22 @@ public class StatusWebhookListener implements NotificationListener {
     private final String url;
     private final int timeoutMs;
     private final Map<String, String> headers;
+    private final String signingSecret;
     private final HttpClient httpClient;
     private final List<WebhookDeliveryRecord> recentDeliveries;
 
     public StatusWebhookListener(String url, int timeoutMs, Map<String, String> headers) {
+        this(url, timeoutMs, headers, null);
+    }
+
+    public StatusWebhookListener(String url, int timeoutMs, Map<String, String> headers, String signingSecret) {
         if (url == null || url.isBlank()) {
             throw new IllegalArgumentException("Status webhook URL must not be blank");
         }
         this.url = url;
         this.timeoutMs = timeoutMs > 0 ? timeoutMs : 10_000;
         this.headers = headers != null ? Map.copyOf(headers) : Map.of();
+        this.signingSecret = signingSecret;
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofMillis(this.timeoutMs))
                 .build();
@@ -87,6 +97,9 @@ public class StatusWebhookListener implements NotificationListener {
 
     /** Custom headers sent with each request. */
     public Map<String, String> getHeaders() { return headers; }
+
+    /** Whether HMAC-SHA256 signing is enabled. */
+    public boolean isSigningEnabled() { return signingSecret != null && !signingSecret.isBlank(); }
 
     /** Recent webhook delivery records (newest first, max 50). */
     public List<WebhookDeliveryRecord> getRecentDeliveries() {
@@ -137,6 +150,13 @@ public class StatusWebhookListener implements NotificationListener {
                         .timeout(Duration.ofMillis(timeoutMs));
                 headers.forEach(reqBuilder::header);
 
+                if (isSigningEnabled()) {
+                    String timestamp = String.valueOf(Instant.now().getEpochSecond());
+                    String signature = computeHmacSha256(signingSecret, timestamp + "." + jsonPayload);
+                    reqBuilder.header("X-NotifyHub-Signature", "sha256=" + signature);
+                    reqBuilder.header("X-NotifyHub-Timestamp", timestamp);
+                }
+
                 HttpResponse<String> response = httpClient.send(
                         reqBuilder.build(), HttpResponse.BodyHandlers.ofString());
                 statusCode = response.statusCode();
@@ -160,6 +180,21 @@ public class StatusWebhookListener implements NotificationListener {
             while (recentDeliveries.size() > MAX_RECENT_DELIVERIES) {
                 recentDeliveries.remove(recentDeliveries.size() - 1);
             }
+        }
+    }
+
+    static String computeHmacSha256(String secret, String data) {
+        try {
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+            byte[] rawHmac = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hex = new StringBuilder();
+            for (byte b : rawHmac) {
+                hex.append(String.format("%02x", b));
+            }
+            return hex.toString();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to compute HMAC-SHA256", e);
         }
     }
 

@@ -21,6 +21,7 @@ import io.notifyhub.core.template.MustacheTemplateEngine;
 import io.notifyhub.core.template.TemplateEngine;
 import io.notifyhub.spring.event.SpringEventNotificationListener;
 import io.notifyhub.spring.metrics.MicrometerNotificationListener;
+import io.notifyhub.spring.metrics.TracingNotificationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -156,6 +157,22 @@ public class NotifyAutoConfiguration {
         }
     }
 
+    // ===================== OPENTELEMETRY TRACING (isolated to avoid ClassNotFound) =====================
+
+    @AutoConfiguration
+    @ConditionalOnClass(name = "io.micrometer.observation.ObservationRegistry")
+    static class ObservationConfiguration {
+        @Bean
+        @ConditionalOnBean(type = "io.micrometer.observation.ObservationRegistry")
+        @ConditionalOnMissingBean(TracingNotificationListener.class)
+        public TracingNotificationListener tracingNotificationListener(
+                io.micrometer.observation.ObservationRegistry observationRegistry) {
+            LoggerFactory.getLogger(NotifyAutoConfiguration.class)
+                    .info("NotifyHub: OpenTelemetry tracing listener enabled");
+            return new TracingNotificationListener(observationRegistry);
+        }
+    }
+
     // ===================== ACTUATOR (isolated to avoid ClassNotFound) =====================
 
     @AutoConfiguration
@@ -213,8 +230,10 @@ public class NotifyAutoConfiguration {
     @ConditionalOnMissingBean(StatusWebhookListener.class)
     public StatusWebhookListener statusWebhookListener(NotifyProperties properties) {
         NotifyProperties.StatusWebhook config = properties.getStatusWebhook();
-        log.info("NotifyHub: Status webhook listener enabled (URL: {})", config.getUrl());
-        return new StatusWebhookListener(config.getUrl(), config.getTimeoutMs(), config.getHeaders());
+        log.info("NotifyHub: Status webhook listener enabled (URL: {}, signing: {})",
+                config.getUrl(), config.getSigningSecret() != null);
+        return new StatusWebhookListener(
+                config.getUrl(), config.getTimeoutMs(), config.getHeaders(), config.getSigningSecret());
     }
 
     // ===================== AUDIENCE / CONTACTS =====================

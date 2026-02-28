@@ -1242,8 +1242,16 @@ mvn clean package -pl notify-mcp -am -DskipTests
 | `send_twitch` | Send Twitch chat message + polls | `recipient`, `body` or `template` |
 | `send_youtube` | Send YouTube live chat message | `recipient`, `body` or `template` |
 | `send_multi_channel` | Send to multiple channels | `channels[]`, `recipient`, `body` or `template` |
+| `send_batch` | Send to multiple recipients at once | `recipients[]`, `channel`, `body` or `template` |
+| `send_to_audience` | Send to a named audience | `audience`, `channel`, `body` or `template` |
 | `list_channels` | List configured channels | _(none)_ |
 | `list_delivery_receipts` | Query delivery history | _(none)_ |
+| `list_dead_letters` | View failed notifications (DLQ) | _(none)_ |
+| `create_contact` | Create a contact with tags | `name` |
+| `list_contacts` | List contacts (filter by tag) | _(none)_ |
+| `create_audience` | Create audience with tag filters | `name`, `tags[]` |
+| `list_audiences` | List audiences with contact counts | _(none)_ |
+| `get_analytics` | Delivery stats by channel/status | _(none)_ |
 
 All send tools optionally accept: `subject`, `template`, `params`, `priority`.
 
@@ -1478,7 +1486,7 @@ notify-hub/
 ├── notify-mcp/                           # MCP Server for AI agents
 │   ├── NotifyMcpServer                   # Spring Boot headless main
 │   ├── McpServerRunner                   # STDIO MCP server bootstrap
-│   └── tools/                            # 18 MCP tools (send_email, send_slack, etc.)
+│   └── tools/                            # 26 MCP tools (send, batch, audiences, DLQ, analytics)
 │
 └── notify-demo/                          # Demo app (run it!)
 ```
@@ -1797,7 +1805,7 @@ Below is every module, what it does, when you need it, and how to add it.
 
 #### `notify-mcp` — MCP Server for AI Agents
 
-**What it does:** Exposes all NotifyHub channels as MCP (Model Context Protocol) tools, allowing AI agents (Claude Desktop, Claude Code, Cursor) to send notifications through natural language commands. Runs as a headless Spring Boot app communicating via STDIO JSON-RPC. Provides 18 tools: send via any channel, list channels, and query delivery receipts.
+**What it does:** Exposes all NotifyHub channels as MCP (Model Context Protocol) tools, allowing AI agents (Claude Desktop, Claude Code, Cursor) to send notifications through natural language commands. Runs as a headless Spring Boot app communicating via STDIO JSON-RPC. Provides 26 tools: send via any channel, batch send, audience management, DLQ monitoring, and delivery analytics.
 
 **When to use:** You want AI agents to send notifications on your behalf. Configure the JAR path in your MCP client's config file and the agent will discover all available tools automatically.
 
@@ -1850,6 +1858,7 @@ Below is every module, what it does, when you need it, and how to add it.
 - [x] **v0.8.0** — Twitter/X, LinkedIn, Notion channels (14 channels, 16 MCP tools, 22 modules)
 - [x] **v0.8.0** — Twitch, YouTube channels (16 channels, 18 MCP tools, 24 modules)
 - [x] **v0.8.0** — Admin dashboard redesign: shared CSS, Thymeleaf fragments, dark/light theme, 8 pages (Dashboard, Analytics, Tracking, DLQ, Channels, Audit Log, Audiences, Status Webhook)
+- [x] **v0.8.0** — MCP advanced tools: audiences, contacts, batch send, DLQ, analytics (18 → 26 MCP tools)
 
 ---
 

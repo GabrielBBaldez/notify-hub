@@ -66,7 +66,7 @@
             <div class="what-card">
                 <div class="what-icon">&#129302;</div>
                 <h3>AI Ready</h3>
-                <p>MCP Server with 18 tools. Let Claude, Cursor, or any AI assistant send notifications on your behalf.</p>
+                <p>MCP Server with 26 tools. Let Claude, Cursor, or any AI assistant send notifications on your behalf.</p>
             </div>
         </div>
     </section>
@@ -398,7 +398,7 @@ open http://localhost:8080/swagger-ui.html</code></pre>
                     <span class="docker-badge mcp-badge">MCP Server</span>
                     <code class="docker-image">gabrielbbal10/notifyhub-mcp</code>
                 </div>
-                <p>Model Context Protocol server with <strong>18 tools</strong> for AI assistants. Connect to Claude Desktop, Claude Code, or Cursor.</p>
+                <p>Model Context Protocol server with <strong>26 tools</strong> for AI assistants. Connect to Claude Desktop, Claude Code, or Cursor.</p>
                 <div class="docker-links">
                     <a href="https://hub.docker.com/r/gabrielbbal10/notifyhub-mcp">Docker Hub</a>
                     <a href="https://github.com/GabrielBBaldez/notify-hub#mcp-server">Docs</a>
@@ -478,10 +478,10 @@ open http://localhost:8080/swagger-ui.html</code></pre>
     <!-- MCP / AI -->
     <section class="mcp-section" id="mcp">
         <h2>Built for AI</h2>
-        <p class="section-lead">NotifyHub includes an <strong>MCP Server</strong> (Model Context Protocol) that exposes 18 tools. Connect it to Claude Desktop, Claude Code, Cursor, or any MCP-compatible AI client.</p>
+        <p class="section-lead">NotifyHub includes an <strong>MCP Server</strong> (Model Context Protocol) that exposes 26 tools. Connect it to Claude Desktop, Claude Code, Cursor, or any MCP-compatible AI client.</p>
         <div class="mcp-grid">
             <div class="mcp-tools">
-                <h4>18 MCP Tools</h4>
+                <h4>26 MCP Tools</h4>
                 <div class="tool-list">
                     <span class="tool">send_email</span>
                     <span class="tool">send_sms</span>
@@ -499,18 +499,27 @@ open http://localhost:8080/swagger-ui.html</code></pre>
                     <span class="tool">send_youtube</span>
                     <span class="tool">send_notification</span>
                     <span class="tool">send_multi_channel</span>
+                    <span class="tool">send_batch</span>
+                    <span class="tool">send_to_audience</span>
+                    <span class="tool">create_contact</span>
+                    <span class="tool">list_contacts</span>
+                    <span class="tool">create_audience</span>
+                    <span class="tool">list_audiences</span>
                     <span class="tool">list_channels</span>
                     <span class="tool">list_delivery_receipts</span>
+                    <span class="tool">list_dead_letters</span>
+                    <span class="tool">get_analytics</span>
                 </div>
             </div>
             <div class="mcp-example">
                 <h4>What you can say to your AI</h4>
                 <div class="ai-prompts">
                     <div class="ai-prompt">"Send an email to user@test.com saying the deploy is complete"</div>
-                    <div class="ai-prompt">"Post a message on Discord #alerts that the server is down"</div>
+                    <div class="ai-prompt">"Create a VIP audience with tags 'premium' and 'active', then send them a promo email"</div>
                     <div class="ai-prompt">"Send an SMS to +5548999999999 with the verification code"</div>
                     <div class="ai-prompt">"Notify the team on Slack and Telegram that the build passed"</div>
-                    <div class="ai-prompt">"Show me all delivery receipts from the last hour"</div>
+                    <div class="ai-prompt">"Show me the delivery analytics — how many sent vs failed?"</div>
+                    <div class="ai-prompt">"List all dead letters and show me what failed"</div>
                 </div>
             </div>
         </div>
@@ -617,7 +626,7 @@ open http://localhost:8080/swagger-ui.html</code></pre>
                     <tr><td><code>notify-youtube</code></td><td>YouTube via Data API v3. Live chat messages.</td></tr>
                     <tr><td><code>notify-tracker-jpa</code></td><td>JPA-backed delivery tracking. Persist receipts to any database.</td></tr>
                     <tr><td><code>notify-admin</code></td><td>Web dashboard for monitoring and DLQ management.</td></tr>
-                    <tr><td><code>notify-mcp</code></td><td>MCP Server for AI assistants (18 tools).</td></tr>
+                    <tr><td><code>notify-mcp</code></td><td>MCP Server for AI assistants (26 tools).</td></tr>
                     <tr><td><code>notify-queue-rabbitmq</code></td><td>RabbitMQ producer/consumer for async notifications.</td></tr>
                     <tr><td><code>notify-queue-kafka</code></td><td>Apache Kafka producer/consumer for async notifications.</td></tr>
                 </tbody>

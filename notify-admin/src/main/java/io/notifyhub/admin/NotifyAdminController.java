@@ -8,6 +8,8 @@ import io.notifyhub.core.DeliveryStatus;
 import io.notifyhub.core.NotificationTracker;
 import io.notifyhub.core.NotifyHub;
 import io.notifyhub.core.StatusWebhookListener;
+import io.notifyhub.core.audience.Audience;
+import io.notifyhub.core.audience.AudienceManager;
 import io.notifyhub.core.channel.NotificationChannel;
 import io.notifyhub.core.dlq.DeadLetter;
 import io.notifyhub.core.dlq.DeadLetterQueue;
@@ -38,11 +40,14 @@ public class NotifyAdminController {
 
     private final NotifyHub hub;
     private final StatusWebhookListener statusWebhookListener;
+    private final AudienceManager audienceManager;
 
     public NotifyAdminController(NotifyHub hub,
-                                  ObjectProvider<StatusWebhookListener> webhookListenerProvider) {
+                                  ObjectProvider<StatusWebhookListener> webhookListenerProvider,
+                                  ObjectProvider<AudienceManager> audienceManagerProvider) {
         this.hub = hub;
         this.statusWebhookListener = webhookListenerProvider.getIfAvailable();
+        this.audienceManager = audienceManagerProvider.getIfAvailable();
     }
 
     /** Dashboard -- overview with totals. */
@@ -77,6 +82,12 @@ public class NotifyAdminController {
         DeadLetterQueue dlq = hub.getDeadLetterQueue();
         model.addAttribute("dlqCount", dlq != null ? dlq.count() : 0);
         model.addAttribute("dlqEnabled", dlq != null);
+
+        model.addAttribute("audienceEnabled", audienceManager != null);
+        model.addAttribute("contactCount", audienceManager != null
+                ? audienceManager.getContactRepository().count() : 0);
+        model.addAttribute("audienceCount", audienceManager != null
+                ? audienceManager.listAudiences().size() : 0);
 
         return "notify-admin/dashboard";
     }
@@ -167,6 +178,27 @@ public class NotifyAdminController {
         model.addAttribute("selectedEvent", event);
         model.addAttribute("auditEnabled", auditLog != null);
         return "notify-admin/audit-log";
+    }
+
+    /** Audiences -- list contacts and audience segments. */
+    @GetMapping("/audiences")
+    public String audiences(Model model) {
+        boolean enabled = audienceManager != null;
+        model.addAttribute("audienceEnabled", enabled);
+        if (enabled) {
+            List<Map<String, Object>> audienceInfos = new ArrayList<>();
+            for (Audience audience : audienceManager.listAudiences()) {
+                Map<String, Object> info = new LinkedHashMap<>();
+                info.put("name", audience.getName());
+                info.put("tags", audience.getTags());
+                info.put("contactCount", audienceManager.resolve(audience).size());
+                audienceInfos.add(info);
+            }
+            model.addAttribute("audiences", audienceInfos);
+            model.addAttribute("contacts", audienceManager.getContactRepository().findAll());
+            model.addAttribute("contactCount", audienceManager.getContactRepository().count());
+        }
+        return "notify-admin/audiences";
     }
 
     /** Status Webhook -- configuration and recent deliveries. */

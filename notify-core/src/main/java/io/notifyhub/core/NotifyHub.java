@@ -1,5 +1,7 @@
 package io.notifyhub.core;
 
+import io.notifyhub.core.audience.AudienceManager;
+import io.notifyhub.core.audience.Contact;
 import io.notifyhub.core.channel.NotificationChannel;
 import io.notifyhub.core.channel.NotificationSendException;
 import io.notifyhub.core.dedup.DeduplicationStore;
@@ -67,6 +69,7 @@ public class NotifyHub {
     private final NotificationRouter router;
     private final DeduplicationStore deduplicationStore;
     private final AuditLog auditLog;
+    private final AudienceManager audienceManager;
 
     private NotifyHub(Builder builder) {
         this.channels = new ConcurrentHashMap<>(builder.channels);
@@ -83,6 +86,7 @@ public class NotifyHub {
         this.router = builder.router;
         this.deduplicationStore = builder.deduplicationStore;
         this.auditLog = builder.auditLog;
+        this.audienceManager = builder.audienceManager;
     }
 
     // ===================== FLUENT API ENTRY POINTS =====================
@@ -149,6 +153,34 @@ public class NotifyHub {
         return new BatchNotificationBuilder(this, null, (java.util.List<Notifiable>) (java.util.List<?>) notifiables);
     }
 
+    /**
+     * Start building a batch notification to an audience.
+     * The audience is resolved to contacts matching all its tags,
+     * then each contact receives the notification.
+     *
+     * <pre>{@code
+     * notify.toAudience("premium-users")
+     *     .via(Channel.EMAIL)
+     *     .template("promo")
+     *     .send();
+     * }</pre>
+     *
+     * @param audienceName the name of a previously created audience
+     * @return a {@link BatchNotificationBuilder} for the matched contacts
+     * @throws IllegalStateException if AudienceManager is not configured
+     * @throws IllegalArgumentException if the audience is not found
+     */
+    @SuppressWarnings("unchecked")
+    public BatchNotificationBuilder toAudience(String audienceName) {
+        if (audienceManager == null) {
+            throw new IllegalStateException(
+                    "AudienceManager not configured. Use NotifyHub.builder().audienceManager(mgr).build()");
+        }
+        List<Contact> contacts = audienceManager.resolve(audienceName);
+        return new BatchNotificationBuilder(this, null,
+                (java.util.List<Notifiable>) (java.util.List<?>) contacts);
+    }
+
     // ===================== CHANNEL MANAGEMENT =====================
 
     /** Register a new channel at runtime. */
@@ -180,6 +212,11 @@ public class NotifyHub {
     /** Get the audit log, or null if not configured. */
     public AuditLog getAuditLog() {
         return auditLog;
+    }
+
+    /** Get the audience manager, or null if not configured. */
+    public AudienceManager getAudienceManager() {
+        return audienceManager;
     }
 
     /**
@@ -662,6 +699,7 @@ public class NotifyHub {
         private NotificationRouter router;
         private DeduplicationStore deduplicationStore;
         private AuditLog auditLog;
+        private AudienceManager audienceManager;
 
         public Builder channel(NotificationChannel channel) {
             this.channels.put(channel.getName().toLowerCase(), channel);
@@ -764,6 +802,15 @@ public class NotifyHub {
          */
         public Builder auditLog(AuditLog auditLog) {
             this.auditLog = auditLog;
+            return this;
+        }
+
+        /**
+         * Set the audience manager for audience segmentation.
+         * When configured, enables {@link NotifyHub#toAudience(String)}.
+         */
+        public Builder audienceManager(AudienceManager audienceManager) {
+            this.audienceManager = audienceManager;
             return this;
         }
 

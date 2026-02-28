@@ -19,6 +19,7 @@ public class NotifyProperties {
     private Deduplication deduplication = new Deduplication();
     private Audit audit = new Audit();
     private StatusWebhook statusWebhook = new StatusWebhook();
+    private Audience audience = new Audience();
 
     public Channels getChannels() { return channels; }
     public void setChannels(Channels channels) { this.channels = channels; }
@@ -38,6 +39,8 @@ public class NotifyProperties {
     public void setAudit(Audit audit) { this.audit = audit; }
     public StatusWebhook getStatusWebhook() { return statusWebhook; }
     public void setStatusWebhook(StatusWebhook statusWebhook) { this.statusWebhook = statusWebhook; }
+    public Audience getAudience() { return audience; }
+    public void setAudience(Audience audience) { this.audience = audience; }
 
     public static class Channels {
         private Email email;
@@ -413,5 +416,11 @@ public class NotifyProperties {
         public void setTimeoutMs(int timeoutMs) { this.timeoutMs = timeoutMs; }
         public Map<String, String> getHeaders() { return headers; }
         public void setHeaders(Map<String, String> headers) { this.headers = headers; }
+    }
+
+    public static class Audience {
+        private boolean enabled = false;
+        public boolean isEnabled() { return enabled; }
+        public void setEnabled(boolean enabled) { this.enabled = enabled; }
     }
 }

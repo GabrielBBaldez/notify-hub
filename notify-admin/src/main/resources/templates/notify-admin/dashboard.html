@@ -178,6 +178,7 @@
             <a th:href="@{/notify-admin/dlq}">DLQ</a>
             <a th:href="@{/notify-admin/channels}">Channels</a>
             <a th:href="@{/notify-admin/audit-log}">Audit Log</a>
+            <a th:href="@{/notify-admin/audiences}">Audiences</a>
             <a th:href="@{/notify-admin/status-webhook}">Status Webhook</a>
         </div>
     </nav>
@@ -206,6 +207,14 @@
             <div class="card">
                 <div class="label">Active Channels</div>
                 <div class="value blue" th:text="${channelCount}">0</div>
+            </div>
+            <div class="card" th:if="${audienceEnabled}">
+                <div class="label">Contacts</div>
+                <div class="value purple" th:text="${contactCount}">0</div>
+            </div>
+            <div class="card" th:if="${audienceEnabled}">
+                <div class="label">Audiences</div>
+                <div class="value blue" th:text="${audienceCount}">0</div>
             </div>
         </div>
 

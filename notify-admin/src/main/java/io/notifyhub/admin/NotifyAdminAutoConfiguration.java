@@ -2,6 +2,7 @@ package io.notifyhub.admin;
 
 import io.notifyhub.core.NotifyHub;
 import io.notifyhub.core.StatusWebhookListener;
+import io.notifyhub.core.audience.AudienceManager;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -17,7 +18,8 @@ public class NotifyAdminAutoConfiguration {
 
     @Bean
     public NotifyAdminController notifyAdminController(NotifyHub hub,
-            ObjectProvider<StatusWebhookListener> webhookListenerProvider) {
-        return new NotifyAdminController(hub, webhookListenerProvider);
+            ObjectProvider<StatusWebhookListener> webhookListenerProvider,
+            ObjectProvider<AudienceManager> audienceManagerProvider) {
+        return new NotifyAdminController(hub, webhookListenerProvider, audienceManagerProvider);
     }
 }

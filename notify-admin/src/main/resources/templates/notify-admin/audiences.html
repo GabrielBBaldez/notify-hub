@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>NotifyHub Admin - Tracking</title>
+    <title>NotifyHub Admin - Audiences</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -63,41 +63,23 @@
             color: #e0def4;
             margin-bottom: 0.5rem;
         }
+        h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #e0def4;
+            margin-bottom: 1rem;
+        }
         .subtitle {
             color: #8b87a8;
             font-size: 0.95rem;
             margin-bottom: 2rem;
-        }
-        .filter-bar {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-        .filter-bar label {
-            font-size: 0.9rem;
-            color: #8b87a8;
-            font-weight: 500;
-        }
-        .filter-bar select {
-            background: #1a1730;
-            border: 1px solid #3d3a6e;
-            color: #e0def4;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-size: 0.875rem;
-            cursor: pointer;
-        }
-        .filter-bar select:focus {
-            outline: none;
-            border-color: #a78bfa;
         }
         .table-wrapper {
             background: linear-gradient(135deg, #1a1730 0%, #221f3d 100%);
             border: 1px solid #2d2b55;
             border-radius: 12px;
             overflow: hidden;
+            margin-bottom: 2rem;
         }
         table {
             width: 100%;
@@ -125,36 +107,16 @@
         tbody tr:hover {
             background: rgba(167, 139, 250, 0.05);
         }
-        .badge {
+        .tag-badge {
             display: inline-block;
+            background: rgba(167, 139, 250, 0.12);
+            border: 1px solid #3d3a6e;
+            color: #c4b5fd;
             padding: 0.2rem 0.6rem;
             border-radius: 12px;
             font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-        }
-        .badge-sent { background: rgba(52, 211, 153, 0.15); color: #34d399; }
-        .badge-failed { background: rgba(248, 113, 113, 0.15); color: #f87171; }
-        .badge-pending { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
-        .badge-scheduled { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
-        .badge-cancelled { background: rgba(139, 135, 168, 0.15); color: #8b87a8; }
-        .disabled-msg {
-            color: #6b6889;
-            font-style: italic;
-            font-size: 0.95rem;
-            text-align: center;
-            padding: 3rem 1rem;
-        }
-        .empty-msg {
-            color: #6b6889;
-            text-align: center;
-            padding: 2rem 1rem;
-            font-size: 0.9rem;
-        }
-        .error-text {
-            color: #f87171;
-            font-size: 0.8rem;
+            font-weight: 500;
+            margin: 0.1rem 0.2rem;
         }
         .count-badge {
             background: rgba(167, 139, 250, 0.15);
@@ -164,6 +126,26 @@
             font-size: 0.8rem;
             font-weight: 600;
             margin-left: 0.5rem;
+        }
+        .disabled-msg {
+            color: #6b6889;
+            font-style: italic;
+            font-size: 0.95rem;
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+        .disabled-msg code {
+            background: rgba(167, 139, 250, 0.1);
+            color: #a78bfa;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        .empty-msg {
+            color: #6b6889;
+            text-align: center;
+            padding: 2rem 1rem;
+            font-size: 0.9rem;
         }
         @media (max-width: 768px) {
             .container { padding: 1rem; }
@@ -184,64 +166,75 @@
         <div class="nav-links">
             <a th:href="@{/notify-admin}">Dashboard</a>
             <a th:href="@{/notify-admin/analytics}">Analytics</a>
-            <a th:href="@{/notify-admin/tracking}" class="active">Tracking</a>
+            <a th:href="@{/notify-admin/tracking}">Tracking</a>
             <a th:href="@{/notify-admin/dlq}">DLQ</a>
             <a th:href="@{/notify-admin/channels}">Channels</a>
             <a th:href="@{/notify-admin/audit-log}">Audit Log</a>
-            <a th:href="@{/notify-admin/audiences}">Audiences</a>
+            <a th:href="@{/notify-admin/audiences}" class="active">Audiences</a>
             <a th:href="@{/notify-admin/status-webhook}">Status Webhook</a>
         </div>
     </nav>
 
     <div class="container">
-        <h1>Delivery Tracking <span class="count-badge" th:text="${#lists.size(receipts)}">0</span></h1>
-        <p class="subtitle">Notification delivery history and status</p>
+        <h1>Audiences</h1>
+        <p class="subtitle">Manage contacts and audience segments with tag-based filtering</p>
 
-        <div th:if="${!trackingEnabled}" class="table-wrapper">
-            <p class="disabled-msg">Notification tracking is not enabled. Configure a NotificationTracker bean to see delivery history.</p>
+        <div th:if="${!audienceEnabled}" class="table-wrapper">
+            <p class="disabled-msg">Audience segmentation is not enabled. Set <code>notify.audience.enabled=true</code> in your configuration.</p>
         </div>
 
-        <div th:if="${trackingEnabled}">
-            <form th:action="@{/notify-admin/tracking}" method="get" class="filter-bar">
-                <label for="channel-filter">Filter by channel:</label>
-                <select id="channel-filter" name="channel" onchange="this.form.submit()">
-                    <option value="">All Channels</option>
-                    <option th:each="ch : ${channels}" th:value="${ch}" th:text="${ch}"
-                            th:selected="${ch == selectedChannel}">channel</option>
-                </select>
-            </form>
-
+        <div th:if="${audienceEnabled}">
+            <!-- Audiences Section -->
+            <h2>Segments <span class="count-badge" th:text="${#lists.size(audiences)}">0</span></h2>
             <div class="table-wrapper">
-                <div th:if="${#lists.isEmpty(receipts)}" class="empty-msg">
-                    No delivery receipts found.
+                <div th:if="${#lists.isEmpty(audiences)}" class="empty-msg">
+                    No audiences created yet. Use the API to create audience segments.
                 </div>
-                <table th:unless="${#lists.isEmpty(receipts)}">
+                <table th:unless="${#lists.isEmpty(audiences)}">
                     <thead>
                         <tr>
-                            <th>Status</th>
-                            <th>Channel</th>
-                            <th>Recipient</th>
-                            <th>Template</th>
-                            <th>Timestamp</th>
-                            <th>Error</th>
+                            <th>Name</th>
+                            <th>Tags (AND filter)</th>
+                            <th>Matching Contacts</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="r : ${receipts}">
+                        <tr th:each="a : ${audiences}">
+                            <td th:text="${a.name}">premium-users</td>
                             <td>
-                                <span class="badge badge-sent" th:if="${r.status.name() == 'SENT'}">Sent</span>
-                                <span class="badge badge-failed" th:if="${r.status.name() == 'FAILED'}">Failed</span>
-                                <span class="badge badge-pending" th:if="${r.status.name() == 'PENDING'}">Pending</span>
-                                <span class="badge badge-scheduled" th:if="${r.status.name() == 'SCHEDULED'}">Scheduled</span>
-                                <span class="badge badge-cancelled" th:if="${r.status.name() == 'CANCELLED'}">Cancelled</span>
+                                <span class="tag-badge" th:each="tag : ${a.tags}" th:text="${tag}">vip</span>
                             </td>
-                            <td th:text="${r.channelName}">email</td>
-                            <td th:text="${r.recipient}">user@example.com</td>
-                            <td th:text="${r.templateName ?: '-'}">welcome</td>
-                            <td th:text="${#temporals.format(r.timestamp, 'yyyy-MM-dd HH:mm:ss')}">2024-01-01</td>
                             <td>
-                                <span class="error-text" th:if="${r.errorMessage}" th:text="${r.errorMessage}">error</span>
-                                <span th:unless="${r.errorMessage}">-</span>
+                                <span class="count-badge" th:text="${a.contactCount}">0</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Contacts Section -->
+            <h2>Contacts <span class="count-badge" th:text="${contactCount}">0</span></h2>
+            <div class="table-wrapper">
+                <div th:if="${#lists.isEmpty(contacts)}" class="empty-msg">
+                    No contacts registered yet. Use the API to create contacts with tags.
+                </div>
+                <table th:unless="${#lists.isEmpty(contacts)}">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Tags</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="c : ${contacts}">
+                            <td th:text="${c.name ?: '-'}">Alice</td>
+                            <td th:text="${c.email ?: '-'}">alice@test.com</td>
+                            <td th:text="${c.phone ?: '-'}">-</td>
+                            <td>
+                                <span class="tag-badge" th:each="tag : ${c.tags}" th:text="${tag}">vip</span>
+                                <span th:if="${#sets.isEmpty(c.tags)}" style="color: #6b6889;">none</span>
                             </td>
                         </tr>
                     </tbody>

@@ -13,6 +13,8 @@ notify:
       bot-token: ${TELEGRAM_BOT_TOKEN:your-bot-token}
     discord:
       webhook-url: ${DISCORD_WEBHOOK_URL:https://discord.com/api/webhooks/your/webhook-url}
+  audience:
+    enabled: true
   retry:
     max-attempts: 3
     strategy: exponential

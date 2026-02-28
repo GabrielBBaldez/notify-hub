@@ -6,6 +6,9 @@ import io.notifyhub.core.AuditLog;
 import io.notifyhub.core.AuditNotificationListener;
 import io.notifyhub.core.InMemoryAuditLog;
 import io.notifyhub.core.NotifyHub;
+import io.notifyhub.core.audience.AudienceManager;
+import io.notifyhub.core.audience.ContactRepository;
+import io.notifyhub.core.audience.InMemoryContactRepository;
 import io.notifyhub.core.InMemoryNotificationTracker;
 import io.notifyhub.core.NotificationListener;
 import io.notifyhub.core.StatusWebhookListener;
@@ -214,6 +217,24 @@ public class NotifyAutoConfiguration {
         return new StatusWebhookListener(config.getUrl(), config.getTimeoutMs(), config.getHeaders());
     }
 
+    // ===================== AUDIENCE / CONTACTS =====================
+
+    @Bean
+    @ConditionalOnProperty(prefix = "notify.audience", name = "enabled", havingValue = "true")
+    @ConditionalOnMissingBean(ContactRepository.class)
+    public ContactRepository contactRepository() {
+        log.info("NotifyHub: In-memory contact repository enabled");
+        return new InMemoryContactRepository();
+    }
+
+    @Bean
+    @ConditionalOnBean(ContactRepository.class)
+    @ConditionalOnMissingBean(AudienceManager.class)
+    public AudienceManager audienceManager(ContactRepository contactRepository) {
+        log.info("NotifyHub: Audience manager enabled");
+        return new AudienceManager(contactRepository);
+    }
+
     // ===================== SPRING EVENTS =====================
 
     @Bean
@@ -237,6 +258,7 @@ public class NotifyAutoConfiguration {
             ObjectProvider<NotificationTracker> trackerProvider,
             ObjectProvider<DeduplicationStore> deduplicationStoreProvider,
             ObjectProvider<AuditLog> auditLogProvider,
+            ObjectProvider<AudienceManager> audienceManagerProvider,
             NotifyProperties properties) {
 
         NotifyHub.Builder builder = NotifyHub.builder()
@@ -299,6 +321,13 @@ public class NotifyAutoConfiguration {
         if (auditLog != null) {
             builder.auditLog(auditLog);
             log.info("NotifyHub: Audit log configured");
+        }
+
+        // Configure audience manager
+        AudienceManager audienceManager = audienceManagerProvider.getIfAvailable();
+        if (audienceManager != null) {
+            builder.audienceManager(audienceManager);
+            log.info("NotifyHub: Audience manager configured");
         }
 
         return builder.build();

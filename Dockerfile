@@ -5,6 +5,9 @@ COPY pom.xml .
 COPY notify-core/pom.xml notify-core/
 COPY notify-channels/ notify-channels/
 COPY notify-tracker-jpa/pom.xml notify-tracker-jpa/
+COPY notify-audit-jpa/pom.xml notify-audit-jpa/
+COPY notify-queue-rabbitmq/pom.xml notify-queue-rabbitmq/
+COPY notify-queue-kafka/pom.xml notify-queue-kafka/
 COPY notify-spring-boot-starter/pom.xml notify-spring-boot-starter/
 COPY notify-admin/pom.xml notify-admin/
 COPY notify-demo/pom.xml notify-demo/

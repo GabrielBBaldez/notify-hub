@@ -156,9 +156,9 @@ public class StatusWebhookListener implements NotificationListener {
     private void recordDelivery(String payload, int statusCode, String error, Instant sentAt) {
         WebhookDeliveryRecord record = new WebhookDeliveryRecord(sentAt, statusCode, error, payload);
         synchronized (recentDeliveries) {
-            recentDeliveries.addFirst(record);
+            recentDeliveries.add(0, record);
             while (recentDeliveries.size() > MAX_RECENT_DELIVERIES) {
-                recentDeliveries.removeLast();
+                recentDeliveries.remove(recentDeliveries.size() - 1);
             }
         }
     }

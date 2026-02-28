@@ -29,6 +29,7 @@ public class ScheduledNotification {
     private final String channelName;
     private final String recipient;
     private volatile DeliveryStatus status;
+    private Runnable cancelCallback;
 
     ScheduledNotification(ScheduledFuture<?> future, Instant scheduledTime,
                           String channelName, String recipient) {
@@ -96,8 +97,20 @@ public class ScheduledNotification {
         boolean cancelled = future.cancel(false);
         if (cancelled) {
             this.status = DeliveryStatus.CANCELLED;
+            if (cancelCallback != null) {
+                try {
+                    cancelCallback.run();
+                } catch (Exception e) {
+                    // swallow — listener errors should not break cancellation
+                }
+            }
         }
         return cancelled;
+    }
+
+    /** Set a callback to be invoked when this notification is cancelled. Package-private. */
+    void setCancelCallback(Runnable cancelCallback) {
+        this.cancelCallback = cancelCallback;
     }
 
     /** Called internally when the notification is successfully sent. */

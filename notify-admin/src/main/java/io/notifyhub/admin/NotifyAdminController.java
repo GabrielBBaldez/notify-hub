@@ -7,9 +7,11 @@ import io.notifyhub.core.DeliveryReceipt;
 import io.notifyhub.core.DeliveryStatus;
 import io.notifyhub.core.NotificationTracker;
 import io.notifyhub.core.NotifyHub;
+import io.notifyhub.core.StatusWebhookListener;
 import io.notifyhub.core.channel.NotificationChannel;
 import io.notifyhub.core.dlq.DeadLetter;
 import io.notifyhub.core.dlq.DeadLetterQueue;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,9 +37,12 @@ import java.util.stream.Collectors;
 public class NotifyAdminController {
 
     private final NotifyHub hub;
+    private final StatusWebhookListener statusWebhookListener;
 
-    public NotifyAdminController(NotifyHub hub) {
+    public NotifyAdminController(NotifyHub hub,
+                                  ObjectProvider<StatusWebhookListener> webhookListenerProvider) {
         this.hub = hub;
+        this.statusWebhookListener = webhookListenerProvider.getIfAvailable();
     }
 
     /** Dashboard -- overview with totals. */
@@ -162,6 +167,20 @@ public class NotifyAdminController {
         model.addAttribute("selectedEvent", event);
         model.addAttribute("auditEnabled", auditLog != null);
         return "notify-admin/audit-log";
+    }
+
+    /** Status Webhook -- configuration and recent deliveries. */
+    @GetMapping("/status-webhook")
+    public String statusWebhook(Model model) {
+        boolean enabled = statusWebhookListener != null;
+        model.addAttribute("webhookEnabled", enabled);
+        if (enabled) {
+            model.addAttribute("webhookUrl", statusWebhookListener.getUrl());
+            model.addAttribute("webhookTimeoutMs", statusWebhookListener.getTimeoutMs());
+            model.addAttribute("webhookHeaders", statusWebhookListener.getHeaders());
+            model.addAttribute("recentDeliveries", statusWebhookListener.getRecentDeliveries());
+        }
+        return "notify-admin/status-webhook";
     }
 
     /** API: overview stats — count by status. */

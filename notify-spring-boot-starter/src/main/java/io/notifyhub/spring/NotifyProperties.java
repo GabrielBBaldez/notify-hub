@@ -18,6 +18,7 @@ public class NotifyProperties {
     private RateLimit rateLimit = new RateLimit();
     private Deduplication deduplication = new Deduplication();
     private Audit audit = new Audit();
+    private StatusWebhook statusWebhook = new StatusWebhook();
 
     public Channels getChannels() { return channels; }
     public void setChannels(Channels channels) { this.channels = channels; }
@@ -35,6 +36,8 @@ public class NotifyProperties {
     public void setDeduplication(Deduplication deduplication) { this.deduplication = deduplication; }
     public Audit getAudit() { return audit; }
     public void setAudit(Audit audit) { this.audit = audit; }
+    public StatusWebhook getStatusWebhook() { return statusWebhook; }
+    public void setStatusWebhook(StatusWebhook statusWebhook) { this.statusWebhook = statusWebhook; }
 
     public static class Channels {
         private Email email;
@@ -398,5 +401,17 @@ public class NotifyProperties {
         public void setEnabled(boolean enabled) { this.enabled = enabled; }
         public String getType() { return type; }
         public void setType(String type) { this.type = type; }
+    }
+
+    public static class StatusWebhook {
+        private String url;
+        private int timeoutMs = 10_000;
+        private Map<String, String> headers = new LinkedHashMap<>();
+        public String getUrl() { return url; }
+        public void setUrl(String url) { this.url = url; }
+        public int getTimeoutMs() { return timeoutMs; }
+        public void setTimeoutMs(int timeoutMs) { this.timeoutMs = timeoutMs; }
+        public Map<String, String> getHeaders() { return headers; }
+        public void setHeaders(Map<String, String> headers) { this.headers = headers; }
     }
 }

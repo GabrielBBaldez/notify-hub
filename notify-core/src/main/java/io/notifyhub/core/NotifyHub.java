@@ -457,6 +457,17 @@ public class NotifyHub {
             tracker.record(scheduledReceipt);
         }
 
+        // Wire cancel callback to notify listeners
+        scheduled.setCancelCallback(() -> {
+            for (NotificationListener listener : listeners) {
+                try {
+                    listener.onCancelled(primaryChannel, recipient);
+                } catch (Exception e) {
+                    log.warn("Listener error on cancelled: {}", e.getMessage());
+                }
+            }
+        });
+
         // Notify listeners
         for (NotificationListener listener : listeners) {
             try {

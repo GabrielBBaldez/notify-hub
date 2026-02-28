@@ -8,6 +8,7 @@ import io.notifyhub.core.InMemoryAuditLog;
 import io.notifyhub.core.NotifyHub;
 import io.notifyhub.core.InMemoryNotificationTracker;
 import io.notifyhub.core.NotificationListener;
+import io.notifyhub.core.StatusWebhookListener;
 import io.notifyhub.core.NotificationTracker;
 import io.notifyhub.core.channel.NotificationChannel;
 import io.notifyhub.core.dedup.DeduplicationStore;
@@ -200,6 +201,17 @@ public class NotifyAutoConfiguration {
     public AuditNotificationListener auditNotificationListener(AuditLog auditLog) {
         log.info("NotifyHub: Audit notification listener enabled");
         return new AuditNotificationListener(auditLog);
+    }
+
+    // ===================== STATUS WEBHOOK =====================
+
+    @Bean
+    @ConditionalOnProperty(prefix = "notify.status-webhook", name = "url")
+    @ConditionalOnMissingBean(StatusWebhookListener.class)
+    public StatusWebhookListener statusWebhookListener(NotifyProperties properties) {
+        NotifyProperties.StatusWebhook config = properties.getStatusWebhook();
+        log.info("NotifyHub: Status webhook listener enabled (URL: {})", config.getUrl());
+        return new StatusWebhookListener(config.getUrl(), config.getTimeoutMs(), config.getHeaders());
     }
 
     // ===================== SPRING EVENTS =====================

@@ -1004,6 +1004,30 @@ Creates observations (spans):
 
 Compatible with Jaeger, Zipkin, Grafana Tempo, Datadog, and any OTLP-compatible collector.
 
+### Webhook HMAC Signing
+
+The Status Webhook listener supports HMAC-SHA256 request signing for security. When configured, every webhook POST includes a `X-NotifyHub-Signature` header that your server can use to verify the request came from NotifyHub.
+
+```yaml
+notify:
+  status-webhook:
+    url: https://your-server.com/webhook
+    signing-secret: ${WEBHOOK_SECRET}   # any secret string
+```
+
+Each request includes the header:
+```
+X-NotifyHub-Signature: sha256=<hex-encoded HMAC-SHA256 of request body>
+```
+
+**Verify in your server:**
+```java
+Mac mac = Mac.getInstance("HmacSHA256");
+mac.init(new SecretKeySpec(secret.getBytes(), "HmacSHA256"));
+String expected = "sha256=" + HexFormat.of().formatHex(mac.doFinal(body.getBytes()));
+boolean valid = MessageDigest.isEqual(expected.getBytes(), signature.getBytes());
+```
+
 ---
 
 ## Configuration Reference

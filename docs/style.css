@@ -137,7 +137,9 @@ section h2 {
     padding: 20px; transition: all 0.25s;
 }
 .ch-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-.ch-icon { font-size: 1.4rem; margin-bottom: 8px; }
+.ch-icon { font-size: 1.4rem; margin-bottom: 10px; height: 28px; display: flex; align-items: center; }
+.ch-icon img, .ch-icon svg { display: block; transition: transform 0.2s, filter 0.2s; }
+.ch-card:hover .ch-icon img, .ch-card:hover .ch-icon svg { transform: scale(1.15); filter: drop-shadow(0 0 8px rgba(249,115,22,0.4)); }
 .ch-card h4 { font-size: 0.95rem; margin-bottom: 4px; }
 .ch-card p { color: var(--text-muted); font-size: 0.82rem; line-height: 1.5; }
 .ch-custom { border-style: dashed; }

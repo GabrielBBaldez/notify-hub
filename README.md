@@ -38,25 +38,26 @@ notify.to(user)
 
 ## Why NotifyHub?
 
-| Problem | Without NotifyHub | With NotifyHub |
-|---------|------------------|----------------|
-| Email | JavaMail config, MIME types, Session... | `.via(EMAIL)` |
-| SMS | Twilio SDK, different API entirely | `.via(SMS)` |
-| WhatsApp | Another Twilio setup, prefix logic | `.via(WHATSAPP)` |
-| Slack | Webhook HTTP, JSON payload | `.via(SLACK)` |
-| Telegram | Bot API, HTTP client setup | `.via(TELEGRAM)` |
-| Discord | Webhook HTTP, JSON payload | `.via(DISCORD)` |
-| Teams | Incoming Webhook, MessageCard JSON | `.via(TEAMS)` |
-| Push | Firebase Admin SDK, credentials... | `.via(PUSH)` |
-| Webhook | Custom HTTP, payload template | `.via(Channel.custom("pagerduty"))` |
-| WebSocket | Java WebSocket API, reconnect logic | `.via(WEBSOCKET)` |
-| Google Chat | Webhook HTTP, JSON payload | `.via(GOOGLE_CHAT)` |
-| Twitter/X | OAuth 1.0a, API v2 setup | `.via(TWITTER)` |
-| LinkedIn | OAuth 2.0, REST API setup | `.via(LINKEDIN)` |
-| Notion | Integration Token, API setup | `.via(NOTION)` |
-| Twitch | OAuth 2.0, Twitch API setup | `.via(TWITCH)` |
-| YouTube | YouTube Data API v3 setup | `.via(YOUTUBE)` |
-| Multiple channels | Completely different code for each | Same fluent API |
+| | Problem | Without NotifyHub | With NotifyHub |
+|:-:|---------|------------------|----------------|
+| <img src="https://cdn.simpleicons.org/gmail" width="16"> | Email | JavaMail config, MIME types, Session... | `.via(EMAIL)` |
+| <img src="https://cdn.simpleicons.org/twilio" width="16"> | SMS | Twilio SDK, different API entirely | `.via(SMS)` |
+| <img src="https://cdn.simpleicons.org/whatsapp" width="16"> | WhatsApp | Another Twilio setup, prefix logic | `.via(WHATSAPP)` |
+| <img src="https://cdn.simpleicons.org/slack" width="16"> | Slack | Webhook HTTP, JSON payload | `.via(SLACK)` |
+| <img src="https://cdn.simpleicons.org/telegram" width="16"> | Telegram | Bot API, HTTP client setup | `.via(TELEGRAM)` |
+| <img src="https://cdn.simpleicons.org/discord" width="16"> | Discord | Webhook HTTP, JSON payload | `.via(DISCORD)` |
+| <img src="https://cdn.simpleicons.org/microsoftteams" width="16"> | Teams | Incoming Webhook, MessageCard JSON | `.via(TEAMS)` |
+| <img src="https://cdn.simpleicons.org/firebase" width="16"> | Push | Firebase Admin SDK, credentials... | `.via(PUSH)` |
+| <img src="https://cdn.simpleicons.org/webhook" width="16"> | Webhook | Custom HTTP, payload template | `.via(Channel.custom("pagerduty"))` |
+| <img src="https://cdn.simpleicons.org/socketdotio" width="16"> | WebSocket | Java WebSocket API, reconnect logic | `.via(WEBSOCKET)` |
+| <img src="https://cdn.simpleicons.org/googlechat" width="16"> | Google Chat | Webhook HTTP, JSON payload | `.via(GOOGLE_CHAT)` |
+| <img src="https://cdn.simpleicons.org/x" width="16"> | Twitter/X | OAuth 1.0a, API v2 setup | `.via(TWITTER)` |
+| <img src="https://cdn.simpleicons.org/linkedin" width="16"> | LinkedIn | OAuth 2.0, REST API setup | `.via(LINKEDIN)` |
+| <img src="https://cdn.simpleicons.org/notion" width="16"> | Notion | Integration Token, API setup | `.via(NOTION)` |
+| <img src="https://cdn.simpleicons.org/twitch" width="16"> | Twitch | OAuth 2.0, Twitch API setup | `.via(TWITCH)` |
+| <img src="https://cdn.simpleicons.org/youtube" width="16"> | YouTube | YouTube Data API v3 setup | `.via(YOUTUBE)` |
+| <img src="https://cdn.simpleicons.org/instagram" width="16"> | Instagram | Meta Graph API setup | `.via(INSTAGRAM)` |
+| | Multiple channels | Completely different code for each | Same fluent API |
 | Fallback | Manual try/catch chain | `.fallback(SMS)` |
 | Retry | Implement yourself | Built-in exponential backoff |
 | Async | Thread pools, CompletableFuture | `.sendAsync()` |
@@ -858,26 +859,26 @@ Both modules support: templates, priority, deduplication keys, delivery tracking
 
 ## Supported Channels
 
-| Channel | Provider | Module | Status |
-|---------|----------|--------|--------|
-| Email | SMTP (any provider) | `notify-email` | Stable |
-| SMS | Twilio | `notify-sms` | Stable |
-| WhatsApp | Twilio | `notify-sms` | Stable |
-| Slack | Webhooks | `notify-slack` | Stable |
-| Telegram | Bot API | `notify-telegram` | Stable |
-| Discord | Webhooks | `notify-discord` | Stable |
-| Microsoft Teams | Incoming Webhooks | `notify-teams` | Stable |
-| Push (FCM) | Firebase Cloud Messaging | `notify-push-firebase` | Stable |
-| Webhook | Any HTTP endpoint | `notify-webhook` | Stable |
-| WebSocket | JDK WebSocket (`java.net.http`) | `notify-websocket` | Stable |
-| Google Chat | Webhooks | `notify-google-chat` | Stable |
-| Twitter/X | API v2 (OAuth 1.0a) | `notify-twitter` | Stable |
-| LinkedIn | REST API (OAuth 2.0) | `notify-linkedin` | Stable |
-| Notion | API (Integration Token) | `notify-notion` | Stable |
-| Twitch | Helix API (OAuth 2.0) | `notify-twitch` | Stable |
-| YouTube | YouTube Data API v3 | `notify-youtube` | Stable |
-| Instagram | Meta Graph API | `notify-instagram` | Stable |
-| Custom | Any | `notify-core` | Stable |
+| | Channel | Provider | Module |
+|:-:|---------|----------|--------|
+| <img src="https://cdn.simpleicons.org/gmail" width="18"> | **Email** | SMTP (Gmail, SES, Outlook, any) | `notify-email` |
+| <img src="https://cdn.simpleicons.org/twilio" width="18"> | **SMS** | Twilio | `notify-sms` |
+| <img src="https://cdn.simpleicons.org/whatsapp" width="18"> | **WhatsApp** | Twilio | `notify-sms` |
+| <img src="https://cdn.simpleicons.org/slack" width="18"> | **Slack** | Incoming Webhooks | `notify-slack` |
+| <img src="https://cdn.simpleicons.org/telegram" width="18"> | **Telegram** | Bot API | `notify-telegram` |
+| <img src="https://cdn.simpleicons.org/discord" width="18"> | **Discord** | Webhooks | `notify-discord` |
+| <img src="https://cdn.simpleicons.org/microsoftteams" width="18"> | **Microsoft Teams** | Incoming Webhooks | `notify-teams` |
+| <img src="https://cdn.simpleicons.org/firebase" width="18"> | **Push (FCM)** | Firebase Cloud Messaging | `notify-push-firebase` |
+| <img src="https://cdn.simpleicons.org/webhook" width="18"> | **Webhook** | Any HTTP endpoint | `notify-webhook` |
+| <img src="https://cdn.simpleicons.org/socketdotio" width="18"> | **WebSocket** | JDK WebSocket (`java.net.http`) | `notify-websocket` |
+| <img src="https://cdn.simpleicons.org/googlechat" width="18"> | **Google Chat** | Webhooks | `notify-google-chat` |
+| <img src="https://cdn.simpleicons.org/x" width="18"> | **Twitter/X** | API v2 (OAuth 1.0a) | `notify-twitter` |
+| <img src="https://cdn.simpleicons.org/linkedin" width="18"> | **LinkedIn** | REST API (OAuth 2.0) | `notify-linkedin` |
+| <img src="https://cdn.simpleicons.org/notion" width="18"> | **Notion** | API (Integration Token) | `notify-notion` |
+| <img src="https://cdn.simpleicons.org/twitch" width="18"> | **Twitch** | Helix API (OAuth 2.0 auto-refresh) | `notify-twitch` |
+| <img src="https://cdn.simpleicons.org/youtube" width="18"> | **YouTube** | Data API v3 (OAuth auto-refresh) | `notify-youtube` |
+| <img src="https://cdn.simpleicons.org/instagram" width="18"> | **Instagram** | Meta Graph API | `notify-instagram` |
+| ➕ | **Custom** | Any — implement one interface | `notify-core` |
 
 ---
 

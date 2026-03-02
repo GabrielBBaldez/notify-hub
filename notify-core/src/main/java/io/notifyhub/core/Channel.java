@@ -20,7 +20,8 @@ public enum Channel {
     LINKEDIN,
     NOTION,
     TWITCH,
-    YOUTUBE;
+    YOUTUBE,
+    INSTAGRAM;
 
     /**
      * Creates a reference to a custom channel by name.

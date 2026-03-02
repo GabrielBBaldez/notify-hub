@@ -90,6 +90,10 @@
             <groupId>io.github.gabrielbbaldez</groupId>
             <artifactId>notify-youtube</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.github.gabrielbbaldez</groupId>
+            <artifactId>notify-instagram</artifactId>
+        </dependency>
 
         <!-- MCP Java SDK (core — STDIO transport) -->
         <dependency>

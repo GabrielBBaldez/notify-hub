@@ -20,7 +20,7 @@
 
 ---
 
-Stop writing different code for each notification channel. NotifyHub gives you a single fluent API to send notifications via **Email, SMS, WhatsApp, Slack, Telegram, Discord, Microsoft Teams, Firebase Push, Webhooks, WebSocket, Google Chat, Twitter/X, LinkedIn, Notion, Twitch, YouTube** — or any custom channel you create.
+Stop writing different code for each notification channel. NotifyHub gives you a single fluent API to send notifications via **Email, SMS, WhatsApp, Slack, Telegram, Discord, Microsoft Teams, Firebase Push, Webhooks, WebSocket, Google Chat, Twitter/X, LinkedIn, Notion, Twitch, YouTube, Instagram** — or any custom channel you create.
 
 ```java
 notify.to(user)
@@ -876,6 +876,7 @@ Both modules support: templates, priority, deduplication keys, delivery tracking
 | Notion | API (Integration Token) | `notify-notion` | Stable |
 | Twitch | Helix API (OAuth 2.0) | `notify-twitch` | Stable |
 | YouTube | YouTube Data API v3 | `notify-youtube` | Stable |
+| Instagram | Meta Graph API | `notify-instagram` | Stable |
 | Custom | Any | `notify-core` | Stable |
 
 ---
@@ -1299,6 +1300,7 @@ mvn clean package -pl notify-mcp -am -DskipTests
 | `send_notion` | Create a page in Notion | `recipient`, `body` or `template` |
 | `send_twitch` | Send Twitch chat message + polls | `recipient`, `body` or `template` |
 | `send_youtube` | Send YouTube live chat message | `recipient`, `body` or `template` |
+| `send_instagram` | Send Instagram DM or feed post | `recipient`, `body` or `template` |
 | `send_multi_channel` | Send to multiple channels | `channels[]`, `recipient`, `body` or `template` |
 | `send_batch` | Send to multiple recipients at once | `recipients[]`, `channel`, `body` or `template` |
 | `send_to_audience` | Send to a named audience | `audience`, `channel`, `body` or `template` |
@@ -1526,7 +1528,8 @@ notify-hub/
 │   ├── notify-websocket/                 # WebSocket (JDK java.net.http)
 │   ├── notify-google-chat/              # Google Chat webhooks (JDK HttpClient)
 │   ├── notify-twitch/                   # Twitch chat + polls via Helix API (JDK HttpClient)
-│   └── notify-youtube/                  # YouTube live chat via Data API v3 (JDK HttpClient)
+│   ├── notify-youtube/                  # YouTube live chat via Data API v3 (JDK HttpClient)
+│   └── notify-instagram/               # Instagram DM + feed via Meta Graph API (JDK HttpClient)
 │
 ├── notify-tracker-jpa/                   # JPA-backed delivery tracker
 │
@@ -1545,7 +1548,7 @@ notify-hub/
 ├── notify-mcp/                           # MCP Server for AI agents
 │   ├── NotifyMcpServer                   # Spring Boot headless main
 │   ├── McpServerRunner                   # STDIO MCP server bootstrap
-│   └── tools/                            # 26 MCP tools (send, batch, audiences, DLQ, analytics)
+│   └── tools/                            # 27 MCP tools (send, batch, audiences, DLQ, analytics)
 │
 └── notify-demo/                          # Demo app (run it!)
 ```
@@ -1864,7 +1867,7 @@ Below is every module, what it does, when you need it, and how to add it.
 
 #### `notify-mcp` — MCP Server for AI Agents
 
-**What it does:** Exposes all NotifyHub channels as MCP (Model Context Protocol) tools, allowing AI agents (Claude Desktop, Claude Code, Cursor) to send notifications through natural language commands. Runs as a headless Spring Boot app communicating via STDIO JSON-RPC. Provides 26 tools: send via any channel, batch send, audience management, DLQ monitoring, and delivery analytics.
+**What it does:** Exposes all NotifyHub channels as MCP (Model Context Protocol) tools, allowing AI agents (Claude Desktop, Claude Code, Cursor) to send notifications through natural language commands. Runs as a headless Spring Boot app communicating via STDIO JSON-RPC. Provides 27 tools: send via any channel, batch send, audience management, DLQ monitoring, and delivery analytics.
 
 **When to use:** You want AI agents to send notifications on your behalf. Configure the JAR path in your MCP client's config file and the agent will discover all available tools automatically.
 
@@ -1917,6 +1920,7 @@ Below is every module, what it does, when you need it, and how to add it.
 - [x] **v0.7.0** — Twitter/X, LinkedIn, Notion channels (14 channels, 16 MCP tools, 22 modules)
 - [x] **v0.8.0** — Twitch, YouTube channels, admin dashboard redesign (16 channels, 18 MCP tools, 24 modules)
 - [x] **v0.9.0** — MCP advanced tools: audiences, contacts, batch send, DLQ, analytics (16 channels, 26 MCP tools)
+- [x] **v0.10.0** — Instagram channel: DMs and feed posts via Meta Graph API (17 channels, 27 MCP tools, 25 modules)
 
 ---
 

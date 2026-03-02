@@ -71,6 +71,7 @@ public class McpServerRunner implements CommandLineRunner {
         server.addTool(new SendNotionTool(notifyHub).specification(jsonMapper));
         server.addTool(new SendTwitchTool(notifyHub).specification(jsonMapper));
         server.addTool(new SendYouTubeTool(notifyHub).specification(jsonMapper));
+        server.addTool(new SendInstagramTool(notifyHub).specification(jsonMapper));
         server.addTool(new SendMultiChannelTool(notifyHub).specification(jsonMapper));
         server.addTool(new ListChannelsTool(notifyHub).specification(jsonMapper));
         server.addTool(new ListDeliveryReceiptsTool(notifyHub).specification(jsonMapper));
@@ -87,7 +88,7 @@ public class McpServerRunner implements CommandLineRunner {
         server.addTool(new SendBatchTool(notifyHub).specification(jsonMapper));
         server.addTool(new GetAnalyticsTool(notifyHub).specification(jsonMapper));
 
-        log.info("NotifyHub MCP Server ready — 26 tools registered");
+        log.info("NotifyHub MCP Server ready — 27 tools registered");
 
         // Keep the process alive — MCP STDIO transport needs the JVM running
         Runtime.getRuntime().addShutdownHook(new Thread(keepAlive::countDown));

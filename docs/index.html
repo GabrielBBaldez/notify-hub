@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NotifyHub — One API. Every Channel.</title>
-    <meta name="description" content="Unified notification library for Java and Spring Boot. Send via Email, SMS, Slack, Discord, Telegram, Teams, WhatsApp, Google Chat, Push, WebSocket, Twitter/X, LinkedIn, Notion, Twitch, YouTube with one fluent API.">
+    <meta name="description" content="Unified notification library for Java and Spring Boot. Send via Email, SMS, Slack, Discord, Telegram, Teams, WhatsApp, Google Chat, Push, WebSocket, Twitter/X, LinkedIn, Notion, Twitch, YouTube, Instagram with one fluent API.">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="logo.png" type="image/png">
 </head>
@@ -33,7 +33,7 @@
         <h1>Notify<span class="accent">Hub</span></h1>
         <p class="tagline">One API. Every channel.</p>
         <p class="subtitle">Stop writing different code for each notification channel.<br>
-            NotifyHub gives you a single fluent Java API to send via <strong>16 channels</strong>,<br>
+            NotifyHub gives you a single fluent Java API to send via <strong>17 channels</strong>,<br>
             with fallback chains, templates, retry, scheduling, and more.</p>
         <div class="badges">
             <a href="https://central.sonatype.com/namespace/io.github.gabrielbbaldez"><img src="https://img.shields.io/maven-central/v/io.github.gabrielbbaldez/notify-spring-boot-starter?style=flat-square&color=f97316" alt="Maven Central"></a>
@@ -66,14 +66,14 @@
             <div class="what-card">
                 <div class="what-icon">&#129302;</div>
                 <h3>AI Ready</h3>
-                <p>MCP Server with 26 tools. Let Claude, Cursor, or any AI assistant send notifications on your behalf.</p>
+                <p>MCP Server with 27 tools. Let Claude, Cursor, or any AI assistant send notifications on your behalf.</p>
             </div>
         </div>
     </section>
 
     <!-- CHANNELS -->
     <section class="channels-section" id="channels">
-        <h2>16 Channels. Zero Friction.</h2>
+        <h2>17 Channels. Zero Friction.</h2>
         <p class="section-lead">Every channel uses the same API. Most use <strong>zero external SDKs</strong> — just the JDK HttpClient. Add only the channels you need.</p>
         <div class="channels-grid">
             <div class="ch-card">
@@ -155,6 +155,11 @@
                 <div class="ch-icon">&#9654;</div>
                 <h4>YouTube</h4>
                 <p>Data API v3. Live chat messages. No SDK needed.</p>
+            </div>
+            <div class="ch-card">
+                <div class="ch-icon">&#128247;</div>
+                <h4>Instagram</h4>
+                <p>Meta Graph API. DMs and feed posts. No SDK needed.</p>
             </div>
             <div class="ch-card ch-custom">
                 <div class="ch-icon">&#10010;</div>
@@ -482,10 +487,10 @@ open http://localhost:8080/swagger-ui.html</code></pre>
     <!-- MCP / AI -->
     <section class="mcp-section" id="mcp">
         <h2>Built for AI</h2>
-        <p class="section-lead">NotifyHub includes an <strong>MCP Server</strong> (Model Context Protocol) that exposes 26 tools. Connect it to Claude Desktop, Claude Code, Cursor, or any MCP-compatible AI client.</p>
+        <p class="section-lead">NotifyHub includes an <strong>MCP Server</strong> (Model Context Protocol) that exposes 27 tools. Connect it to Claude Desktop, Claude Code, Cursor, or any MCP-compatible AI client.</p>
         <div class="mcp-grid">
             <div class="mcp-tools">
-                <h4>26 MCP Tools</h4>
+                <h4>27 MCP Tools</h4>
                 <div class="tool-list">
                     <span class="tool">send_email</span>
                     <span class="tool">send_sms</span>
@@ -501,6 +506,7 @@ open http://localhost:8080/swagger-ui.html</code></pre>
                     <span class="tool">send_notion</span>
                     <span class="tool">send_twitch</span>
                     <span class="tool">send_youtube</span>
+                    <span class="tool">send_instagram</span>
                     <span class="tool">send_notification</span>
                     <span class="tool">send_multi_channel</span>
                     <span class="tool">send_batch</span>
@@ -603,7 +609,7 @@ open http://localhost:8080/swagger-ui.html</code></pre>
 
     <!-- MODULES -->
     <section class="modules-section" id="modules">
-        <h2>24 Modules. Pick What You Need.</h2>
+        <h2>25 Modules. Pick What You Need.</h2>
         <p class="section-lead">NotifyHub is modular. The core has zero Spring dependency. Add only the channels and features you use.</p>
         <div class="modules-table">
             <table>
@@ -628,9 +634,10 @@ open http://localhost:8080/swagger-ui.html</code></pre>
                     <tr><td><code>notify-notion</code></td><td>Notion via API. Create pages in any database.</td></tr>
                     <tr><td><code>notify-twitch</code></td><td>Twitch via Helix API. Chat messages + polls.</td></tr>
                     <tr><td><code>notify-youtube</code></td><td>YouTube via Data API v3. Live chat messages.</td></tr>
+                    <tr><td><code>notify-instagram</code></td><td>Instagram via Meta Graph API. DMs and feed posts.</td></tr>
                     <tr><td><code>notify-tracker-jpa</code></td><td>JPA-backed delivery tracking. Persist receipts to any database.</td></tr>
                     <tr><td><code>notify-admin</code></td><td>Web dashboard for monitoring and DLQ management.</td></tr>
-                    <tr><td><code>notify-mcp</code></td><td>MCP Server for AI assistants (26 tools).</td></tr>
+                    <tr><td><code>notify-mcp</code></td><td>MCP Server for AI assistants (27 tools).</td></tr>
                     <tr><td><code>notify-queue-rabbitmq</code></td><td>RabbitMQ producer/consumer for async notifications.</td></tr>
                     <tr><td><code>notify-queue-kafka</code></td><td>Apache Kafka producer/consumer for async notifications.</td></tr>
                 </tbody>

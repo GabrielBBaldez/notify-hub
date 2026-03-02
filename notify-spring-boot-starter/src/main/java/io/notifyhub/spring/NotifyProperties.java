@@ -59,6 +59,7 @@ public class NotifyProperties {
         private Notion notion;
         private Twitch twitch;
         private YouTube youtube;
+        private Instagram instagram;
 
         public Email getEmail() { return email; }
         public void setEmail(Email email) { this.email = email; }
@@ -92,6 +93,8 @@ public class NotifyProperties {
         public void setTwitch(Twitch twitch) { this.twitch = twitch; }
         public YouTube getYoutube() { return youtube; }
         public void setYoutube(YouTube youtube) { this.youtube = youtube; }
+        public Instagram getInstagram() { return instagram; }
+        public void setInstagram(Instagram instagram) { this.instagram = instagram; }
     }
 
     public static class Email {
@@ -303,6 +306,18 @@ public class NotifyProperties {
         public void setChannelId(String channelId) { this.channelId = channelId; }
         public String getLiveChatId() { return liveChatId; }
         public void setLiveChatId(String liveChatId) { this.liveChatId = liveChatId; }
+        public Map<String, String> getRecipients() { return recipients; }
+        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
+    }
+
+    public static class Instagram {
+        private String accessToken;
+        private String igUserId;
+        private Map<String, String> recipients = new LinkedHashMap<>();
+        public String getAccessToken() { return accessToken; }
+        public void setAccessToken(String accessToken) { this.accessToken = accessToken; }
+        public String getIgUserId() { return igUserId; }
+        public void setIgUserId(String igUserId) { this.igUserId = igUserId; }
         public Map<String, String> getRecipients() { return recipients; }
         public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
     }

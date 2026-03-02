@@ -93,6 +93,11 @@
             <artifactId>notify-youtube</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>io.github.gabrielbbaldez</groupId>
+            <artifactId>notify-instagram</artifactId>
+            <optional>true</optional>
+        </dependency>
 
         <!-- Spring Boot -->
         <dependency>

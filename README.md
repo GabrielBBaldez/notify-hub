@@ -51,9 +51,9 @@ notify.to(user)
 | <img src="https://cdn.simpleicons.org/webhook" width="16"> | Webhook | Custom HTTP, payload template | `.via(Channel.custom("pagerduty"))` |
 | <img src="https://cdn.simpleicons.org/socketdotio" width="16"> | WebSocket | Java WebSocket API, reconnect logic | `.via(WEBSOCKET)` |
 | <img src="https://cdn.simpleicons.org/googlechat" width="16"> | Google Chat | Webhook HTTP, JSON payload | `.via(GOOGLE_CHAT)` |
-| <img src="https://cdn.simpleicons.org/x" width="16"> | Twitter/X | OAuth 1.0a, API v2 setup | `.via(TWITTER)` |
+| <img src="https://cdn.simpleicons.org/x/white" width="16"> | Twitter/X | OAuth 1.0a, API v2 setup | `.via(TWITTER)` |
 | <img src="https://cdn.simpleicons.org/linkedin" width="16"> | LinkedIn | OAuth 2.0, REST API setup | `.via(LINKEDIN)` |
-| <img src="https://cdn.simpleicons.org/notion" width="16"> | Notion | Integration Token, API setup | `.via(NOTION)` |
+| <img src="https://cdn.simpleicons.org/notion/white" width="16"> | Notion | Integration Token, API setup | `.via(NOTION)` |
 | <img src="https://cdn.simpleicons.org/twitch" width="16"> | Twitch | OAuth 2.0, Twitch API setup | `.via(TWITCH)` |
 | <img src="https://cdn.simpleicons.org/youtube" width="16"> | YouTube | YouTube Data API v3 setup | `.via(YOUTUBE)` |
 | <img src="https://cdn.simpleicons.org/instagram" width="16"> | Instagram | Meta Graph API setup | `.via(INSTAGRAM)` |
@@ -872,9 +872,9 @@ Both modules support: templates, priority, deduplication keys, delivery tracking
 | <img src="https://cdn.simpleicons.org/webhook" width="18"> | **Webhook** | Any HTTP endpoint | `notify-webhook` |
 | <img src="https://cdn.simpleicons.org/socketdotio" width="18"> | **WebSocket** | JDK WebSocket (`java.net.http`) | `notify-websocket` |
 | <img src="https://cdn.simpleicons.org/googlechat" width="18"> | **Google Chat** | Webhooks | `notify-google-chat` |
-| <img src="https://cdn.simpleicons.org/x" width="18"> | **Twitter/X** | API v2 (OAuth 1.0a) | `notify-twitter` |
+| <img src="https://cdn.simpleicons.org/x/white" width="18"> | **Twitter/X** | API v2 (OAuth 1.0a) | `notify-twitter` |
 | <img src="https://cdn.simpleicons.org/linkedin" width="18"> | **LinkedIn** | REST API (OAuth 2.0) | `notify-linkedin` |
-| <img src="https://cdn.simpleicons.org/notion" width="18"> | **Notion** | API (Integration Token) | `notify-notion` |
+| <img src="https://cdn.simpleicons.org/notion/white" width="18"> | **Notion** | API (Integration Token) | `notify-notion` |
 | <img src="https://cdn.simpleicons.org/twitch" width="18"> | **Twitch** | Helix API (OAuth 2.0 auto-refresh) | `notify-twitch` |
 | <img src="https://cdn.simpleicons.org/youtube" width="18"> | **YouTube** | Data API v3 (OAuth auto-refresh) | `notify-youtube` |
 | <img src="https://cdn.simpleicons.org/instagram" width="18"> | **Instagram** | Meta Graph API | `notify-instagram` |

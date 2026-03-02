@@ -22,6 +22,7 @@
             <a href="#code">Code</a>
             <a href="#docker">Docker</a>
             <a href="#mcp">AI / MCP</a>
+            <a href="docs.html" class="nav-docs">Docs</a>
             <a href="https://github.com/GabrielBBaldez/notify-hub" class="nav-gh">GitHub</a>
         </div>
     </nav>
@@ -42,7 +43,7 @@
             <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" alt="MIT"></a>
         </div>
         <div class="hero-cta">
-            <a href="#code" class="btn btn-primary">Get Started</a>
+            <a href="docs.html#getting-started" class="btn btn-primary">Get Started</a>
             <a href="https://github.com/GabrielBBaldez/notify-hub" class="btn btn-outline">View on GitHub</a>
             <a href="https://hub.docker.com/r/gabrielbbal10/notifyhub-api" class="btn btn-outline">Docker Hub</a>
         </div>
@@ -132,7 +133,7 @@
                 <p>Any HTTP endpoint. PagerDuty, Datadog, custom APIs.</p>
             </div>
             <div class="ch-card">
-                <div class="ch-icon"><img src="https://cdn.simpleicons.org/x" alt="X" width="28" height="28"></div>
+                <div class="ch-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="#ffffff"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg></div>
                 <h4>Twitter / X</h4>
                 <p>API v2. Post tweets with OAuth 1.0a. No SDK needed.</p>
             </div>
@@ -142,7 +143,7 @@
                 <p>REST API. Publish posts with OAuth 2.0 Bearer token.</p>
             </div>
             <div class="ch-card">
-                <div class="ch-icon"><img src="https://cdn.simpleicons.org/notion" alt="Notion" width="28" height="28"></div>
+                <div class="ch-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="#ffffff"><path d="M4.459 4.208c.746.606 1.026.56 2.428.466l13.215-.793c.28 0 .047-.28-.046-.326L18.08 2.09c-.42-.326-.98-.7-2.055-.607L3.01 2.54c-.466.046-.56.28-.374.466zm.793 3.08v13.904c0 .747.373 1.027 1.214.98l14.523-.84c.841-.046.935-.56.935-1.166V6.354c0-.606-.233-.933-.748-.886l-15.177.887c-.56.046-.747.326-.747.933zm14.337.745c.093.42 0 .84-.42.888l-.7.14v10.264c-.608.327-1.168.514-1.635.514-.748 0-.935-.234-1.495-.933l-4.577-7.186v6.952l1.448.327s0 .84-1.168.84l-3.222.186c-.093-.186 0-.653.327-.746l.84-.233V8.755L7.63 8.569c-.094-.42.14-1.026.793-1.073l3.456-.233 4.764 7.279v-6.44l-1.215-.14c-.093-.514.28-.886.747-.933zM1.936 1.035l13.31-.98c1.634-.14 2.055-.047 3.082.7l4.249 2.986c.7.513.933.653.933 1.213v16.378c0 1.026-.373 1.634-1.68 1.726l-15.458.934c-.98.046-1.448-.093-1.962-.747L.982 19.39c-.56-.747-.793-1.306-.793-1.96V2.667c0-.839.374-1.54 1.747-1.632z"/></svg></div>
                 <h4>Notion</h4>
                 <p>API. Create pages in any database. Integration Token.</p>
             </div>
@@ -531,6 +532,60 @@ open http://localhost:8080/swagger-ui.html</code></pre>
                     <div class="ai-prompt">"Show me the delivery analytics — how many sent vs failed?"</div>
                     <div class="ai-prompt">"List all dead letters and show me what failed"</div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Claude Code Skill -->
+        <div class="skill-block">
+            <div class="skill-header">
+                <img src="https://cdn.simpleicons.org/claude/cc785c" width="32" height="32" alt="Claude">
+                <div>
+                    <h3>Claude Code Skill</h3>
+                    <p class="skill-subtitle">AI-powered development assistant — knows the entire NotifyHub API</p>
+                </div>
+            </div>
+            <p class="skill-desc">
+                NotifyHub ships a <strong>SKILL.md</strong> file (925 lines) that teaches AI coding assistants the full library API.
+                Install it as a Claude Code plugin and your AI knows every channel config, fluent builder method, Spring Boot property, template pattern, retry policy, rate limit preset, and MCP tool — no need to search docs.
+            </p>
+            <div class="skill-features">
+                <div class="skill-feature">
+                    <span class="skill-icon">&#128218;</span>
+                    <div>
+                        <strong>Full API Reference</strong>
+                        <span>17 channels, fluent builder, all execution methods, Priority, DeliveryReceipt</span>
+                    </div>
+                </div>
+                <div class="skill-feature">
+                    <span class="skill-icon">&#9881;&#65039;</span>
+                    <div>
+                        <strong>Every Config & Property</strong>
+                        <span>Java builder + complete application.yml for all channels including OAuth refresh</span>
+                    </div>
+                </div>
+                <div class="skill-feature">
+                    <span class="skill-icon">&#129302;</span>
+                    <div>
+                        <strong>27 MCP Tools Documented</strong>
+                        <span>Send, batch, audience, contacts, analytics, DLQ — all tool signatures</span>
+                    </div>
+                </div>
+                <div class="skill-feature">
+                    <span class="skill-icon">&#128736;&#65039;</span>
+                    <div>
+                        <strong>Patterns & Architecture</strong>
+                        <span>Create new channels, custom templates, retry, rate limiting, thread safety</span>
+                    </div>
+                </div>
+            </div>
+            <div class="skill-install">
+                <div class="code-block">
+                    <div class="code-header">Install as Claude Code Plugin</div>
+<pre><code># Copy SKILL.md to your Claude Code plugins directory
+mkdir -p ~/.claude/plugins/notifyhub/skills/notifyhub
+cp SKILL.md ~/.claude/plugins/notifyhub/skills/notifyhub/</code></pre>
+                </div>
+                <p class="skill-note">Once installed, Claude Code automatically uses the skill whenever you work with NotifyHub — generating correct configs, writing channel implementations, debugging send failures, and more.</p>
             </div>
         </div>
     </section>

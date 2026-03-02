@@ -1,0 +1,1892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation — NotifyHub</title>
+    <meta name="description" content="Complete documentation for NotifyHub — unified notification library for Java 17+ and Spring Boot 3.x. All 17 channels, fluent API, configs, templates, and more.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="docs.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="icon" href="logo.png" type="image/png">
+    <script>window.Prism = window.Prism || {}; Prism.manual = true;</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-groovy.min.js"></script>
+</head>
+<body class="docs-page">
+
+    <!-- NAV -->
+    <nav>
+        <button class="docs-menu-toggle" aria-label="Toggle sidebar">
+            <span></span><span></span><span></span>
+        </button>
+        <a href="index.html" class="nav-brand">
+            <img src="logo.png" alt="NotifyHub" width="32" height="32">
+            <span>NotifyHub</span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html#features">Features</a>
+            <a href="index.html#channels">Channels</a>
+            <a href="index.html#code">Code</a>
+            <a href="index.html#docker">Docker</a>
+            <a href="index.html#mcp">AI / MCP</a>
+            <a href="docs.html" class="nav-docs">Docs</a>
+            <a href="https://github.com/GabrielBBaldez/notify-hub" class="nav-gh">GitHub</a>
+        </div>
+    </nav>
+
+    <!-- OVERLAY (mobile) -->
+    <div class="docs-overlay"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="docs-sidebar">
+        <div class="sidebar-section">
+            <span class="sidebar-label">Getting Started</span>
+            <a href="#getting-started">Installation</a>
+            <a href="#quick-start">Quick Start</a>
+        </div>
+        <div class="sidebar-section">
+            <span class="sidebar-label">Core</span>
+            <a href="#core-concepts">Core Concepts</a>
+            <a href="#fluent-api">Fluent API</a>
+            <a href="#notifiable">Notifiable Interface</a>
+        </div>
+        <div class="sidebar-section">
+            <span class="sidebar-label">Channels</span>
+            <details open>
+                <summary>All 17 Channels</summary>
+                <div class="sub-links">
+                    <a href="#ch-email">Email (SMTP)</a>
+                    <a href="#ch-sms">SMS (Twilio)</a>
+                    <a href="#ch-whatsapp">WhatsApp (Twilio)</a>
+                    <a href="#ch-slack">Slack</a>
+                    <a href="#ch-telegram">Telegram</a>
+                    <a href="#ch-discord">Discord</a>
+                    <a href="#ch-teams">Microsoft Teams</a>
+                    <a href="#ch-google-chat">Google Chat</a>
+                    <a href="#ch-push">Firebase Push</a>
+                    <a href="#ch-websocket">WebSocket</a>
+                    <a href="#ch-webhook">Generic Webhook</a>
+                    <a href="#ch-twitter">Twitter / X</a>
+                    <a href="#ch-linkedin">LinkedIn</a>
+                    <a href="#ch-notion">Notion</a>
+                    <a href="#ch-twitch">Twitch</a>
+                    <a href="#ch-youtube">YouTube</a>
+                    <a href="#ch-instagram">Instagram</a>
+                </div>
+            </details>
+            <a href="#custom-channels">Custom Channels</a>
+        </div>
+        <div class="sidebar-section">
+            <span class="sidebar-label">Features</span>
+            <a href="#templates">Templates</a>
+            <a href="#retry">Retry &amp; Errors</a>
+            <a href="#rate-limiting">Rate Limiting</a>
+            <a href="#tracking">Delivery Tracking</a>
+            <a href="#audience">Audience &amp; Contacts</a>
+            <a href="#scheduling">Scheduling</a>
+            <a href="#event-listeners">Event Listeners</a>
+        </div>
+        <div class="sidebar-section">
+            <span class="sidebar-label">Integration</span>
+            <a href="#spring-boot">Spring Boot</a>
+            <a href="#docker">Docker</a>
+            <a href="#mcp-server">MCP Server</a>
+            <a href="#oauth">OAuth Refresh</a>
+            <a href="#message-queues">Message Queues</a>
+        </div>
+        <div class="sidebar-section">
+            <span class="sidebar-label">More</span>
+            <a href="#testing">Testing</a>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="docs-content">
+
+        <!-- ============================================ -->
+        <!-- SECTION 1: GETTING STARTED                   -->
+        <!-- ============================================ -->
+        <section id="getting-started">
+            <h2>Getting Started</h2>
+            <p>NotifyHub is a unified notification library for <strong>Java 17+</strong> and <strong>Spring Boot 3.x</strong>. One fluent API to send notifications across 17 channels — Email, SMS, WhatsApp, Slack, Telegram, Discord, Teams, Firebase Push, WebSocket, Google Chat, Twitter/X, LinkedIn, Notion, Twitch, YouTube, and Instagram.</p>
+
+            <h3>Maven</h3>
+            <p>Add the Spring Boot starter to your <code>pom.xml</code>:</p>
+            <div class="code-block">
+                <div class="code-header">pom.xml</div>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;io.github.gabrielbbaldez&lt;/groupId&gt;
+    &lt;artifactId&gt;notify-spring-boot-starter&lt;/artifactId&gt;
+    &lt;version&gt;0.9.0&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+            </div>
+
+            <p>Then add the channel modules you need:</p>
+            <div class="code-block">
+                <div class="code-header">pom.xml — channel modules</div>
+<pre><code>&lt;!-- Pick the channels you need --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;io.github.gabrielbbaldez&lt;/groupId&gt;
+    &lt;artifactId&gt;notify-email&lt;/artifactId&gt;        &lt;!-- SMTP --&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;artifactId&gt;notify-sms&lt;/artifactId&gt;          &lt;!-- SMS + WhatsApp (Twilio) --&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;artifactId&gt;notify-slack&lt;/artifactId&gt;        &lt;!-- Slack webhooks --&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;artifactId&gt;notify-telegram&lt;/artifactId&gt;     &lt;!-- Telegram Bot API --&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;artifactId&gt;notify-discord&lt;/artifactId&gt;      &lt;!-- Discord webhooks --&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;artifactId&gt;notify-teams&lt;/artifactId&gt;        &lt;!-- Microsoft Teams --&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;artifactId&gt;notify-push-firebase&lt;/artifactId&gt;&lt;!-- Firebase Cloud Messaging --&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;artifactId&gt;notify-websocket&lt;/artifactId&gt;    &lt;!-- Java WebSocket --&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;artifactId&gt;notify-google-chat&lt;/artifactId&gt;  &lt;!-- Google Chat --&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;artifactId&gt;notify-twitter&lt;/artifactId&gt;      &lt;!-- Twitter/X API v2 --&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;artifactId&gt;notify-linkedin&lt;/artifactId&gt;     &lt;!-- LinkedIn REST API --&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;artifactId&gt;notify-notion&lt;/artifactId&gt;       &lt;!-- Notion Database API --&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;artifactId&gt;notify-twitch&lt;/artifactId&gt;       &lt;!-- Twitch Helix API --&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;artifactId&gt;notify-youtube&lt;/artifactId&gt;      &lt;!-- YouTube Live Chat --&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;artifactId&gt;notify-instagram&lt;/artifactId&gt;    &lt;!-- Instagram Graph API --&gt;
+&lt;/dependency&gt;</code></pre>
+            </div>
+
+        </section>
+
+        <!-- QUICK START -->
+        <section id="quick-start">
+            <h2>Quick Start</h2>
+            <p>Three steps to send your first notification:</p>
+
+            <h3>1. Add the dependency</h3>
+            <p>Add <code>notify-spring-boot-starter</code> and at least one channel module (e.g., <code>notify-email</code>) to your project.</p>
+
+            <h3>2. Configure the channel</h3>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    email:
+      host: smtp.gmail.com
+      port: 587
+      username: ${GMAIL_USER}
+      password: ${GMAIL_PASS}
+      from: noreply@myapp.com
+      from-name: MyApp
+      tls: true</code></pre>
+            </div>
+
+            <h3>3. Inject and send</h3>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>@Service
+public class OrderService {
+    private final NotifyHub notify;
+
+    public OrderService(NotifyHub notify) {
+        this.notify = notify;
+    }
+
+    public void confirmOrder(User user) {
+        notify.to(user)
+            .via(Channel.EMAIL)
+            .subject("Order Confirmed!")
+            .template("order-confirmed")
+            .param("orderId", "ORD-123")
+            .send();
+    }
+}</code></pre>
+            </div>
+            <div class="callout callout-tip"><strong>Tip:</strong> Only channels with their required properties configured are auto-activated. If you add <code>notify-slack</code> but don't set <code>notify.channels.slack.webhook-url</code>, the Slack channel won't be registered.</div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- SECTION 2: CORE CONCEPTS                     -->
+        <!-- ============================================ -->
+        <section id="core-concepts">
+            <h2>Core Concepts</h2>
+
+            <h3>NotifyHub</h3>
+            <p>The main entry point. In Spring Boot, it's auto-configured as a singleton bean. Standalone, use the builder:</p>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>NotifyHub hub = NotifyHub.builder()
+    .channel(emailChannel)
+    .channel(slackChannel)
+    .channels(List.of(smsChannel, pushChannel))
+    .templateEngine(new MustacheTemplateEngine())
+    .defaultRetryPolicy(RetryPolicy.exponential(3))
+    .listener(myListener)
+    .executor(Executors.newFixedThreadPool(4))
+    .scheduler(Executors.newScheduledThreadPool(2))
+    .tracker(new InMemoryNotificationTracker())
+    .rateLimiter(new TokenBucketRateLimiter(config))
+    .deadLetterQueue(new InMemoryDeadLetterQueue())
+    .router(myRouter)
+    .deduplicationStore(new InMemoryDeduplicationStore())
+    .auditLog(new InMemoryAuditLog())
+    .audienceManager(new AudienceManager(contactRepo))
+    .build();</code></pre>
+            </div>
+
+            <h3>Channel Enum</h3>
+            <p>All built-in channels are represented by the <code>Channel</code> enum:</p>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>Channel.EMAIL, Channel.SMS, Channel.WHATSAPP, Channel.PUSH
+Channel.SLACK, Channel.TELEGRAM, Channel.DISCORD, Channel.TEAMS
+Channel.WEBSOCKET, Channel.GOOGLE_CHAT
+Channel.TWITTER, Channel.LINKEDIN, Channel.NOTION
+Channel.TWITCH, Channel.YOUTUBE, Channel.INSTAGRAM
+Channel.custom("pagerduty")  // Custom channels</code></pre>
+            </div>
+
+            <h3>Priority</h3>
+            <table>
+                <thead><tr><th>Priority</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>Priority.URGENT</code></td><td>Bypasses rate limiting. Use for critical alerts.</td></tr>
+                    <tr><td><code>Priority.HIGH</code></td><td>High priority notification.</td></tr>
+                    <tr><td><code>Priority.NORMAL</code></td><td>Default priority.</td></tr>
+                    <tr><td><code>Priority.LOW</code></td><td>Low priority, best-effort delivery.</td></tr>
+                </tbody>
+            </table>
+
+            <h3>DeliveryReceipt</h3>
+            <p>Returned by <code>sendTracked()</code> and <code>sendAllTracked()</code>:</p>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>DeliveryReceipt receipt = notify.to(user)
+    .via(Channel.EMAIL)
+    .template("welcome")
+    .sendTracked();
+
+receipt.getId();          // UUID
+receipt.getChannelName(); // "email"
+receipt.getRecipient();   // "user@example.com"
+receipt.getStatus();      // PENDING, SCHEDULED, SENT, FAILED, CANCELLED
+receipt.getTimestamp();    // Instant
+receipt.getErrorMessage(); // null or error details</code></pre>
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- SECTION 3: FLUENT API                        -->
+        <!-- ============================================ -->
+        <section id="fluent-api">
+            <h2>Fluent API</h2>
+
+            <h3>Entry Points</h3>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>// Single recipient
+notify.to(user)                           // Notifiable object
+notify.to("user@example.com")             // Email string
+notify.toPhone("+5548999999999")           // Phone number
+
+// Batch recipients
+notify.toAll(List.of("a@x.com", "b@x.com"))
+notify.toAllNotifiable(List.of(user1, user2))
+notify.toAudience("premium-users")
+
+// Auto-route via preferred channels
+notify.notify(user)</code></pre>
+            </div>
+
+            <h3>Builder Chain</h3>
+            <p>The full fluent builder with all available methods:</p>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.to(user)
+    .via(Channel.EMAIL)                   // Primary channel
+    .fallback(Channel.SMS)                // Fallback if primary fails
+    .fallback(Channel.WHATSAPP)           // Second fallback
+    .priority(Priority.HIGH)              // URGENT, HIGH, NORMAL, LOW
+    .subject("Order confirmed")           // Subject (email/push/teams)
+    .content("Your order #123 is ready")  // Plain text body
+    .template("order-confirmed")          // OR use Mustache template
+    .templateVersion("v2")                // Template version (A/B testing)
+    .param("orderId", order.getId())      // Template parameter
+    .params(Map.of("k", "v"))             // Bulk template params
+    .locale(Locale.PT_BR)                 // i18n locale
+    .attach(file)                         // File attachment (email)
+    .retry(3)                             // Override retry count
+    .deduplicationKey("order-123")        // Prevent duplicates
+    .metadata("traceId", "abc-123")       // Custom metadata
+    .send();                              // Execute synchronously</code></pre>
+            </div>
+
+            <h3>Execution Methods</h3>
+            <table>
+                <thead><tr><th>Method</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>.send()</code></td><td>Synchronous. Uses fallback chain on failure.</td></tr>
+                    <tr><td><code>.sendAll()</code></td><td>Synchronous. Sends to ALL <code>.via()</code> channels.</td></tr>
+                    <tr><td><code>.sendAsync()</code></td><td>Asynchronous. Returns <code>CompletableFuture&lt;Void&gt;</code>.</td></tr>
+                    <tr><td><code>.sendAllAsync()</code></td><td>Async to all channels.</td></tr>
+                    <tr><td><code>.sendTracked()</code></td><td>Sync, returns <code>DeliveryReceipt</code>.</td></tr>
+                    <tr><td><code>.sendAllTracked()</code></td><td>Returns <code>List&lt;DeliveryReceipt&gt;</code>.</td></tr>
+                    <tr><td><code>.schedule(Duration)</code></td><td>Schedule for later (e.g., <code>Duration.ofMinutes(30)</code>).</td></tr>
+                    <tr><td><code>.scheduleAt(Instant)</code></td><td>Schedule at specific time.</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Examples</h3>
+            <h4>Fallback chain</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.to(user)
+    .via(Channel.WHATSAPP).fallback(Channel.SMS).fallback(Channel.EMAIL)
+    .template("payment-reminder")
+    .param("amount", "R$ 150,00")
+    .send();</code></pre>
+            </div>
+
+            <h4>Multi-channel broadcast</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.to(user)
+    .via(Channel.EMAIL).via(Channel.SLACK).via(Channel.TEAMS)
+    .subject("Security Alert")
+    .content("Login from new device detected")
+    .sendAll();</code></pre>
+            </div>
+
+            <h4>Tracked async</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>CompletableFuture&lt;Void&gt; future = notify.to(user)
+    .via(Channel.EMAIL)
+    .template("invoice")
+    .param("invoiceId", "INV-456")
+    .sendAsync();
+
+future.thenRun(() -> log.info("Invoice email sent"));</code></pre>
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- SECTION 3.5: NOTIFIABLE                      -->
+        <!-- ============================================ -->
+        <section id="notifiable">
+            <h2>Notifiable Interface</h2>
+            <p>Implement this interface on your domain objects (User, Customer, etc.) to enable direct usage with <code>notify.to(user)</code>:</p>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>public class User implements Notifiable {
+    public String getNotifyEmail()     { return email; }
+    public String getNotifyPhone()     { return phone; }
+    public String getNotifyPushToken() { return pushToken; }
+    public String getNotifyName()      { return name; }
+    public List&lt;Channel&gt; getPreferredChannels() {
+        return List.of(Channel.EMAIL, Channel.PUSH);
+    }
+}</code></pre>
+            </div>
+            <p>All methods have default implementations returning <code>null</code> or empty lists. Override only the ones you need.</p>
+            <div class="callout callout-info"><strong>Auto-routing:</strong> When you call <code>notify.notify(user)</code>, NotifyHub automatically sends via the user's preferred channels in order, using the remaining as fallbacks.</div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- SECTION 4: CHANNELS                          -->
+        <!-- ============================================ -->
+        <section id="channels">
+            <h2>Channels</h2>
+            <p>NotifyHub supports 17 built-in channels. Each channel requires its own module dependency and configuration. Below is the complete reference for each channel.</p>
+
+            <div class="callout callout-tip"><strong>Multi-channel:</strong> You can send to multiple channels at once with a single call:
+            <div class="code-block" style="margin-top:10px">
+                <div class="code-header">Java</div>
+<pre><code>notify.to(user)
+    .via(Channel.EMAIL, Channel.SLACK, Channel.PUSH)
+    .subject("Order Confirmed!")
+    .body("Your order #123 has been confirmed.")
+    .send();</code></pre>
+            </div>
+            Use <code>.fallback(Channel.SMS)</code> to automatically try another channel if the primary fails.</div>
+        </section>
+
+        <!-- CH: EMAIL -->
+        <section id="ch-email">
+            <div class="ch-doc-header">
+                <img src="https://cdn.simpleicons.org/gmail" width="24" height="24" alt="Email">
+                <h3>Email (SMTP)</h3>
+            </div>
+            <p>Send emails via any SMTP server (Gmail, AWS SES, Outlook, custom). Supports HTML templates, attachments, and TLS/SSL.</p>
+            <p><strong>Module:</strong> <code>notify-email</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    email:
+      host: smtp.gmail.com
+      port: 587
+      username: ${GMAIL_USER}
+      password: ${GMAIL_PASS}
+      from: noreply@myapp.com
+      from-name: MyApp
+      tls: true</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Java (Standalone)</div>
+<pre><code>SmtpConfig config = SmtpConfig.builder()
+    .host("smtp.gmail.com").port(587)
+    .username("user").password("pass")
+    .from("noreply@app.com").fromName("MyApp")
+    .tls(true)
+    .build();</code></pre>
+            </div>
+            <h4>Usage</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.to("user@example.com")
+    .via(Channel.EMAIL)
+    .subject("Order Confirmed!")
+    .body("Your order #123 has been confirmed.")
+    .send();</code></pre>
+            </div>
+            <div class="callout callout-tip"><strong>Tip:</strong> For Gmail, use an App Password (not your regular password). Enable 2FA in your Google account, then generate an app password at myaccount.google.com.</div>
+        </section>
+
+        <!-- CH: SMS -->
+        <section id="ch-sms">
+            <div class="ch-doc-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#F22F46"><path d="M2.004 5.2v.002L1.998 18.6a1.2 1.2 0 001.2 1.2h17.604a1.2 1.2 0 001.2-1.2V5.4a1.2 1.2 0 00-1.2-1.2H3.198a1.2 1.2 0 00-1.194 1zm9.392 9.095L2.883 5.4h18.234l-8.513 8.895a.84.84 0 01-1.208 0zM2.004 6.282l5.478 5.73-5.478 5.73zm19.992 0v11.46l-5.478-5.73zM7.998 12.528l2.79 2.917a2.04 2.04 0 002.928 0l2.79-2.917 5.388 5.636H2.61z"/></svg>
+                <h3>SMS (Twilio)</h3>
+            </div>
+            <p>Send SMS messages via the Twilio API.</p>
+            <p><strong>Module:</strong> <code>notify-sms</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    sms:
+      account-sid: ${TWILIO_ACCOUNT_SID}
+      auth-token: ${TWILIO_AUTH_TOKEN}
+      from-number: "+15551234567"</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Java (Standalone)</div>
+<pre><code>TwilioConfig config = TwilioConfig.builder()
+    .accountSid("AC...").authToken("token")
+    .fromNumber("+15551234567")
+    .build();</code></pre>
+            </div>
+            <h4>Usage</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.to("+5511999999999")
+    .via(Channel.SMS)
+    .body("Your verification code is 1234")
+    .send();</code></pre>
+            </div>
+        </section>
+
+        <!-- CH: WHATSAPP -->
+        <section id="ch-whatsapp">
+            <div class="ch-doc-header">
+                <img src="https://cdn.simpleicons.org/whatsapp" width="24" height="24" alt="WhatsApp">
+                <h3>WhatsApp (Twilio)</h3>
+            </div>
+            <p>Send WhatsApp messages via Twilio's WhatsApp Business API. Uses the same Twilio credentials as SMS.</p>
+            <p><strong>Module:</strong> <code>notify-sms</code> (same module as SMS)</p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    whatsapp:
+      account-sid: ${TWILIO_ACCOUNT_SID}
+      auth-token: ${TWILIO_AUTH_TOKEN}
+      from-number: "+14155238886"</code></pre>
+            </div>
+            <h4>Usage</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.to("+5511999999999")
+    .via(Channel.WHATSAPP)
+    .body("Your order has been shipped!")
+    .send();</code></pre>
+            </div>
+        </section>
+
+        <!-- CH: SLACK -->
+        <section id="ch-slack">
+            <div class="ch-doc-header">
+                <img src="https://cdn.simpleicons.org/slack" width="24" height="24" alt="Slack">
+                <h3>Slack</h3>
+            </div>
+            <p>Send messages to Slack channels or users via Incoming Webhooks.</p>
+            <p><strong>Module:</strong> <code>notify-slack</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    slack:
+      webhook-url: ${SLACK_WEBHOOK_URL}
+      recipients:
+        engineering: "https://hooks.slack.com/services/..."
+        alerts: "https://hooks.slack.com/services/..."</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Java (Standalone)</div>
+<pre><code>SlackConfig config = SlackConfig.builder()
+    .webhookUrl("https://hooks.slack.com/services/...")
+    .recipients(Map.of(
+        "engineering", "https://hooks.slack.com/services/...",
+        "alerts", "https://hooks.slack.com/services/..."
+    ))
+    .build();</code></pre>
+            </div>
+            <h4>Usage</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.to("engineering")
+    .via(Channel.SLACK)
+    .body("Deploy to production complete!")
+    .send();</code></pre>
+            </div>
+            <div class="callout callout-info"><strong>Named recipients:</strong> Use <code>recipients</code> to map friendly names to webhook URLs, then send with <code>notify.to("engineering").via(SLACK).send()</code>.</div>
+        </section>
+
+        <!-- CH: TELEGRAM -->
+        <section id="ch-telegram">
+            <div class="ch-doc-header">
+                <img src="https://cdn.simpleicons.org/telegram" width="24" height="24" alt="Telegram">
+                <h3>Telegram</h3>
+            </div>
+            <p>Send messages via the Telegram Bot API to any chat ID or channel.</p>
+            <p><strong>Module:</strong> <code>notify-telegram</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    telegram:
+      bot-token: ${TELEGRAM_BOT_TOKEN}
+      chat-id: ${TELEGRAM_CHAT_ID}
+      recipients:
+        admin: "123456789"</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Java (Standalone)</div>
+<pre><code>TelegramConfig config = TelegramConfig.builder()
+    .botToken("123456:ABC-DEF").chatId("987654321")
+    .recipients(Map.of("admin", "123456789"))
+    .build();</code></pre>
+            </div>
+            <h4>Usage</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.to("admin")
+    .via(Channel.TELEGRAM)
+    .body("Alert: CPU usage above 90%")
+    .send();</code></pre>
+            </div>
+        </section>
+
+        <!-- CH: DISCORD -->
+        <section id="ch-discord">
+            <div class="ch-doc-header">
+                <img src="https://cdn.simpleicons.org/discord" width="24" height="24" alt="Discord">
+                <h3>Discord</h3>
+            </div>
+            <p>Send messages via Discord webhooks with custom username and avatar.</p>
+            <p><strong>Module:</strong> <code>notify-discord</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    discord:
+      webhook-url: ${DISCORD_WEBHOOK_URL}
+      username: NotifyBot
+      avatar-url: "https://example.com/avatar.png"
+      recipients:
+        alerts: "https://discord.com/api/webhooks/..."</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Java (Standalone)</div>
+<pre><code>DiscordConfig config = DiscordConfig.builder()
+    .webhookUrl("https://discord.com/api/webhooks/...")
+    .username("NotifyBot").avatarUrl("https://...")
+    .recipients(Map.of("alerts", "https://discord.com/api/webhooks/..."))
+    .build();</code></pre>
+            </div>
+            <h4>Usage</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.to("alerts")
+    .via(Channel.DISCORD)
+    .body("New user signup: john@example.com")
+    .send();</code></pre>
+            </div>
+        </section>
+
+        <!-- CH: TEAMS -->
+        <section id="ch-teams">
+            <div class="ch-doc-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#6264A7"><path d="M20.625 8.5h-6.25a.625.625 0 00-.625.625v6.25c0 .345.28.625.625.625H16v3.75c0 .345.28.625.625.625h.75A3.625 3.625 0 0021 16.75V9.125a.625.625 0 00-.375-.625zM17.5 7.5a2 2 0 100-4 2 2 0 000 4zM12.5 7h-8a.5.5 0 00-.5.5v8a.5.5 0 00.5.5H6v4.5a.5.5 0 00.5.5h3a2.5 2.5 0 002.5-2.5V7.5a.5.5 0 00-.5-.5zM8.5 6a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/></svg>
+                <h3>Microsoft Teams</h3>
+            </div>
+            <p>Send messages via Microsoft Teams Incoming Webhooks with MessageCard format.</p>
+            <p><strong>Module:</strong> <code>notify-teams</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    teams:
+      webhook-url: ${TEAMS_WEBHOOK_URL}
+      recipients:
+        devops: "https://outlook.office.com/webhook/..."</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Java (Standalone)</div>
+<pre><code>TeamsConfig config = TeamsConfig.builder()
+    .webhookUrl("https://outlook.office.com/webhook/...")
+    .recipients(Map.of("devops", "https://outlook.office.com/webhook/..."))
+    .build();</code></pre>
+            </div>
+            <h4>Usage</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.to("devops")
+    .via(Channel.TEAMS)
+    .subject("Incident Alert")
+    .body("Database connection pool exhausted")
+    .send();</code></pre>
+            </div>
+        </section>
+
+        <!-- CH: GOOGLE CHAT -->
+        <section id="ch-google-chat">
+            <div class="ch-doc-header">
+                <img src="https://cdn.simpleicons.org/googlechat" width="24" height="24" alt="Google Chat">
+                <h3>Google Chat</h3>
+            </div>
+            <p>Send messages to Google Chat spaces via webhooks.</p>
+            <p><strong>Module:</strong> <code>notify-google-chat</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    google-chat:
+      webhook-url: ${GOOGLE_CHAT_WEBHOOK_URL}
+      recipients:
+        team: "https://chat.googleapis.com/..."</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Java (Standalone)</div>
+<pre><code>GoogleChatConfig config = GoogleChatConfig.builder()
+    .webhookUrl("https://chat.googleapis.com/v1/spaces/...")
+    .recipients(Map.of("team", "https://chat.googleapis.com/..."))
+    .build();</code></pre>
+            </div>
+            <h4>Usage</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.to("team")
+    .via(Channel.GOOGLE_CHAT)
+    .body("Sprint planning starts in 10 minutes")
+    .send();</code></pre>
+            </div>
+        </section>
+
+        <!-- CH: FIREBASE PUSH -->
+        <section id="ch-push">
+            <div class="ch-doc-header">
+                <img src="https://cdn.simpleicons.org/firebase" width="24" height="24" alt="Firebase Push">
+                <h3>Firebase Push</h3>
+            </div>
+            <p>Send push notifications via Firebase Cloud Messaging (FCM).</p>
+            <p><strong>Module:</strong> <code>notify-push-firebase</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    push:
+      server-key: ${FIREBASE_SERVER_KEY}</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Java (Standalone)</div>
+<pre><code>FirebasePushConfig config = FirebasePushConfig.builder()
+    .serverKey("AAAA...")
+    .build();</code></pre>
+            </div>
+            <h4>Usage</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.to("fcm-device-token-here")
+    .via(Channel.PUSH)
+    .subject("New Message")
+    .body("You have a new message from John")
+    .send();</code></pre>
+            </div>
+        </section>
+
+        <!-- CH: WEBSOCKET -->
+        <section id="ch-websocket">
+            <div class="ch-doc-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#94a3b8"><path d="M6.94 6.94A6.5 6.5 0 0 1 18.5 11h-2a4.5 4.5 0 0 0-9 0v1H5.5v-1c0-1.66.62-3.17 1.44-4.06ZM17.06 17.06A6.5 6.5 0 0 1 5.5 13h2a4.5 4.5 0 0 0 9 0v-1h2v1a6.47 6.47 0 0 1-1.44 4.06ZM11 2v4h2V2h-2Zm0 16v4h2v-4h-2Z"/></svg>
+                <h3>WebSocket</h3>
+            </div>
+            <p>Send real-time notifications via JDK WebSocket (<code>java.net.http</code>) with auto-reconnect.</p>
+            <p><strong>Module:</strong> <code>notify-websocket</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    websocket:
+      uri: wss://ws.example.com/notifications
+      reconnect-enabled: true
+      reconnect-delay-ms: 3000
+      max-reconnect-attempts: 10
+      headers:
+        Authorization: "Bearer ${WS_TOKEN}"</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Java (Standalone)</div>
+<pre><code>WebSocketConfig config = WebSocketConfig.builder()
+    .uri("wss://ws.example.com/notifications")
+    .reconnectEnabled(true).reconnectDelayMs(3000).maxReconnectAttempts(10)
+    .headers(Map.of("Authorization", "Bearer token"))
+    .messageFormat("json")
+    .build();</code></pre>
+            </div>
+            <h4>Usage</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.to("session-id-123")
+    .via(Channel.WEBSOCKET)
+    .body("{\"type\":\"update\",\"data\":\"new item\"}")
+    .send();</code></pre>
+            </div>
+        </section>
+
+        <!-- CH: WEBHOOK -->
+        <section id="ch-webhook">
+            <div class="ch-doc-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#94a3b8"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z"/></svg>
+                <h3>Generic Webhook</h3>
+            </div>
+            <p>Send to any HTTP endpoint with custom payload templates. Ideal for PagerDuty, Datadog, or custom APIs.</p>
+            <p><strong>Module:</strong> <code>notify-webhook</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    webhooks:
+      - name: pagerduty
+        url: "https://events.pagerduty.com/v2/enqueue"
+        method: POST
+        headers:
+          Authorization: "Token token=${PAGERDUTY_TOKEN}"
+        payload-template: '{"routing_key":"{{routingKey}}","event_action":"trigger","payload":{"summary":"{{content}}"}}'</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Java (Standalone)</div>
+<pre><code>WebhookConfig config = WebhookConfig.builder()
+    .name("pagerduty")
+    .url("https://events.pagerduty.com/v2/enqueue")
+    .method("POST")
+    .headers(Map.of("Authorization", "Token token=..."))
+    .payloadTemplate("{\"routing_key\":\"R0...\",\"event_action\":\"trigger\",\"payload\":{\"summary\":\"{{content}}\"}}")
+    .build();</code></pre>
+            </div>
+            <h4>Usage</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.to("pagerduty")
+    .via(Channel.custom("pagerduty"))
+    .param("routingKey", "R0...")
+    .body("Server web-01 is unreachable")
+    .send();</code></pre>
+            </div>
+            <div class="callout callout-info"><strong>Custom channel name:</strong> Use <code>Channel.custom("pagerduty")</code> to reference the webhook by its <code>name</code> field.</div>
+        </section>
+
+        <!-- CH: TWITTER -->
+        <section id="ch-twitter">
+            <div class="ch-doc-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#ffffff"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>
+                <h3>Twitter / X</h3>
+            </div>
+            <p>Post tweets via the Twitter API v2 using OAuth 1.0a authentication.</p>
+            <p><strong>Module:</strong> <code>notify-twitter</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    twitter:
+      api-key: ${TWITTER_API_KEY}
+      api-secret: ${TWITTER_API_SECRET}
+      access-token: ${TWITTER_ACCESS_TOKEN}
+      access-token-secret: ${TWITTER_ACCESS_TOKEN_SECRET}</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Java (Standalone)</div>
+<pre><code>TwitterConfig config = TwitterConfig.builder()
+    .apiKey("key").apiSecret("secret")
+    .accessToken("token").accessTokenSecret("tokenSecret")
+    .build();</code></pre>
+            </div>
+            <h4>Usage</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.via(Channel.TWITTER)
+    .body("We just launched NotifyHub v2.0! Check it out.")
+    .send();</code></pre>
+            </div>
+        </section>
+
+        <!-- CH: LINKEDIN -->
+        <section id="ch-linkedin">
+            <div class="ch-doc-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                <h3>LinkedIn</h3>
+            </div>
+            <p>Publish posts on LinkedIn via the REST API with OAuth 2.0 Bearer token.</p>
+            <p><strong>Module:</strong> <code>notify-linkedin</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    linkedin:
+      access-token: ${LINKEDIN_ACCESS_TOKEN}
+      author-id: "urn:li:person:abc123"</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Java (Standalone)</div>
+<pre><code>LinkedInConfig config = LinkedInConfig.builder()
+    .accessToken("token")
+    .authorId("urn:li:person:abc123")
+    .build();</code></pre>
+            </div>
+            <h4>Usage</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.via(Channel.LINKEDIN)
+    .body("Excited to announce our new open-source project!")
+    .send();</code></pre>
+            </div>
+        </section>
+
+        <!-- CH: NOTION -->
+        <section id="ch-notion">
+            <div class="ch-doc-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#ffffff"><path d="M4.459 4.208c.746.606 1.026.56 2.428.466l13.215-.793c.28 0 .047-.28-.046-.326L18.08 2.09c-.42-.326-.98-.7-2.055-.607L3.01 2.54c-.466.046-.56.28-.374.466zm.793 3.08v13.904c0 .747.373 1.027 1.214.98l14.523-.84c.841-.046.935-.56.935-1.166V6.354c0-.606-.233-.933-.748-.886l-15.177.887c-.56.046-.747.326-.747.933zm14.337.745c.093.42 0 .84-.42.888l-.7.14v10.264c-.608.327-1.168.514-1.635.514-.748 0-.935-.234-1.495-.933l-4.577-7.186v6.952l1.448.327s0 .84-1.168.84l-3.222.186c-.093-.186 0-.653.327-.746l.84-.233V8.755L7.63 8.569c-.094-.42.14-1.026.793-1.073l3.456-.233 4.764 7.279v-6.44l-1.215-.14c-.093-.514.28-.886.747-.933zM1.936 1.035l13.31-.98c1.634-.14 2.055-.047 3.082.7l4.249 2.986c.7.513.933.653.933 1.213v16.378c0 1.026-.373 1.634-1.68 1.726l-15.458.934c-.98.046-1.448-.093-1.962-.747L.982 19.39c-.56-.747-.793-1.306-.793-1.96V2.667c0-.839.374-1.54 1.747-1.632z"/></svg>
+                <h3>Notion</h3>
+            </div>
+            <p>Create pages in Notion databases via the API with an Integration Token.</p>
+            <p><strong>Module:</strong> <code>notify-notion</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    notion:
+      api-key: ${NOTION_API_KEY}
+      database-id: ${NOTION_DATABASE_ID}</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Java (Standalone)</div>
+<pre><code>NotionConfig config = NotionConfig.builder()
+    .apiKey("secret_...").databaseId("db-id")
+    .recipients(Map.of("tasks", "another-db-id"))
+    .build();</code></pre>
+            </div>
+            <h4>Usage</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.to("tasks")
+    .via(Channel.NOTION)
+    .subject("Bug Report")
+    .body("Login page returns 500 on invalid email")
+    .send();</code></pre>
+            </div>
+        </section>
+
+        <!-- CH: TWITCH -->
+        <section id="ch-twitch">
+            <div class="ch-doc-header">
+                <img src="https://cdn.simpleicons.org/twitch" width="24" height="24" alt="Twitch">
+                <h3>Twitch</h3>
+            </div>
+            <p>Send chat messages via the Twitch Helix API with OAuth 2.0. Supports automatic token refresh.</p>
+            <p><strong>Module:</strong> <code>notify-twitch</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    twitch:
+      client-id: ${TWITCH_CLIENT_ID}
+      access-token: ${TWITCH_ACCESS_TOKEN}
+      refresh-token: ${TWITCH_REFRESH_TOKEN}        # Optional: auto-refresh
+      client-secret: ${TWITCH_CLIENT_SECRET}         # Required with refresh-token
+      broadcaster-id: "836211004"
+      sender-id: "836211004"</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Java (Standalone)</div>
+<pre><code>TwitchConfig config = TwitchConfig.builder()
+    .clientId("tyxy0tn8...")
+    .accessToken("ck6uie0g...")       // Seed token
+    .refreshToken("pmn0lc2x...")      // Optional: enables auto-refresh
+    .clientSecret("wku9i8gu...")      // Required with refreshToken
+    .broadcasterId("836211004")
+    .senderId("836211004")
+    .build();
+// getAccessToken() auto-renews 5 minutes before expiry</code></pre>
+            </div>
+            <h4>Usage</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.to("836211004")
+    .via(Channel.TWITCH)
+    .body("Hello chat! Stream starting soon.")
+    .send();</code></pre>
+            </div>
+            <div class="callout callout-tip"><strong>OAuth auto-refresh:</strong> Set <code>refresh-token</code> and <code>client-secret</code> to enable automatic token renewal. Without them, the static access token is used (will expire after ~4 hours).</div>
+        </section>
+
+        <!-- CH: YOUTUBE -->
+        <section id="ch-youtube">
+            <div class="ch-doc-header">
+                <img src="https://cdn.simpleicons.org/youtube" width="24" height="24" alt="YouTube">
+                <h3>YouTube</h3>
+            </div>
+            <p>Send live chat messages via the YouTube Data API v3. Supports automatic OAuth token refresh.</p>
+            <p><strong>Module:</strong> <code>notify-youtube</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    youtube:
+      access-token: ${YOUTUBE_ACCESS_TOKEN}
+      refresh-token: ${YOUTUBE_REFRESH_TOKEN}        # Optional: auto-refresh
+      client-id: ${YOUTUBE_CLIENT_ID}                # Required with refresh-token
+      client-secret: ${YOUTUBE_CLIENT_SECRET}         # Required with refresh-token
+      channel-id: ${YOUTUBE_CHANNEL_ID}
+      live-chat-id: ${YOUTUBE_LIVE_CHAT_ID}</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Java (Standalone)</div>
+<pre><code>YouTubeConfig config = YouTubeConfig.builder()
+    .accessToken("ya29.a0...")        // Seed token
+    .refreshToken("1//0eXyz...")      // Optional: enables auto-refresh
+    .clientId("123.apps.google...")    // Required with refreshToken
+    .clientSecret("GOCSPX-...")       // Required with refreshToken
+    .channelId("UC...")
+    .liveChatId("Cg0KC...")
+    .build();
+// Token auto-refreshes via Google OAuth2 endpoint</code></pre>
+            </div>
+            <h4>Usage</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.via(Channel.YOUTUBE)
+    .body("Thanks for watching! Don't forget to subscribe.")
+    .send();</code></pre>
+            </div>
+        </section>
+
+        <!-- CH: INSTAGRAM -->
+        <section id="ch-instagram">
+            <div class="ch-doc-header">
+                <img src="https://cdn.simpleicons.org/instagram" width="24" height="24" alt="Instagram">
+                <h3>Instagram</h3>
+            </div>
+            <p>Send DMs and publish feed posts via the Instagram Graph API (Meta).</p>
+            <p><strong>Module:</strong> <code>notify-instagram</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    instagram:
+      access-token: ${INSTAGRAM_ACCESS_TOKEN}
+      ig-user-id: ${INSTAGRAM_USER_ID}</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Java (Standalone)</div>
+<pre><code>InstagramConfig config = InstagramConfig.builder()
+    .accessToken("IGQ...")
+    .igUserId("17841...")
+    .recipients(Map.of("support", "user-id"))
+    .build();</code></pre>
+            </div>
+            <h4>Usage</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.to("support")
+    .via(Channel.INSTAGRAM)
+    .body("Thanks for reaching out! We'll get back to you soon.")
+    .send();</code></pre>
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- SECTION: CUSTOM CHANNELS                     -->
+        <!-- ============================================ -->
+        <section id="custom-channels">
+            <h2>Custom Channels</h2>
+            <p>Implement the <code>NotificationChannel</code> interface to create your own channel:</p>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>public class PagerDutyChannel implements NotificationChannel {
+
+    public String getName() { return "pagerduty"; }
+
+    public boolean isAvailable() { return apiKey != null; }
+
+    public void send(Notification notification) throws NotificationSendException {
+        // Your implementation here
+    }
+}</code></pre>
+            </div>
+            <p>Register it:</p>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>// Programmatically
+hub.registerChannel(new PagerDutyChannel(config));
+
+// Or as a Spring Bean
+@Bean
+public PagerDutyChannel pagerDutyChannel() {
+    return new PagerDutyChannel(config);
+}</code></pre>
+            </div>
+            <p>Use it with <code>Channel.custom("pagerduty")</code>.</p>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- SECTION 5: TEMPLATES                         -->
+        <!-- ============================================ -->
+        <section id="templates">
+            <h2>Templates</h2>
+            <p>NotifyHub uses <strong>Mustache</strong> as its built-in template engine. Templates support HTML and plain-text variants, i18n, and versioning for A/B testing.</p>
+
+            <h3>Directory Structure</h3>
+            <div class="code-block">
+                <div class="code-header">Template layout</div>
+<pre><code>src/main/resources/templates/notify/
+  order-confirmed/
+    html.mustache          # Email HTML variant
+    txt.mustache           # SMS/WhatsApp text variant
+  welcome/
+    html.mustache
+    txt.mustache
+  alert/
+    txt.mustache</code></pre>
+            </div>
+
+            <h3>Usage</h3>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.to(user)
+    .via(Channel.EMAIL)
+    .template("order-confirmed")
+    .param("customerName", "Gabriel")
+    .param("orderId", "ORD-123")
+    .locale(Locale.PT_BR)           // i18n support
+    .templateVersion("v2")          // A/B testing
+    .send();</code></pre>
+            </div>
+
+            <h3>TemplateEngine Interface</h3>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>public interface TemplateEngine {
+    String render(String templateName, String variant, Map&lt;String, Object&gt; params);
+    String render(String templateName, String variant, Map&lt;String, Object&gt; params, Locale locale);
+    boolean exists(String templateName, String variant);
+}</code></pre>
+            </div>
+            <p>Built-in implementations: <code>MustacheTemplateEngine</code> and <code>VersionedTemplateEngine</code>.</p>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- SECTION 6: RETRY                             -->
+        <!-- ============================================ -->
+        <section id="retry">
+            <h2>Retry &amp; Error Handling</h2>
+
+            <h3>Retry Policies</h3>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>RetryPolicy.none()                          // Fail immediately
+RetryPolicy.fixed(3, Duration.ofSeconds(2)) // 3 attempts, 2s delay
+RetryPolicy.exponential(3)                  // 3 attempts, 1s/2s/4s backoff
+RetryPolicy.exponential(5, Duration.ofMillis(500)) // Custom initial delay</code></pre>
+            </div>
+
+            <p>Methods: <code>getMaxAttempts()</code>, <code>getInitialDelay()</code>, <code>getStrategy()</code> (NONE/FIXED/EXPONENTIAL), <code>getDelayForAttempt(int)</code>, <code>shouldRetry()</code>.</p>
+
+            <h3>Override per notification</h3>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.to(user).via(Channel.EMAIL)
+    .retry(5)                           // Override retry count for this send
+    .content("Important!").send();</code></pre>
+            </div>
+
+            <h3>Exception Types</h3>
+            <table>
+                <thead><tr><th>Exception</th><th>When</th></tr></thead>
+                <tbody>
+                    <tr><td><code>NotificationSendException</code></td><td>Channel send failure (network, auth, payload error)</td></tr>
+                    <tr><td><code>OAuthTokenRefreshException</code></td><td>OAuth token refresh failure (YouTube/Twitch)</td></tr>
+                    <tr><td><code>RateLimitExceededException</code></td><td>Rate limit exceeded for a channel</td></tr>
+                    <tr><td><code>TemplateNotFoundException</code></td><td>Template name not found</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- SECTION 7: RATE LIMITING                     -->
+        <!-- ============================================ -->
+        <section id="rate-limiting">
+            <h2>Rate Limiting</h2>
+            <p>Built-in <code>TokenBucketRateLimiter</code> with per-channel API-aware presets that match real API limits:</p>
+
+            <table>
+                <thead><tr><th>Channel</th><th>Limit</th><th>Window</th></tr></thead>
+                <tbody>
+                    <tr><td>YouTube</td><td>180 requests</td><td>1 day</td></tr>
+                    <tr><td>Twitch</td><td>20 requests</td><td>30 seconds</td></tr>
+                    <tr><td>Twitter/X</td><td>300 requests</td><td>3 hours</td></tr>
+                    <tr><td>Slack</td><td>1 request</td><td>1 second</td></tr>
+                    <tr><td>Telegram</td><td>30 requests</td><td>1 second</td></tr>
+                    <tr><td>Discord</td><td>30 requests</td><td>1 minute</td></tr>
+                    <tr><td>LinkedIn</td><td>100 requests</td><td>1 day</td></tr>
+                    <tr><td>Instagram</td><td>200 requests</td><td>1 hour</td></tr>
+                    <tr><td>Google Chat</td><td>60 requests</td><td>1 minute</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Factory Methods</h3>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>RateLimitConfig.youtube()                   // Factory method per channel
+RateLimitConfig.forChannel("twitch")        // Lookup by name
+RateLimitConfig.allDefaults()               // Map of all presets
+RateLimitConfig.perSecond(10)               // Custom
+RateLimitConfig.perMinute(60)               // Custom</code></pre>
+            </div>
+
+            <div class="callout callout-warning"><strong>Important:</strong> <code>Priority.URGENT</code> bypasses rate limiting entirely. Use it only for critical alerts.</div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- SECTION 8: DELIVERY TRACKING                 -->
+        <!-- ============================================ -->
+        <section id="tracking">
+            <h2>Delivery Tracking</h2>
+
+            <h3>DeliveryReceipt</h3>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>DeliveryReceipt receipt = notify.to(user)
+    .via(Channel.EMAIL)
+    .template("welcome")
+    .sendTracked();
+
+receipt.getId();          // UUID
+receipt.getChannelName(); // "email"
+receipt.getRecipient();   // "user@example.com"
+receipt.getStatus();      // PENDING, SCHEDULED, SENT, FAILED, CANCELLED
+receipt.getTimestamp();    // Instant
+receipt.getErrorMessage(); // null or error details</code></pre>
+            </div>
+
+            <h3>Status Values</h3>
+            <table>
+                <thead><tr><th>Status</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>PENDING</code></td><td>Notification created, not yet sent.</td></tr>
+                    <tr><td><code>SCHEDULED</code></td><td>Scheduled for future delivery.</td></tr>
+                    <tr><td><code>SENT</code></td><td>Successfully delivered.</td></tr>
+                    <tr><td><code>FAILED</code></td><td>Failed after all retry attempts.</td></tr>
+                    <tr><td><code>CANCELLED</code></td><td>Cancelled before delivery.</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Dead Letter Queue (DLQ)</h3>
+            <p>Failed notifications (after exhausting all retries) are captured in the DLQ for inspection and replay:</p>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>// Access DLQ
+List&lt;DeadLetter&gt; failures = hub.getDeadLetterQueue().findAll();
+
+// DeadLetter contains
+deadLetter.getChannelName();   // "email"
+deadLetter.getRecipient();     // "user@example.com"
+deadLetter.getSubject();       // "Welcome"
+deadLetter.getContent();       // "Hello!"
+deadLetter.getErrorMessage();  // "Connection refused"
+deadLetter.getAttemptCount();  // 3</code></pre>
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- SECTION 9: AUDIENCE                          -->
+        <!-- ============================================ -->
+        <section id="audience">
+            <h2>Audience &amp; Contacts</h2>
+
+            <h3>Create Contacts</h3>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>Contact vip = Contact.builder()
+    .name("Gabriel")
+    .email("gabriel@example.com")
+    .phone("+5548999999999")
+    .tag("vip").tag("plan:premium")
+    .metadata("region", "south")
+    .build();</code></pre>
+            </div>
+
+            <h3>Create Audiences</h3>
+            <p>Audiences are defined by tag filters using AND logic — contacts must match ALL tags to be included:</p>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>// Create audience (AND logic on tags)
+hub.getAudienceManager().createAudience("premium-users", Set.of("vip", "plan:premium"));
+
+// Send to audience
+notify.toAudience("premium-users")
+    .via(Channel.EMAIL)
+    .template("exclusive-offer")
+    .param("discount", "30%")
+    .send();</code></pre>
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- SECTION 10: SCHEDULING                       -->
+        <!-- ============================================ -->
+        <section id="scheduling">
+            <h2>Scheduling</h2>
+            <p>Schedule notifications for future delivery:</p>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>// Schedule with delay
+notify.to(user)
+    .via(Channel.PUSH)
+    .content("Don't forget your appointment tomorrow!")
+    .schedule(Duration.ofHours(24));
+
+// Schedule at specific time
+notify.to(user)
+    .via(Channel.EMAIL)
+    .template("weekly-digest")
+    .scheduleAt(Instant.parse("2024-12-25T09:00:00Z"));</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  scheduling:
+    enabled: true
+    pool-size: 2</code></pre>
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- SECTION: EVENT LISTENERS                     -->
+        <!-- ============================================ -->
+        <section id="event-listeners">
+            <h2>Event Listeners</h2>
+            <p>Implement the <code>NotificationListener</code> interface to react to notification lifecycle events:</p>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>public class MyListener implements NotificationListener {
+    public void onSuccess(String channel, String template) {
+        log.info("Sent via {} using {}", channel, template);
+    }
+    public void onFailure(String channel, String template, Exception e) {
+        log.error("Failed on {}: {}", channel, e.getMessage());
+    }
+    public void onScheduled(String channel, String recipient, Duration delay) {
+        log.info("Scheduled {} to {} in {}", channel, recipient, delay);
+    }
+    public void onCancelled(String channel, String recipient) {
+        log.info("Cancelled {} to {}", channel, recipient);
+    }
+}</code></pre>
+            </div>
+            <p>Register via builder: <code>.listener(new MyListener())</code> or as a Spring Bean.</p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  events:
+    enabled: true    # Enables Spring event publishing</code></pre>
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- SECTION 11: SPRING BOOT                      -->
+        <!-- ============================================ -->
+        <section id="spring-boot">
+            <h2>Spring Boot Integration</h2>
+
+            <h3>Injection</h3>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>@Service
+public class MyService {
+    private final NotifyHub notify;
+    public MyService(NotifyHub notify) { this.notify = notify; }
+}</code></pre>
+            </div>
+            <p>Auto-configured channels appear as beans. Only channels with their required properties set are activated.</p>
+
+            <h3>Full application.yml Reference</h3>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    email:
+      host: smtp.gmail.com
+      port: 587
+      username: ${GMAIL_USER}
+      password: ${GMAIL_PASS}
+      from: noreply@myapp.com
+      from-name: MyApp
+      tls: true
+
+    sms:
+      account-sid: ${TWILIO_ACCOUNT_SID}
+      auth-token: ${TWILIO_AUTH_TOKEN}
+      from-number: "+15551234567"
+
+    whatsapp:
+      account-sid: ${TWILIO_ACCOUNT_SID}
+      auth-token: ${TWILIO_AUTH_TOKEN}
+      from-number: "+14155238886"
+
+    slack:
+      webhook-url: ${SLACK_WEBHOOK_URL}
+      recipients:
+        engineering: "https://hooks.slack.com/services/..."
+
+    telegram:
+      bot-token: ${TELEGRAM_BOT_TOKEN}
+      chat-id: ${TELEGRAM_CHAT_ID}
+
+    discord:
+      webhook-url: ${DISCORD_WEBHOOK_URL}
+      username: NotifyBot
+
+    teams:
+      webhook-url: ${TEAMS_WEBHOOK_URL}
+
+    push:
+      server-key: ${FIREBASE_SERVER_KEY}
+
+    websocket:
+      uri: wss://ws.example.com/notifications
+      reconnect-enabled: true
+      reconnect-delay-ms: 3000
+      max-reconnect-attempts: 10
+
+    google-chat:
+      webhook-url: ${GOOGLE_CHAT_WEBHOOK_URL}
+
+    twitter:
+      api-key: ${TWITTER_API_KEY}
+      api-secret: ${TWITTER_API_SECRET}
+      access-token: ${TWITTER_ACCESS_TOKEN}
+      access-token-secret: ${TWITTER_ACCESS_TOKEN_SECRET}
+
+    linkedin:
+      access-token: ${LINKEDIN_ACCESS_TOKEN}
+      author-id: "urn:li:person:abc123"
+
+    notion:
+      api-key: ${NOTION_API_KEY}
+      database-id: ${NOTION_DATABASE_ID}
+
+    twitch:
+      client-id: ${TWITCH_CLIENT_ID}
+      access-token: ${TWITCH_ACCESS_TOKEN}
+      refresh-token: ${TWITCH_REFRESH_TOKEN}
+      client-secret: ${TWITCH_CLIENT_SECRET}
+      broadcaster-id: "836211004"
+      sender-id: "836211004"
+
+    youtube:
+      access-token: ${YOUTUBE_ACCESS_TOKEN}
+      refresh-token: ${YOUTUBE_REFRESH_TOKEN}
+      client-id: ${YOUTUBE_CLIENT_ID}
+      client-secret: ${YOUTUBE_CLIENT_SECRET}
+      channel-id: ${YOUTUBE_CHANNEL_ID}
+      live-chat-id: ${YOUTUBE_LIVE_CHAT_ID}
+
+    instagram:
+      access-token: ${INSTAGRAM_ACCESS_TOKEN}
+      ig-user-id: ${INSTAGRAM_USER_ID}
+
+    webhooks:
+      - name: pagerduty
+        url: "https://events.pagerduty.com/v2/enqueue"
+        method: POST
+        headers:
+          Authorization: "Token token=${PAGERDUTY_TOKEN}"
+
+  retry:
+    max-attempts: 3
+    strategy: exponential              # none, fixed, exponential
+
+  scheduling:
+    enabled: true
+    pool-size: 2
+
+  tracking:
+    enabled: true
+    type: memory                       # memory or jpa
+    dlq-enabled: true
+
+  events:
+    enabled: true
+
+  rate-limit:
+    enabled: true
+    use-defaults: true                 # Use API-aware presets per channel
+    max-requests: 100                  # Global default
+    window: 60s
+    channels:                          # Per-channel overrides
+      slack:
+        max-requests: 2
+        window: 1s
+
+  deduplication:
+    enabled: true
+    ttl: 24h
+    strategy: content-hash             # content-hash or explicit-key
+
+  audit:
+    enabled: true
+    type: memory
+
+  audience:
+    enabled: true
+
+  status-webhook:
+    url: "https://myapp.com/notify/status"
+    timeout-ms: 10000
+    signing-secret: ${WEBHOOK_SIGNING_SECRET}</code></pre>
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- SECTION 12: DOCKER                           -->
+        <!-- ============================================ -->
+        <section id="docker">
+            <h2>Docker</h2>
+            <p>Don't use Java? Run NotifyHub as a <strong>REST API</strong> or <strong>MCP Server</strong> with Docker. Just set environment variables for the channels you need.</p>
+
+            <h3>REST API</h3>
+            <div class="code-block">
+                <div class="code-header">Bash</div>
+<pre><code>docker run -d -p 8080:8080 \
+  -e NOTIFY_CHANNELS_EMAIL_HOST=smtp.gmail.com \
+  -e NOTIFY_CHANNELS_EMAIL_PORT=587 \
+  -e NOTIFY_CHANNELS_EMAIL_USERNAME=you@gmail.com \
+  -e NOTIFY_CHANNELS_EMAIL_PASSWORD=app-password \
+  -e NOTIFY_CHANNELS_EMAIL_FROM=you@gmail.com \
+  gabrielbbal10/notifyhub-api</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Bash — call the API</div>
+<pre><code># Send email
+curl -X POST "localhost:8080/send/email?to=user@test.com&amp;subject=Hi&amp;body=Hello!"
+
+# Send Discord
+curl -X POST "localhost:8080/send/discord?message=Deploy done!"
+
+# Swagger UI
+open http://localhost:8080/swagger-ui.html</code></pre>
+            </div>
+
+            <h3>MCP Server</h3>
+            <div class="code-block">
+                <div class="code-header">claude_desktop_config.json</div>
+<pre><code>{
+  "mcpServers": {
+    "notifyhub": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-e", "NOTIFY_CHANNELS_EMAIL_HOST=smtp.gmail.com",
+        "-e", "NOTIFY_CHANNELS_EMAIL_FROM=you@gmail.com",
+        "gabrielbbal10/notifyhub-mcp"
+      ]
+    }
+  }
+}</code></pre>
+            </div>
+
+            <h3>Environment Variables</h3>
+            <p>Both Docker images use <code>NOTIFY_CHANNELS_*</code> environment variables. Only set the channels you need:</p>
+            <table>
+                <thead><tr><th>Variable</th><th>Example</th></tr></thead>
+                <tbody>
+                    <tr><td><code>NOTIFY_CHANNELS_EMAIL_HOST</code></td><td>smtp.gmail.com</td></tr>
+                    <tr><td><code>NOTIFY_CHANNELS_EMAIL_PORT</code></td><td>587</td></tr>
+                    <tr><td><code>NOTIFY_CHANNELS_EMAIL_USERNAME</code></td><td>you@gmail.com</td></tr>
+                    <tr><td><code>NOTIFY_CHANNELS_EMAIL_PASSWORD</code></td><td>app-password</td></tr>
+                    <tr><td><code>NOTIFY_CHANNELS_EMAIL_FROM</code></td><td>you@gmail.com</td></tr>
+                    <tr><td><code>NOTIFY_CHANNELS_SLACK_WEBHOOK_URL</code></td><td>https://hooks.slack.com/...</td></tr>
+                    <tr><td><code>NOTIFY_CHANNELS_TELEGRAM_BOT_TOKEN</code></td><td>123456:ABC-DEF</td></tr>
+                    <tr><td><code>NOTIFY_CHANNELS_TELEGRAM_CHAT_ID</code></td><td>987654321</td></tr>
+                    <tr><td><code>NOTIFY_CHANNELS_DISCORD_WEBHOOK_URL</code></td><td>https://discord.com/api/webhooks/...</td></tr>
+                    <tr><td><code>NOTIFY_CHANNELS_SMS_ACCOUNT_SID</code></td><td>AC...</td></tr>
+                    <tr><td><code>NOTIFY_CHANNELS_SMS_AUTH_TOKEN</code></td><td>token</td></tr>
+                    <tr><td><code>NOTIFY_CHANNELS_SMS_FROM_NUMBER</code></td><td>+15551234567</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- SECTION 13: MCP SERVER                       -->
+        <!-- ============================================ -->
+        <section id="mcp-server">
+            <h2>MCP Server</h2>
+            <p>NotifyHub includes an MCP (Model Context Protocol) server with <strong>27 tools</strong> for AI agent integration. Connect it to Claude Desktop, Claude Code, Cursor, or any MCP-compatible client.</p>
+
+            <h3>All 27 Tools</h3>
+            <table>
+                <thead><tr><th>Category</th><th>Tool</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td rowspan="15"><strong>Channel Send</strong></td><td><code>send_email</code></td><td>Send via SMTP</td></tr>
+                    <tr><td><code>send_sms</code></td><td>Send via Twilio</td></tr>
+                    <tr><td><code>send_whatsapp</code></td><td>Send via Twilio WhatsApp</td></tr>
+                    <tr><td><code>send_slack</code></td><td>Send via webhook</td></tr>
+                    <tr><td><code>send_telegram</code></td><td>Send via Bot API</td></tr>
+                    <tr><td><code>send_discord</code></td><td>Send via webhook</td></tr>
+                    <tr><td><code>send_teams</code></td><td>Send via webhook</td></tr>
+                    <tr><td><code>send_google_chat</code></td><td>Send via webhook</td></tr>
+                    <tr><td><code>send_push</code></td><td>Firebase Cloud Messaging</td></tr>
+                    <tr><td><code>send_twitter</code></td><td>Twitter/X API v2</td></tr>
+                    <tr><td><code>send_linkedin</code></td><td>LinkedIn REST API</td></tr>
+                    <tr><td><code>send_notion</code></td><td>Notion Database API</td></tr>
+                    <tr><td><code>send_twitch</code></td><td>Twitch Helix API</td></tr>
+                    <tr><td><code>send_youtube</code></td><td>YouTube Live Chat</td></tr>
+                    <tr><td><code>send_instagram</code></td><td>Instagram Graph API</td></tr>
+                    <tr><td rowspan="4"><strong>Unified</strong></td><td><code>send_notification</code></td><td>Send via any channel</td></tr>
+                    <tr><td><code>send_batch</code></td><td>Same message to multiple recipients</td></tr>
+                    <tr><td><code>send_multi_channel</code></td><td>Same message across multiple channels</td></tr>
+                    <tr><td><code>send_to_audience</code></td><td>Send to a named audience</td></tr>
+                    <tr><td rowspan="4"><strong>Contacts</strong></td><td><code>create_contact</code></td><td>Create contact with tags</td></tr>
+                    <tr><td><code>list_contacts</code></td><td>List/filter contacts</td></tr>
+                    <tr><td><code>create_audience</code></td><td>Create audience by tag filter</td></tr>
+                    <tr><td><code>list_audiences</code></td><td>List audiences</td></tr>
+                    <tr><td rowspan="4"><strong>Monitoring</strong></td><td><code>list_channels</code></td><td>List configured channels</td></tr>
+                    <tr><td><code>list_delivery_receipts</code></td><td>View delivery history</td></tr>
+                    <tr><td><code>list_dead_letters</code></td><td>View failed notifications</td></tr>
+                    <tr><td><code>get_analytics</code></td><td>Delivery analytics and stats</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Example Prompts</h3>
+            <p>Once connected, you can use natural language:</p>
+            <ul>
+                <li>"Send an email to user@test.com saying the deploy is complete"</li>
+                <li>"Create a VIP audience with tags 'premium' and 'active', then send them a promo email"</li>
+                <li>"Send an SMS to +5548999999999 with the verification code"</li>
+                <li>"Notify the team on Slack and Telegram that the build passed"</li>
+                <li>"Show me the delivery analytics — how many sent vs failed?"</li>
+                <li>"List all dead letters and show me what failed"</li>
+            </ul>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- SECTION 14: OAUTH                            -->
+        <!-- ============================================ -->
+        <section id="oauth">
+            <h2>OAuth Token Refresh</h2>
+            <p>NotifyHub supports automatic OAuth 2.0 token refresh for YouTube and Twitch. The <code>OAuthTokenManager</code> is thread-safe using <code>ReentrantReadWriteLock</code> and proactively refreshes tokens 5 minutes before expiry.</p>
+
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>OAuthTokenManager manager = OAuthTokenManager.builder()
+    .tokenEndpoint("https://oauth2.googleapis.com/token")
+    .refreshToken("1//0eXyz...")
+    .clientId("client-id")
+    .clientSecret("client-secret")
+    .initialAccessToken("ya29...")  // Optional seed token
+    .refreshBufferSeconds(300)      // Default: 300 (5 min before expiry)
+    .timeoutSeconds(10)             // HTTP timeout
+    .build();
+
+String token = manager.getAccessToken();  // Auto-refresh if needed
+manager.forceRefresh();                   // Force refresh (e.g., after 401)</code></pre>
+            </div>
+
+            <div class="callout callout-info"><strong>Automatic:</strong> Token refresh is enabled automatically when you provide <code>refreshToken</code> + <code>clientSecret</code> (and <code>clientId</code> for YouTube) in the channel config. If only a static <code>accessToken</code> is set, behavior is backward-compatible with no refresh.</div>
+
+            <h3>How It Works</h3>
+            <ul>
+                <li><code>getAccessToken()</code> acquires a read lock. If token is valid, returns immediately.</li>
+                <li>If token is expired or within 5 minutes of expiry, upgrades to write lock and performs refresh.</li>
+                <li>Only one thread refreshes at a time — others wait and receive the new token.</li>
+                <li>Uses <code>java.net.http.HttpClient</code> (JDK) — zero external dependencies.</li>
+            </ul>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- SECTION 16: MESSAGE QUEUES                   -->
+        <!-- ============================================ -->
+        <section id="message-queues">
+            <h2>Message Queues</h2>
+            <p>For high-throughput or distributed systems, enqueue notifications to RabbitMQ or Kafka. A consumer picks them up and sends via NotifyHub automatically.</p>
+
+            <h3>RabbitMQ</h3>
+            <p><strong>Module:</strong> <code>notify-queue-rabbitmq</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  queue:
+    rabbitmq:
+      enabled: true
+      queue-name: notifyhub-notifications
+      exchange-name: notifyhub-exchange
+      routing-key: notification</code></pre>
+            </div>
+
+            <h3>Apache Kafka</h3>
+            <p><strong>Module:</strong> <code>notify-queue-kafka</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  queue:
+    kafka:
+      enabled: true
+      topic: notifyhub-notifications
+      consumer:
+        group-id: notifyhub-group</code></pre>
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- SECTION 18: TESTING                          -->
+        <!-- ============================================ -->
+        <section id="testing">
+            <h2>Testing</h2>
+
+            <h3>Running Tests</h3>
+            <div class="code-block">
+                <div class="code-header">Bash</div>
+<pre><code># All modules
+mvn test
+
+# Specific module
+mvn test -pl notify-core
+mvn test -pl notify-channels/notify-youtube
+mvn test -pl notify-spring-boot-starter</code></pre>
+            </div>
+
+            <h3>Test Patterns</h3>
+            <ul>
+                <li>JUnit 5 with <code>@DisplayName</code> annotations for readable test names.</li>
+                <li>Config builder validation tests verify required fields throw <code>IllegalArgumentException</code>.</li>
+                <li>Network-dependent tests use short timeouts and expect connection exceptions.</li>
+                <li>Thread safety tests use concurrent threads to verify atomic operations (e.g., <code>OAuthTokenManager</code>).</li>
+                <li>All tests are self-contained — no external services required.</li>
+            </ul>
+
+            <h3>Project Modules</h3>
+            <table>
+                <thead><tr><th>Module</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>notify-core</code></td><td>Core API, interfaces, fluent builder, templates, retry, rate limiting, DLQ, audiences.</td></tr>
+                    <tr><td><code>notify-email</code></td><td>SMTP channel (JavaMail).</td></tr>
+                    <tr><td><code>notify-sms</code></td><td>SMS + WhatsApp (Twilio).</td></tr>
+                    <tr><td><code>notify-slack</code></td><td>Slack webhooks.</td></tr>
+                    <tr><td><code>notify-telegram</code></td><td>Telegram Bot API.</td></tr>
+                    <tr><td><code>notify-discord</code></td><td>Discord webhooks.</td></tr>
+                    <tr><td><code>notify-teams</code></td><td>Microsoft Teams webhooks.</td></tr>
+                    <tr><td><code>notify-push-firebase</code></td><td>Firebase Cloud Messaging.</td></tr>
+                    <tr><td><code>notify-webhook</code></td><td>Generic HTTP webhooks.</td></tr>
+                    <tr><td><code>notify-websocket</code></td><td>Java WebSocket (<code>java.net.http</code>).</td></tr>
+                    <tr><td><code>notify-google-chat</code></td><td>Google Chat webhooks.</td></tr>
+                    <tr><td><code>notify-twitter</code></td><td>Twitter/X API v2.</td></tr>
+                    <tr><td><code>notify-linkedin</code></td><td>LinkedIn REST API.</td></tr>
+                    <tr><td><code>notify-notion</code></td><td>Notion Database API.</td></tr>
+                    <tr><td><code>notify-twitch</code></td><td>Twitch Helix API.</td></tr>
+                    <tr><td><code>notify-youtube</code></td><td>YouTube Data API v3.</td></tr>
+                    <tr><td><code>notify-instagram</code></td><td>Instagram Graph API.</td></tr>
+                    <tr><td><code>notify-spring-boot-starter</code></td><td>Auto-configuration + properties.</td></tr>
+                    <tr><td><code>notify-mcp</code></td><td>MCP Server for AI assistants (27 tools).</td></tr>
+                    <tr><td><code>notify-demo</code></td><td>Demo application.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer style="margin-left: 280px; border-top: 1px solid var(--border); padding: 40px 64px; color: var(--text-muted); font-size: 0.85rem;">
+        <p><strong style="color: var(--text);">NotifyHub</strong> — One API. Every Channel.</p>
+        <p style="margin-top: 8px;">
+            <a href="index.html">Home</a> &nbsp;|&nbsp;
+            <a href="https://github.com/GabrielBBaldez/notify-hub">GitHub</a> &nbsp;|&nbsp;
+            <a href="https://hub.docker.com/u/gabrielbbal10">Docker Hub</a> &nbsp;|&nbsp;
+            MIT License
+        </p>
+    </footer>
+
+    <!-- BACK TO TOP -->
+    <button class="back-to-top" aria-label="Back to top">
+        <svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
+    </button>
+
+    <!-- SCROLL SPY + MOBILE MENU + COPY + BACK TO TOP -->
+    <script>
+    (function() {
+        // Scroll spy
+        var sections = document.querySelectorAll('.docs-content section[id]');
+        var sidebarLinks = document.querySelectorAll('.docs-sidebar a[href^="#"]');
+        var currentActive = null;
+
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    var id = entry.target.getAttribute('id');
+                    if (currentActive) currentActive.classList.remove('active');
+                    var link = document.querySelector('.docs-sidebar a[href="#' + id + '"]');
+                    if (link) {
+                        link.classList.add('active');
+                        currentActive = link;
+                        link.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                    }
+                }
+            });
+        }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+
+        sections.forEach(function(s) { observer.observe(s); });
+
+        // Mobile menu
+        var toggle = document.querySelector('.docs-menu-toggle');
+        var sidebar = document.querySelector('.docs-sidebar');
+        var overlay = document.querySelector('.docs-overlay');
+
+        if (toggle) {
+            toggle.addEventListener('click', function() {
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('open');
+            });
+        }
+
+        // Close on link click (mobile)
+        sidebarLinks.forEach(function(link) {
+            link.addEventListener('click', function() {
+                if (window.innerWidth <= 900) {
+                    sidebar.classList.remove('open');
+                    overlay.classList.remove('open');
+                }
+            });
+        });
+
+        // Close on overlay click
+        if (overlay) {
+            overlay.addEventListener('click', function() {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('open');
+            });
+        }
+
+        // Copy buttons on code blocks
+        function fallbackCopy(text, cb) {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); cb(); } catch(e) {}
+            document.body.removeChild(ta);
+        }
+        document.querySelectorAll('.docs-content .code-block').forEach(function(block) {
+            var btn = document.createElement('button');
+            btn.className = 'code-copy-btn';
+            btn.textContent = 'Copy';
+            btn.addEventListener('click', function() {
+                var code = block.querySelector('pre code');
+                if (!code) return;
+                var text = code.textContent;
+                function onSuccess() {
+                    btn.textContent = 'Copied!';
+                    btn.classList.add('copied');
+                    setTimeout(function() {
+                        btn.textContent = 'Copy';
+                        btn.classList.remove('copied');
+                    }, 2000);
+                }
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(onSuccess).catch(function() {
+                        fallbackCopy(text, onSuccess);
+                    });
+                } else {
+                    fallbackCopy(text, onSuccess);
+                }
+            });
+            block.appendChild(btn);
+        });
+
+        // Syntax highlighting — auto-detect language from code-header
+        document.querySelectorAll('.docs-content .code-block').forEach(function(block) {
+            var header = block.querySelector('.code-header');
+            var code = block.querySelector('pre code');
+            if (!header || !code) return;
+            var t = header.textContent.trim().toLowerCase();
+            if (t.includes('java') || t.includes('standalone')) code.className = 'language-java';
+            else if (t.includes('yml') || t.includes('yaml')) code.className = 'language-yaml';
+            else if (t.includes('pom') || t.includes('xml')) code.className = 'language-xml';
+            else if (t.includes('gradle')) code.className = 'language-groovy';
+            else if (t.includes('bash')) code.className = 'language-bash';
+            else if (t.includes('json')) code.className = 'language-json';
+            else if (t.includes('template')) code.className = 'language-markup';
+        });
+        if (window.Prism) Prism.highlightAll();
+
+        // Back to top button
+        var backToTop = document.querySelector('.back-to-top');
+        if (backToTop) {
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 400) {
+                    backToTop.classList.add('visible');
+                } else {
+                    backToTop.classList.remove('visible');
+                }
+            });
+            backToTop.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+    })();
+    </script>
+
+</body>
+</html>

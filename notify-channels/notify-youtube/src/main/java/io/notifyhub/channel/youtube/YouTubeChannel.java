@@ -11,16 +11,21 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
  * YouTube notification channel — sends live chat messages via YouTube Data API v3.
  *
- * <p>Sends messages to YouTube live chat using
+ * <p>Sends messages and polls to YouTube live chat using
  * {@code POST https://www.googleapis.com/youtube/v3/liveChat/messages?part=snippet}.</p>
  *
  * <p>If no {@code liveChatId} is configured, automatically fetches it from the
  * active broadcast via {@code GET https://www.googleapis.com/youtube/v3/liveBroadcasts}.</p>
+ *
+ * <p>To create a poll, pass {@code poll_options} (and optionally {@code poll_question})
+ * in the notification params. The poll question defaults to the rendered content.</p>
  */
 public class YouTubeChannel implements NotificationChannel {
 
@@ -48,24 +53,29 @@ public class YouTubeChannel implements NotificationChannel {
 
     @Override
     public void send(Notification notification) {
-        String content = notification.getRenderedContent();
         String liveChatId = resolveLiveChatId(notification.getRecipient());
+        List<String> pollOptions = extractPollOptions(notification);
 
-        if (content.length() > MAX_MESSAGE_LENGTH) {
-            content = content.substring(0, MAX_MESSAGE_LENGTH - 3) + "...";
+        String payload;
+        String logAction;
+
+        if (pollOptions != null) {
+            // Poll mode
+            String question = extractPollQuestion(notification);
+            validatePollOptions(pollOptions);
+            payload = buildPollPayload(liveChatId, question, pollOptions);
+            logAction = "poll";
+        } else {
+            // Text message mode
+            String content = notification.getRenderedContent();
+            if (content.length() > MAX_MESSAGE_LENGTH) {
+                content = content.substring(0, MAX_MESSAGE_LENGTH - 3) + "...";
+            }
+            payload = buildTextPayload(liveChatId, content);
+            logAction = "message";
         }
 
         try {
-            String payload = "{" +
-                    "\"snippet\": {" +
-                    "\"liveChatId\": \"" + escapeJson(liveChatId) + "\", " +
-                    "\"type\": \"textMessageEvent\", " +
-                    "\"textMessageDetails\": {" +
-                    "\"messageText\": \"" + escapeJson(content) + "\"" +
-                    "}" +
-                    "}" +
-                    "}";
-
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(CHAT_URL))
                     .header("Content-Type", "application/json")
@@ -80,13 +90,85 @@ public class YouTubeChannel implements NotificationChannel {
                         "YouTube API returned " + response.statusCode() + ": " + response.body());
             }
 
-            log.debug("YouTube live chat message sent to {}: {}", liveChatId, response.statusCode());
+            log.debug("YouTube live chat {} sent to {}: {}", logAction, liveChatId, response.statusCode());
 
         } catch (NotificationSendException e) {
             throw e;
         } catch (Exception e) {
             throw new NotificationSendException("youtube",
-                    "Failed to send YouTube live chat message: " + e.getMessage(), e);
+                    "Failed to send YouTube live chat " + logAction + ": " + e.getMessage(), e);
+        }
+    }
+
+    private String buildTextPayload(String liveChatId, String content) {
+        return "{" +
+                "\"snippet\": {" +
+                "\"liveChatId\": \"" + escapeJson(liveChatId) + "\", " +
+                "\"type\": \"textMessageEvent\", " +
+                "\"textMessageDetails\": {" +
+                "\"messageText\": \"" + escapeJson(content) + "\"" +
+                "}" +
+                "}" +
+                "}";
+    }
+
+    private String buildPollPayload(String liveChatId, String question, List<String> options) {
+        StringBuilder optionsJson = new StringBuilder();
+        for (int i = 0; i < options.size(); i++) {
+            if (i > 0) optionsJson.append(", ");
+            optionsJson.append("{\"optionText\": \"").append(escapeJson(options.get(i))).append("\"}");
+        }
+
+        return "{" +
+                "\"snippet\": {" +
+                "\"liveChatId\": \"" + escapeJson(liveChatId) + "\", " +
+                "\"type\": \"pollEvent\", " +
+                "\"pollDetails\": {" +
+                "\"metadata\": {" +
+                "\"questionText\": \"" + escapeJson(question) + "\", " +
+                "\"options\": [" + optionsJson + "]" +
+                "}" +
+                "}" +
+                "}" +
+                "}";
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<String> extractPollOptions(Notification notification) {
+        Map<String, Object> params = notification.getParams();
+        if (params == null) return null;
+        Object raw = params.get("poll_options");
+        if (raw == null) return null;
+        if (raw instanceof List<?>) {
+            return ((List<?>) raw).stream().map(Object::toString).toList();
+        }
+        if (raw instanceof Collection<?>) {
+            return ((Collection<?>) raw).stream().map(Object::toString).toList();
+        }
+        return null;
+    }
+
+    private String extractPollQuestion(Notification notification) {
+        Map<String, Object> params = notification.getParams();
+        if (params != null && params.get("poll_question") instanceof String q && !q.isBlank()) {
+            return q;
+        }
+        String content = notification.getRenderedContent();
+        if (content != null && !content.isBlank()) {
+            return content;
+        }
+        throw new NotificationSendException("youtube",
+                "Poll requires a question — set 'poll_question' param or provide content.");
+    }
+
+    private void validatePollOptions(List<String> options) {
+        if (options.size() < 2) {
+            throw new NotificationSendException("youtube",
+                    "YouTube polls require at least 2 options, got " + options.size());
+        }
+        if (options.size() > 4) {
+            throw new NotificationSendException("youtube",
+                    "YouTube polls allow at most 4 options, got " + options.size());
         }
     }
 

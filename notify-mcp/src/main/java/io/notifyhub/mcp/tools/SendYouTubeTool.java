@@ -10,6 +10,8 @@ import io.notifyhub.core.NotificationBuilder;
 import io.notifyhub.core.NotifyHub;
 import io.notifyhub.mcp.util.ToolResultHelper;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SendYouTubeTool {
@@ -41,15 +43,25 @@ public class SendYouTubeTool {
                       "type": "object",
                       "description": "Template parameters as key-value pairs",
                       "additionalProperties": true
+                    },
+                    "poll_question": {
+                      "type": "string",
+                      "description": "Poll question text. If omitted, 'body' is used as the question."
+                    },
+                    "poll_options": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "minItems": 2,
+                      "maxItems": 4,
+                      "description": "Poll choices (2-4 options). When provided, creates a poll instead of a text message."
                     }
-                  },
-                  "required": ["body"]
+                  }
                 }
                 """;
 
         Tool tool = Tool.builder()
                 .name("send_youtube")
-                .description("Send a message to a YouTube live chat via YouTube Data API v3.")
+                .description("Send a message or create a poll in a YouTube live chat via YouTube Data API v3.")
                 .inputSchema(jsonMapper, schema)
                 .build();
 
@@ -68,14 +80,27 @@ public class SendYouTubeTool {
         String body = (String) args.get("body");
         String template = (String) args.get("template");
         Map<String, Object> params = (Map<String, Object>) args.get("params");
+        String pollQuestion = (String) args.get("poll_question");
+        List<String> pollOptions = args.get("poll_options") instanceof List<?> raw
+                ? raw.stream().map(Object::toString).toList() : null;
 
-        if (body == null && template == null) {
-            return ToolResultHelper.error("Either 'body' or 'template' must be provided");
+        boolean isPoll = pollOptions != null && !pollOptions.isEmpty();
+
+        if (!isPoll && body == null && template == null) {
+            return ToolResultHelper.error("Either 'body', 'template', or 'poll_options' must be provided");
         }
 
         NotificationBuilder builder = notifyHub.to(recipient != null ? recipient : "default").via(Channel.YOUTUBE);
 
-        if (template != null) {
+        if (isPoll) {
+            // Poll mode: pass poll data via params
+            Map<String, Object> pollParams = params != null ? new HashMap<>(params) : new HashMap<>();
+            pollParams.put("poll_options", pollOptions);
+            if (pollQuestion != null) pollParams.put("poll_question", pollQuestion);
+            builder.params(pollParams);
+            // Use body or poll_question as content (fallback for question text)
+            builder.content(pollQuestion != null ? pollQuestion : (body != null ? body : "Poll"));
+        } else if (template != null) {
             builder.template(template);
             if (params != null) builder.params(params);
         } else {
@@ -84,7 +109,8 @@ public class SendYouTubeTool {
 
         DeliveryReceipt receipt = builder.sendTracked();
 
-        return ToolResultHelper.success("YouTube live chat message sent", Map.of(
+        String action = isPoll ? "YouTube poll created" : "YouTube live chat message sent";
+        return ToolResultHelper.success(action, Map.of(
                 "id", receipt.getId(),
                 "channel", receipt.getChannelName(),
                 "status", receipt.getStatus().name(),

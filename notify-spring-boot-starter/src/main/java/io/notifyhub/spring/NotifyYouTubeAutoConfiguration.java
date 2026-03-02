@@ -26,7 +26,12 @@ public class NotifyYouTubeAutoConfiguration {
         if (yt.getChannelId() != null) builder.channelId(yt.getChannelId());
         if (yt.getLiveChatId() != null) builder.liveChatId(yt.getLiveChatId());
         if (yt.getRecipients() != null) builder.recipients(yt.getRecipients());
-        log.info("NotifyHub: YouTube channel configured");
+        // OAuth token refresh
+        if (yt.getRefreshToken() != null) builder.refreshToken(yt.getRefreshToken());
+        if (yt.getClientId() != null) builder.clientId(yt.getClientId());
+        if (yt.getClientSecret() != null) builder.clientSecret(yt.getClientSecret());
+        log.info("NotifyHub: YouTube channel configured (token-refresh: {})",
+                yt.getRefreshToken() != null);
         return new YouTubeChannel(builder.build());
     }
 }

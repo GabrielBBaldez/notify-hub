@@ -16,6 +16,9 @@ import io.notifyhub.core.NotificationTracker;
 import io.notifyhub.core.channel.NotificationChannel;
 import io.notifyhub.core.dedup.DeduplicationStore;
 import io.notifyhub.core.dedup.InMemoryDeduplicationStore;
+import io.notifyhub.core.ratelimit.RateLimitConfig;
+import io.notifyhub.core.ratelimit.RateLimiter;
+import io.notifyhub.core.ratelimit.TokenBucketRateLimiter;
 import io.notifyhub.core.retry.RetryPolicy;
 import io.notifyhub.core.template.MustacheTemplateEngine;
 import io.notifyhub.core.template.TemplateEngine;
@@ -36,7 +39,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
 import java.time.Duration;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -119,6 +124,39 @@ public class NotifyAutoConfiguration {
         if (value.endsWith("s")) return Duration.ofSeconds(Long.parseLong(value.replace("s", "")));
         if (value.endsWith("d")) return Duration.ofDays(Long.parseLong(value.replace("d", "")));
         return Duration.ofHours(Long.parseLong(value)); // default hours
+    }
+
+    // ===================== RATE LIMITING =====================
+
+    @Bean
+    @ConditionalOnProperty(prefix = "notify.rate-limit", name = "enabled", havingValue = "true")
+    @ConditionalOnMissingBean(RateLimiter.class)
+    public RateLimiter notifyRateLimiter(NotifyProperties properties) {
+        NotifyProperties.RateLimit rl = properties.getRateLimit();
+
+        RateLimitConfig defaultConfig = new RateLimitConfig(
+                rl.getMaxRequests(), parseDuration(rl.getWindow()));
+
+        Map<String, RateLimitConfig> channelConfigs = new LinkedHashMap<>();
+
+        // Apply API-aware defaults if enabled
+        if (rl.isUseDefaults()) {
+            channelConfigs.putAll(RateLimitConfig.allDefaults());
+            log.info("NotifyHub: Rate limiting with API-aware defaults for {} channels",
+                    channelConfigs.size());
+        }
+
+        // User overrides on top of defaults
+        for (Map.Entry<String, NotifyProperties.ChannelRateLimit> entry : rl.getChannels().entrySet()) {
+            NotifyProperties.ChannelRateLimit crl = entry.getValue();
+            channelConfigs.put(entry.getKey(),
+                    new RateLimitConfig(crl.getMaxRequests(), parseDuration(crl.getWindow())));
+        }
+
+        log.info("NotifyHub: Rate limiting enabled (default: {}/{}, channels: {})",
+                rl.getMaxRequests(), rl.getWindow(), channelConfigs.keySet());
+
+        return new TokenBucketRateLimiter(defaultConfig, channelConfigs);
     }
 
     // ===================== EMAIL CHANNEL =====================
@@ -279,6 +317,7 @@ public class NotifyAutoConfiguration {
             ObjectProvider<DeduplicationStore> deduplicationStoreProvider,
             ObjectProvider<AuditLog> auditLogProvider,
             ObjectProvider<AudienceManager> audienceManagerProvider,
+            ObjectProvider<RateLimiter> rateLimiterProvider,
             NotifyProperties properties) {
 
         NotifyHub.Builder builder = NotifyHub.builder()
@@ -334,6 +373,13 @@ public class NotifyAutoConfiguration {
         if (dedupStore != null) {
             builder.deduplicationStore(dedupStore);
             log.info("NotifyHub: Deduplication store configured");
+        }
+
+        // Configure rate limiter
+        RateLimiter rateLimiter = rateLimiterProvider.getIfAvailable();
+        if (rateLimiter != null) {
+            builder.rateLimiter(rateLimiter);
+            log.info("NotifyHub: Rate limiter configured");
         }
 
         // Configure audit log

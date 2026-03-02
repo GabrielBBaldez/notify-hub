@@ -13,3 +13,6 @@ notify:
   retry:
     max-attempts: 3
     strategy: exponential
+  rate-limit:
+    enabled: true
+    use-defaults: true

@@ -21,14 +21,17 @@ public class NotifyTwitchAutoConfiguration {
     @ConditionalOnMissingBean(TwitchChannel.class)
     public TwitchChannel twitchChannel(NotifyProperties properties) {
         NotifyProperties.Twitch tw = properties.getChannels().getTwitch();
-        TwitchConfig config = TwitchConfig.builder()
+        TwitchConfig.Builder builder = TwitchConfig.builder()
                 .clientId(tw.getClientId())
                 .accessToken(tw.getAccessToken())
                 .broadcasterId(tw.getBroadcasterId())
-                .senderId(tw.getSenderId())
-                .recipients(tw.getRecipients())
-                .build();
-        log.info("NotifyHub: Twitch channel configured");
-        return new TwitchChannel(config);
+                .senderId(tw.getSenderId());
+        if (tw.getRecipients() != null) builder.recipients(tw.getRecipients());
+        // OAuth token refresh
+        if (tw.getRefreshToken() != null) builder.refreshToken(tw.getRefreshToken());
+        if (tw.getClientSecret() != null) builder.clientSecret(tw.getClientSecret());
+        log.info("NotifyHub: Twitch channel configured (token-refresh: {})",
+                tw.getRefreshToken() != null);
+        return new TwitchChannel(builder.build());
     }
 }

@@ -161,6 +161,45 @@ class YouTubeChannelTest {
     }
 
     @Test
+    void config_buildsWithRefreshCredentials() {
+        YouTubeConfig config = YouTubeConfig.builder()
+                .accessToken("ya29.seed")
+                .refreshToken("1//refresh")
+                .clientId("client-id")
+                .clientSecret("client-secret")
+                .build();
+        assertTrue(config.hasTokenRefresh());
+        // Initial token is the seed
+        assertEquals("ya29.seed", config.getAccessToken());
+    }
+
+    @Test
+    void config_buildsWithStaticTokenOnly() {
+        YouTubeConfig config = YouTubeConfig.builder()
+                .accessToken("ya29.static")
+                .build();
+        assertFalse(config.hasTokenRefresh());
+        assertEquals("ya29.static", config.getAccessToken());
+    }
+
+    @Test
+    void config_failsWithoutTokenOrRefreshCredentials() {
+        assertThrows(IllegalArgumentException.class, () ->
+                YouTubeConfig.builder().build());
+    }
+
+    @Test
+    void config_partialRefreshCredentials_fallsBackToStaticToken() {
+        // Only refreshToken without clientId/clientSecret → falls back to static
+        YouTubeConfig config = YouTubeConfig.builder()
+                .accessToken("ya29.static")
+                .refreshToken("1//refresh")
+                .build();
+        assertFalse(config.hasTokenRefresh());
+        assertEquals("ya29.static", config.getAccessToken());
+    }
+
+    @Test
     void textMessage_notAffectedByPollFeature() {
         YouTubeConfig config = YouTubeConfig.builder()
                 .accessToken("test-token")

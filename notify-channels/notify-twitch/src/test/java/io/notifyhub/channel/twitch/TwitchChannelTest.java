@@ -88,6 +88,44 @@ class TwitchChannelTest {
     }
 
     @Test
+    @DisplayName("Config builds with refresh credentials")
+    void configBuildsWithRefreshCredentials() {
+        TwitchConfig config = TwitchConfig.builder()
+                .clientId(CLIENT_ID)
+                .accessToken(ACCESS_TOKEN)
+                .refreshToken("refresh-token")
+                .clientSecret("client-secret")
+                .broadcasterId(BROADCASTER_ID)
+                .senderId(SENDER_ID)
+                .build();
+        assertTrue(config.hasTokenRefresh());
+        assertEquals(ACCESS_TOKEN, config.getAccessToken());
+    }
+
+    @Test
+    @DisplayName("Config builds with static token only (backward compatible)")
+    void configBuildsWithStaticTokenOnly() {
+        TwitchConfig config = validConfig();
+        assertFalse(config.hasTokenRefresh());
+        assertEquals(ACCESS_TOKEN, config.getAccessToken());
+    }
+
+    @Test
+    @DisplayName("Partial refresh credentials falls back to static token")
+    void configPartialRefreshFallsBackToStatic() {
+        // Only refreshToken without clientSecret → falls back to static
+        TwitchConfig config = TwitchConfig.builder()
+                .clientId(CLIENT_ID)
+                .accessToken(ACCESS_TOKEN)
+                .refreshToken("refresh-token")
+                .broadcasterId(BROADCASTER_ID)
+                .senderId(SENDER_ID)
+                .build();
+        assertFalse(config.hasTokenRefresh());
+        assertEquals(ACCESS_TOKEN, config.getAccessToken());
+    }
+
+    @Test
     @DisplayName("send() throws NotificationSendException on network error")
     void sendFailsOnNetworkError() {
         TwitchChannel channel = new TwitchChannel(

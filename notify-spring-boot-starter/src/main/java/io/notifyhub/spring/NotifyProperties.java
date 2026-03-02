@@ -280,6 +280,8 @@ public class NotifyProperties {
     public static class Twitch {
         private String clientId;
         private String accessToken;
+        private String refreshToken;
+        private String clientSecret;
         private String broadcasterId;
         private String senderId;
         private Map<String, String> recipients = new LinkedHashMap<>();
@@ -287,6 +289,10 @@ public class NotifyProperties {
         public void setClientId(String clientId) { this.clientId = clientId; }
         public String getAccessToken() { return accessToken; }
         public void setAccessToken(String accessToken) { this.accessToken = accessToken; }
+        public String getRefreshToken() { return refreshToken; }
+        public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
+        public String getClientSecret() { return clientSecret; }
+        public void setClientSecret(String clientSecret) { this.clientSecret = clientSecret; }
         public String getBroadcasterId() { return broadcasterId; }
         public void setBroadcasterId(String broadcasterId) { this.broadcasterId = broadcasterId; }
         public String getSenderId() { return senderId; }
@@ -297,11 +303,20 @@ public class NotifyProperties {
 
     public static class YouTube {
         private String accessToken;
+        private String refreshToken;
+        private String clientId;
+        private String clientSecret;
         private String channelId;
         private String liveChatId;
         private Map<String, String> recipients = new LinkedHashMap<>();
         public String getAccessToken() { return accessToken; }
         public void setAccessToken(String accessToken) { this.accessToken = accessToken; }
+        public String getRefreshToken() { return refreshToken; }
+        public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
+        public String getClientId() { return clientId; }
+        public void setClientId(String clientId) { this.clientId = clientId; }
+        public String getClientSecret() { return clientSecret; }
+        public void setClientSecret(String clientSecret) { this.clientSecret = clientSecret; }
         public String getChannelId() { return channelId; }
         public void setChannelId(String channelId) { this.channelId = channelId; }
         public String getLiveChatId() { return liveChatId; }
@@ -378,11 +393,14 @@ public class NotifyProperties {
 
     public static class RateLimit {
         private boolean enabled = false;
+        private boolean useDefaults = true;
         private int maxRequests = 100;
         private String window = "60s";
         private Map<String, ChannelRateLimit> channels = new LinkedHashMap<>();
         public boolean isEnabled() { return enabled; }
         public void setEnabled(boolean enabled) { this.enabled = enabled; }
+        public boolean isUseDefaults() { return useDefaults; }
+        public void setUseDefaults(boolean useDefaults) { this.useDefaults = useDefaults; }
         public int getMaxRequests() { return maxRequests; }
         public void setMaxRequests(int maxRequests) { this.maxRequests = maxRequests; }
         public String getWindow() { return window; }

@@ -94,6 +94,7 @@
         <div class="sidebar-section">
             <span class="sidebar-label">Integration</span>
             <a href="#spring-boot">Spring Boot</a>
+            <a href="#rest-api">REST API / Swagger</a>
             <a href="#docker">Docker</a>
             <a href="#mcp-server">MCP Server</a>
             <a href="#oauth">OAuth Refresh</a>
@@ -1498,6 +1499,73 @@ public class MyService {
     timeout-ms: 10000
     signing-secret: ${WEBHOOK_SIGNING_SECRET}</code></pre>
             </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- SECTION: REST API / SWAGGER                  -->
+        <!-- ============================================ -->
+        <section id="rest-api">
+            <h2>REST API / Swagger</h2>
+            <p>NotifyHub includes a fully documented REST API with <strong>Swagger UI</strong> (OpenAPI 3.0). When running the demo or Docker image, access the interactive API at:</p>
+            <div class="code-block">
+                <div class="code-header">Bash</div>
+<pre><code># Swagger UI (interactive)
+http://localhost:8080/swagger-ui.html
+
+# OpenAPI JSON spec
+http://localhost:8080/v3/api-docs</code></pre>
+            </div>
+
+            <h3>Available Endpoints</h3>
+            <table>
+                <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>GET</code></td><td><code>/api/info</code></td><td>API info and registered channels</td></tr>
+                    <tr><td><code>POST</code></td><td><code>/send/email</code></td><td>Send email via SMTP</td></tr>
+                    <tr><td><code>POST</code></td><td><code>/send/template</code></td><td>Send email with Mustache template</td></tr>
+                    <tr><td><code>POST</code></td><td><code>/send/notifiable</code></td><td>Send to a Notifiable entity</td></tr>
+                    <tr><td><code>POST</code></td><td><code>/send/sms</code></td><td>Send SMS via Twilio</td></tr>
+                    <tr><td><code>POST</code></td><td><code>/send/whatsapp</code></td><td>Send WhatsApp via Twilio</td></tr>
+                    <tr><td><code>POST</code></td><td><code>/send/telegram</code></td><td>Send Telegram message</td></tr>
+                    <tr><td><code>POST</code></td><td><code>/send/discord</code></td><td>Send Discord message</td></tr>
+                    <tr><td><code>POST</code></td><td><code>/send/slack</code></td><td>Send Slack message</td></tr>
+                    <tr><td><code>POST</code></td><td><code>/send/teams</code></td><td>Send Microsoft Teams message</td></tr>
+                    <tr><td><code>POST</code></td><td><code>/send/google-chat</code></td><td>Send Google Chat message</td></tr>
+                    <tr><td><code>POST</code></td><td><code>/send/push</code></td><td>Send Firebase push notification</td></tr>
+                    <tr><td><code>POST</code></td><td><code>/send/websocket</code></td><td>Send WebSocket message</td></tr>
+                    <tr><td><code>POST</code></td><td><code>/send/twitter</code></td><td>Post tweet on Twitter/X</td></tr>
+                    <tr><td><code>POST</code></td><td><code>/send/linkedin</code></td><td>Publish LinkedIn post</td></tr>
+                    <tr><td><code>POST</code></td><td><code>/send/notion</code></td><td>Create Notion page</td></tr>
+                    <tr><td><code>POST</code></td><td><code>/send/multi</code></td><td>Send to multiple channels at once</td></tr>
+                    <tr><td><code>POST</code></td><td><code>/send/fallback</code></td><td>Test fallback chain</td></tr>
+                    <tr><td><code>POST</code></td><td><code>/send/tracked</code></td><td>Send with delivery tracking</td></tr>
+                    <tr><td><code>POST</code></td><td><code>/send/scheduled</code></td><td>Schedule notification for future</td></tr>
+                    <tr><td><code>POST</code></td><td><code>/send/audience</code></td><td>Send to audience segment</td></tr>
+                    <tr><td><code>GET</code></td><td><code>/tracking</code></td><td>Delivery tracking history</td></tr>
+                    <tr><td><code>GET</code></td><td><code>/scheduled</code></td><td>List scheduled notifications</td></tr>
+                    <tr><td><code>DELETE</code></td><td><code>/scheduled/{id}</code></td><td>Cancel scheduled notification</td></tr>
+                    <tr><td><code>POST</code></td><td><code>/contacts</code></td><td>Create contact with tags</td></tr>
+                    <tr><td><code>GET</code></td><td><code>/contacts</code></td><td>List all contacts</td></tr>
+                    <tr><td><code>POST</code></td><td><code>/audiences</code></td><td>Create audience by tags</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Example</h3>
+            <div class="code-block">
+                <div class="code-header">Bash</div>
+<pre><code># Send email
+curl -X POST "localhost:8080/send/email?to=user@example.com&amp;subject=Hello&amp;body=Hi+from+NotifyHub"
+
+# Send to Slack
+curl -X POST "localhost:8080/send/slack?channel=%23general&amp;message=Deploy+complete"
+
+# Send multi-channel (email + slack)
+curl -X POST "localhost:8080/send/multi?email=admin@test.com&amp;slackChannel=%23alerts"
+
+# Schedule notification (30s delay)
+curl -X POST "localhost:8080/send/scheduled?to=user@test.com&amp;delaySeconds=30&amp;subject=Reminder"</code></pre>
+            </div>
+            <div class="callout callout-tip"><strong>Swagger UI:</strong> Open <code>http://localhost:8080/swagger-ui.html</code> in your browser to explore and test all endpoints interactively — no code needed.</div>
         </section>
 
         <!-- ============================================ -->

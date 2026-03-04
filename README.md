@@ -19,9 +19,9 @@
 </p>
 
 <p align="center">
-  <a href="https://gabrielbbaldez.github.io/notify-hub/"><strong>Website</strong></a> &nbsp;&middot;&nbsp;
-  <a href="https://gabrielbbaldez.github.io/notify-hub/docs.html"><strong>Documentation</strong></a> &nbsp;&middot;&nbsp;
-  <a href="https://gabrielbbaldez.github.io/notify-hub/docs.html#getting-started"><strong>Getting Started</strong></a>
+  <a href="https://gabrielbbaldez.github.io/notify-hub-site/"><strong>Website</strong></a> &nbsp;&middot;&nbsp;
+  <a href="https://gabrielbbaldez.github.io/notify-hub-site/docs.html"><strong>Documentation</strong></a> &nbsp;&middot;&nbsp;
+  <a href="https://gabrielbbaldez.github.io/notify-hub-site/docs.html#getting-started"><strong>Getting Started</strong></a>
 </p>
 
 ---

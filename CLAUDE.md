@@ -1,7 +1,7 @@
 # CLAUDE.md — NotifyHub
 
 > Unified notification library for Java 17+ and Spring Boot 3.x.
-> One fluent API, 17 channels, zero boilerplate.
+> One fluent API, 20 channels, zero boilerplate.
 
 ## Quick Reference
 
@@ -33,7 +33,7 @@ mvn test -pl notify-mcp -Dtest="SendEmailToolTest"
 - **Java**: 17+ (source & target)
 - **Spring Boot**: 3.2.5 (optional — core works standalone)
 - **License**: MIT
-- **Build**: Maven multi-module (23 modules)
+- **Build**: Maven multi-module (27 modules)
 - **Repo**: https://github.com/GabrielBBaldez/notify-hub
 
 ## Module Map
@@ -41,7 +41,7 @@ mvn test -pl notify-mcp -Dtest="SendEmailToolTest"
 ```
 notify-hub/
 ├── notify-core/                    # Core API — zero Spring dependency
-├── notify-channels/                # One module per channel (16 total)
+├── notify-channels/                # One module per channel (19 total)
 │   ├── notify-email/               #   SMTP (Jakarta Mail)
 │   ├── notify-sms/                 #   Twilio SMS
 │   ├── notify-slack/               #   Slack webhooks
@@ -57,7 +57,10 @@ notify-hub/
 │   ├── notify-notion/              #   Notion Database API
 │   ├── notify-twitch/              #   Twitch Helix API
 │   ├── notify-youtube/             #   YouTube Live Chat API
-│   └── notify-instagram/           #   Instagram Graph API
+│   ├── notify-instagram/           #   Instagram Graph API
+│   ├── notify-sendgrid/            #   SendGrid Email (with delivery tracking)
+│   ├── notify-tiktok-shop/         #   TikTok Shop API (HMAC-SHA256)
+│   └── notify-facebook/            #   Facebook Graph API (Page + Messenger)
 ├── notify-spring-boot-starter/     # Auto-configuration + properties
 ├── notify-tracker-jpa/             # JPA delivery tracking (optional)
 ├── notify-audit-jpa/               # JPA audit logging (optional)
@@ -65,7 +68,7 @@ notify-hub/
 ├── notify-queue-rabbitmq/          # RabbitMQ integration (optional)
 ├── notify-queue-kafka/             # Kafka integration (optional)
 ├── notify-demo/                    # Demo Spring Boot app
-├── notify-mcp/                     # MCP Server for AI agents (27 tools)
+├── notify-mcp/                     # MCP Server for AI agents (30 tools)
 └── docs/                           # Static landing page (GitHub Pages)
 ```
 
@@ -79,10 +82,12 @@ notify-hub/
 | `NotificationBuilder` | Fluent API chain (`.to().via().content().send()`) |
 | `Notification` | Immutable notification data object |
 | `NotificationChannel` | Interface all channels implement (`getName`, `send`, `isAvailable`) |
-| `Channel` | Enum: EMAIL, SMS, WHATSAPP, SLACK, TELEGRAM, DISCORD, TEAMS, PUSH, WEBSOCKET, GOOGLE_CHAT, TWITTER, LINKEDIN, NOTION, TWITCH, YOUTUBE, INSTAGRAM |
+| `Channel` | Enum: EMAIL, SMS, WHATSAPP, SLACK, TELEGRAM, DISCORD, TEAMS, PUSH, WEBSOCKET, GOOGLE_CHAT, TWITTER, LINKEDIN, NOTION, TWITCH, YOUTUBE, INSTAGRAM, TIKTOK_SHOP, FACEBOOK |
 | `Priority` | Enum: URGENT (bypasses rate limits), HIGH, NORMAL, LOW |
 | `DeliveryReceipt` | Immutable tracking receipt (id, status, timestamp) |
-| `DeliveryStatus` | Enum: PENDING, SCHEDULED, SENT, FAILED, CANCELLED |
+| `DeliveryStatus` | Enum: PENDING, SCHEDULED, SENT, FAILED, CANCELLED, DELIVERED, OPENED, CLICKED, BOUNCED, SPAM_COMPLAINT, DROPPED, DEFERRED |
+| `SendResult` | Result of `sendWithResult()` — wraps provider message ID |
+| `EmailStatusProvider` | Interface for channels that support email delivery status tracking |
 | `Notifiable` | Interface for domain objects (`getNotifyEmail`, `getNotifyPhone`, `getPreferredChannels`) |
 | `NotificationListener` | Observer: `onSuccess`, `onFailure`, `onScheduled`, `onCancelled` |
 | `TemplateEngine` | Interface for template rendering (impl: `MustacheTemplateEngine`) |
@@ -184,6 +189,9 @@ All properties under `notify.*`:
 - `notify.channels.email.*` — SMTP config
 - `notify.channels.sms.*` — Twilio SMS
 - `notify.channels.slack.*` — Slack webhook
+- `notify.channels.sendgrid.*` — SendGrid email (with tracking)
+- `notify.channels.tiktok-shop.*` — TikTok Shop API
+- `notify.channels.facebook.*` — Facebook Graph API
 - `notify.retry.*` — Retry policy
 - `notify.rate-limit.*` — Rate limiting
 - `notify.tracking.*` — Delivery tracking
@@ -242,7 +250,7 @@ mvn test -pl notify-mcp -Dtest="SendEmailToolTest"  # Single class
 
 ## MCP Server (notify-mcp)
 
-- 27 tools for AI agent integration
+- 30 tools for AI agent integration
 - STDIO transport (JSON-RPC)
 - Built as fat JAR: `java -jar notify-mcp-0.9.0.jar`
 - Each tool is a class in `io.notifyhub.mcp.tools/`
@@ -271,3 +279,7 @@ Defined in `.claude/launch.json`:
 - Template path convention: `src/main/resources/templates/notify/{template-name}/{variant}.mustache`
 - The demo app uses embedded GreenMail — no real SMTP server needed
 - MCP server JAR version in `.mcp.json` may lag behind `pom.xml` version — keep in sync
+- Channel `getName()` must return hyphenated names matching `channelToName()` conversion: `TIKTOK_SHOP` → `"tiktok-shop"`, `GOOGLE_CHAT` → `"google-chat"`
+- When mocking `NotificationChannel` in MCP tests, add `when(channel.sendWithResult(any())).thenCallRealMethod()` in setUp()
+- `mvn spring-boot:run -pl notify-demo` uses JARs from local Maven repo — run `mvn install -DskipTests` first after changing dependency modules
+- Setup wizard supports 11 editors: Claude Code, Cursor, Windsurf, VS Code, Zed, IDEA, Neovim, Emacs, Roo Code, PearAI, LM Studio

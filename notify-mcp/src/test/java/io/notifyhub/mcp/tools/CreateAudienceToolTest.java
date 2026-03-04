@@ -38,6 +38,7 @@ class CreateAudienceToolTest {
     @BeforeEach
     void setUp() {
         when(emailChannel.getName()).thenReturn("email");
+        when(emailChannel.sendWithResult(any())).thenCallRealMethod();
 
         ContactRepository contactRepo = new InMemoryContactRepository();
         AudienceManager audienceManager = new AudienceManager(contactRepo);

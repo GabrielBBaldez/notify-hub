@@ -47,6 +47,9 @@ class NotifyHubTest {
     void setUp() {
         when(emailChannel.getName()).thenReturn("email");
         when(smsChannel.getName()).thenReturn("sms");
+        // Delegate sendWithResult to send (simulates the default interface method)
+        when(emailChannel.sendWithResult(any())).thenCallRealMethod();
+        when(smsChannel.sendWithResult(any())).thenCallRealMethod();
     }
 
     private void buildHub() {
@@ -308,6 +311,7 @@ class NotifyHubTest {
     void customChannel() {
         NotificationChannel slackChannel = mock(NotificationChannel.class);
         when(slackChannel.getName()).thenReturn("slack");
+        when(slackChannel.sendWithResult(any())).thenCallRealMethod();
         buildHub();
 
         hub.registerChannel(slackChannel);
@@ -767,6 +771,7 @@ class NotifyHubTest {
     void googleChatChannelMapping() {
         NotificationChannel gcChannel = mock(NotificationChannel.class);
         when(gcChannel.getName()).thenReturn("google-chat");
+        when(gcChannel.sendWithResult(any())).thenCallRealMethod();
 
         hub = NotifyHub.builder()
                 .channel(emailChannel)
@@ -786,6 +791,7 @@ class NotifyHubTest {
     void websocketChannelMapping() {
         NotificationChannel wsChannel = mock(NotificationChannel.class);
         when(wsChannel.getName()).thenReturn("websocket");
+        when(wsChannel.sendWithResult(any())).thenCallRealMethod();
 
         hub = NotifyHub.builder()
                 .channel(emailChannel)

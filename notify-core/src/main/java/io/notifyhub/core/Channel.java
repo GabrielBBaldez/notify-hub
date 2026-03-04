@@ -21,7 +21,9 @@ public enum Channel {
     NOTION,
     TWITCH,
     YOUTUBE,
-    INSTAGRAM;
+    INSTAGRAM,
+    TIKTOK_SHOP,
+    FACEBOOK;
 
     /**
      * Creates a reference to a custom channel by name.

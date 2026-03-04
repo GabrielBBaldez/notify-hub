@@ -39,6 +39,7 @@ class SendPushToolTest {
     @BeforeEach
     void setUp() {
         when(pushChannel.getName()).thenReturn("push");
+        when(pushChannel.sendWithResult(any())).thenCallRealMethod();
 
         notifyHub = NotifyHub.builder()
                 .channel(pushChannel)

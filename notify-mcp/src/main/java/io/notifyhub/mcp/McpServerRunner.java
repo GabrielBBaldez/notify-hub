@@ -80,6 +80,8 @@ public class McpServerRunner implements CommandLineRunner {
         server.addTool(new SendTwitchTool(notifyHub).specification(jsonMapper));
         server.addTool(new SendYouTubeTool(notifyHub).specification(jsonMapper));
         server.addTool(new SendInstagramTool(notifyHub).specification(jsonMapper));
+        server.addTool(new SendTikTokShopTool(notifyHub).specification(jsonMapper));
+        server.addTool(new SendFacebookTool(notifyHub).specification(jsonMapper));
         server.addTool(new SendMultiChannelTool(notifyHub).specification(jsonMapper));
         server.addTool(new ListChannelsTool(notifyHub).specification(jsonMapper));
         server.addTool(new ListDeliveryReceiptsTool(notifyHub).specification(jsonMapper));
@@ -96,7 +98,10 @@ public class McpServerRunner implements CommandLineRunner {
         server.addTool(new SendBatchTool(notifyHub).specification(jsonMapper));
         server.addTool(new GetAnalyticsTool(notifyHub).specification(jsonMapper));
 
-        log.info("NotifyHub MCP Server ready — 27 tools registered");
+        // Email tracking tool
+        server.addTool(new CheckEmailStatusTool(notifyHub).specification(jsonMapper));
+
+        log.info("NotifyHub MCP Server ready — 30 tools registered");
 
         // Check for updates in background (non-blocking, max once per day)
         Thread.ofVirtual().name("update-checker").start(this::checkForUpdatesQuietly);

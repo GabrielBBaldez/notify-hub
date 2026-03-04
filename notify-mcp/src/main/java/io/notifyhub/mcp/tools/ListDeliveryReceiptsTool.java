@@ -31,7 +31,7 @@ public class ListDeliveryReceiptsTool {
                     "status": {
                       "type": "string",
                       "description": "Filter by delivery status",
-                      "enum": ["PENDING", "SCHEDULED", "SENT", "FAILED", "CANCELLED"]
+                      "enum": ["PENDING", "SCHEDULED", "SENT", "FAILED", "CANCELLED", "DELIVERED", "OPENED", "CLICKED", "BOUNCED", "SPAM_COMPLAINT", "DROPPED", "DEFERRED"]
                     },
                     "recipient": {
                       "type": "string",

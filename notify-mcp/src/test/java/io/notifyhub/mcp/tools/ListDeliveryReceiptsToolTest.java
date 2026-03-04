@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,6 +37,7 @@ class ListDeliveryReceiptsToolTest {
     @BeforeEach
     void setUp() {
         when(emailChannel.getName()).thenReturn("email");
+        when(emailChannel.sendWithResult(any())).thenCallRealMethod();
 
         tracker = new InMemoryNotificationTracker();
         notifyHub = NotifyHub.builder()

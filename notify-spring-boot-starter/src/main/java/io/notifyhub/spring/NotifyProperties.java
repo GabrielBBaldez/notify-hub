@@ -60,6 +60,9 @@ public class NotifyProperties {
         private Twitch twitch;
         private YouTube youtube;
         private Instagram instagram;
+        private SendGrid sendgrid;
+        private TikTokShop tiktokShop;
+        private Facebook facebook;
 
         public Email getEmail() { return email; }
         public void setEmail(Email email) { this.email = email; }
@@ -95,6 +98,12 @@ public class NotifyProperties {
         public void setYoutube(YouTube youtube) { this.youtube = youtube; }
         public Instagram getInstagram() { return instagram; }
         public void setInstagram(Instagram instagram) { this.instagram = instagram; }
+        public SendGrid getSendgrid() { return sendgrid; }
+        public void setSendgrid(SendGrid sendgrid) { this.sendgrid = sendgrid; }
+        public TikTokShop getTiktokShop() { return tiktokShop; }
+        public void setTiktokShop(TikTokShop tiktokShop) { this.tiktokShop = tiktokShop; }
+        public Facebook getFacebook() { return facebook; }
+        public void setFacebook(Facebook facebook) { this.facebook = facebook; }
     }
 
     public static class Email {
@@ -458,5 +467,53 @@ public class NotifyProperties {
         private boolean enabled = false;
         public boolean isEnabled() { return enabled; }
         public void setEnabled(boolean enabled) { this.enabled = enabled; }
+    }
+
+    public static class SendGrid {
+        private String apiKey;
+        private String from;
+        private String fromName;
+        private boolean trackOpens = true;
+        private boolean trackClicks = true;
+        public String getApiKey() { return apiKey; }
+        public void setApiKey(String apiKey) { this.apiKey = apiKey; }
+        public String getFrom() { return from; }
+        public void setFrom(String from) { this.from = from; }
+        public String getFromName() { return fromName; }
+        public void setFromName(String fromName) { this.fromName = fromName; }
+        public boolean isTrackOpens() { return trackOpens; }
+        public void setTrackOpens(boolean trackOpens) { this.trackOpens = trackOpens; }
+        public boolean isTrackClicks() { return trackClicks; }
+        public void setTrackClicks(boolean trackClicks) { this.trackClicks = trackClicks; }
+    }
+
+    public static class TikTokShop {
+        private String appKey;
+        private String appSecret;
+        private String accessToken;
+        private String shopId;
+        private Map<String, String> recipients = new LinkedHashMap<>();
+        public String getAppKey() { return appKey; }
+        public void setAppKey(String appKey) { this.appKey = appKey; }
+        public String getAppSecret() { return appSecret; }
+        public void setAppSecret(String appSecret) { this.appSecret = appSecret; }
+        public String getAccessToken() { return accessToken; }
+        public void setAccessToken(String accessToken) { this.accessToken = accessToken; }
+        public String getShopId() { return shopId; }
+        public void setShopId(String shopId) { this.shopId = shopId; }
+        public Map<String, String> getRecipients() { return recipients; }
+        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
+    }
+
+    public static class Facebook {
+        private String pageAccessToken;
+        private String pageId;
+        private Map<String, String> recipients = new LinkedHashMap<>();
+        public String getPageAccessToken() { return pageAccessToken; }
+        public void setPageAccessToken(String pageAccessToken) { this.pageAccessToken = pageAccessToken; }
+        public String getPageId() { return pageId; }
+        public void setPageId(String pageId) { this.pageId = pageId; }
+        public Map<String, String> getRecipients() { return recipients; }
+        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
     }
 }

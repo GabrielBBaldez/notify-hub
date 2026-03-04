@@ -39,6 +39,7 @@ class SendTelegramToolTest {
     @BeforeEach
     void setUp() {
         when(telegramChannel.getName()).thenReturn("telegram");
+        when(telegramChannel.sendWithResult(any())).thenCallRealMethod();
 
         notifyHub = NotifyHub.builder()
                 .channel(telegramChannel)

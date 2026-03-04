@@ -38,6 +38,7 @@ class ListDeadLettersToolTest {
     @BeforeEach
     void setUp() {
         when(emailChannel.getName()).thenReturn("email");
+        when(emailChannel.sendWithResult(any())).thenCallRealMethod();
 
         dlq = new InMemoryDeadLetterQueue();
         notifyHub = NotifyHub.builder()

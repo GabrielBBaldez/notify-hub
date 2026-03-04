@@ -37,6 +37,7 @@ class SendBatchToolTest {
     @BeforeEach
     void setUp() {
         when(emailChannel.getName()).thenReturn("email");
+        when(emailChannel.sendWithResult(any())).thenCallRealMethod();
 
         notifyHub = NotifyHub.builder()
                 .channel(emailChannel)

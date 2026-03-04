@@ -1,0 +1,119 @@
+package io.notifyhub.mcp.tools;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.modelcontextprotocol.json.McpJsonMapper;
+import io.modelcontextprotocol.json.jackson2.JacksonMcpJsonMapper;
+import io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification;
+import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
+import io.notifyhub.core.*;
+import io.notifyhub.core.channel.NotificationChannel;
+import io.notifyhub.core.channel.NotificationSendException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.quality.Strictness;
+import org.mockito.junit.jupiter.MockitoSettings;
+
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class SendTikTokShopToolTest {
+
+    private final McpJsonMapper jsonMapper = new JacksonMcpJsonMapper(new ObjectMapper());
+
+    @Mock
+    private NotificationChannel tiktokShopChannel;
+
+    private NotifyHub notifyHub;
+    private SendTikTokShopTool tool;
+
+    @BeforeEach
+    void setUp() {
+        when(tiktokShopChannel.getName()).thenReturn("tiktok-shop");
+        when(tiktokShopChannel.sendWithResult(any())).thenCallRealMethod();
+
+        notifyHub = NotifyHub.builder()
+                .channel(tiktokShopChannel)
+                .tracker(new InMemoryNotificationTracker())
+                .build();
+
+        tool = new SendTikTokShopTool(notifyHub);
+    }
+
+    @Test
+    @DisplayName("specification() creates tool with correct name and schema")
+    void specificationHasCorrectName() {
+        SyncToolSpecification spec = tool.specification(jsonMapper);
+        assertEquals("send_tiktok_shop", spec.tool().name());
+        assertNotNull(spec.tool().description());
+        assertNotNull(spec.tool().inputSchema());
+    }
+
+    @Test
+    @DisplayName("Sends TikTok Shop notification successfully with body")
+    void sendTikTokShopWithBody() {
+        CallToolResult result = tool.specification(jsonMapper)
+                .call()
+                .apply(null, Map.of(
+                        "recipient", "my-shop",
+                        "body", "New order received!"
+                ));
+
+        assertFalse(result.isError());
+        assertNotNull(result.content());
+
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(tiktokShopChannel).send(captor.capture());
+        assertEquals("my-shop", captor.getValue().getRecipient());
+    }
+
+    @Test
+    @DisplayName("Returns error when neither body nor template is provided")
+    void errorWhenNoBodyOrTemplate() {
+        CallToolResult result = tool.specification(jsonMapper)
+                .call()
+                .apply(null, Map.of("recipient", "my-shop"));
+
+        assertTrue(result.isError());
+    }
+
+    @Test
+    @DisplayName("Returns error when channel send fails")
+    void errorOnSendFailure() {
+        doThrow(new NotificationSendException("tiktok-shop", "API connection refused"))
+                .when(tiktokShopChannel).send(any());
+
+        CallToolResult result = tool.specification(jsonMapper)
+                .call()
+                .apply(null, Map.of(
+                        "recipient", "my-shop",
+                        "body", "Test"
+                ));
+
+        assertTrue(result.isError());
+    }
+
+    @Test
+    @DisplayName("Sends TikTok Shop notification with template and params")
+    void sendTikTokShopWithTemplate() {
+        CallToolResult result = tool.specification(jsonMapper)
+                .call()
+                .apply(null, Map.of(
+                        "recipient", "my-shop",
+                        "template", "order-confirmed",
+                        "params", Map.of("orderId", "ORD-123")
+                ));
+
+        assertFalse(result.isError());
+        verify(tiktokShopChannel).send(any());
+    }
+}

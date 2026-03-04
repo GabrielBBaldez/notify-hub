@@ -52,6 +52,9 @@
         <module>notify-channels/notify-twitch</module>
         <module>notify-channels/notify-youtube</module>
         <module>notify-channels/notify-instagram</module>
+        <module>notify-channels/notify-sendgrid</module>
+        <module>notify-channels/notify-tiktok-shop</module>
+        <module>notify-channels/notify-facebook</module>
         <module>notify-tracker-jpa</module>
         <module>notify-audit-jpa</module>
         <module>notify-spring-boot-starter</module>
@@ -163,6 +166,21 @@
             <dependency>
                 <groupId>io.github.gabrielbbaldez</groupId>
                 <artifactId>notify-instagram</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.gabrielbbaldez</groupId>
+                <artifactId>notify-sendgrid</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.gabrielbbaldez</groupId>
+                <artifactId>notify-tiktok-shop</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.gabrielbbaldez</groupId>
+                <artifactId>notify-facebook</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

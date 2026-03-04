@@ -43,7 +43,9 @@ class SendMultiChannelToolTest {
     @BeforeEach
     void setUp() {
         when(emailChannel.getName()).thenReturn("email");
+        when(emailChannel.sendWithResult(any())).thenCallRealMethod();
         when(slackChannel.getName()).thenReturn("slack");
+        when(slackChannel.sendWithResult(any())).thenCallRealMethod();
 
         notifyHub = NotifyHub.builder()
                 .channel(emailChannel)

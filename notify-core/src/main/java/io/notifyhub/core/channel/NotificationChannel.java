@@ -44,6 +44,23 @@ public interface NotificationChannel {
     void send(Notification notification);
 
     /**
+     * Send the notification and return optional provider metadata.
+     *
+     * <p>Override this method if your channel can provide a provider message ID
+     * for delivery tracking (e.g., SendGrid, Mailgun, Amazon SES).
+     * The default implementation delegates to {@link #send(Notification)} and returns {@code null}.</p>
+     *
+     * @param notification fully built and rendered notification
+     * @return send result with provider metadata, or {@code null} if not supported
+     * @throws NotificationSendException if sending fails
+     * @see SendResult
+     */
+    default SendResult sendWithResult(Notification notification) {
+        send(notification);
+        return null;
+    }
+
+    /**
      * Check if this channel is properly configured and operational.
      * Used by health checks. Default returns true.
      */

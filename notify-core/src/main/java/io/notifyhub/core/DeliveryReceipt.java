@@ -27,6 +27,7 @@ public class DeliveryReceipt {
     private final Instant timestamp;
     private final String errorMessage;
     private final String templateName;
+    private final String providerMessageId;
 
     private DeliveryReceipt(Builder builder) {
         this.id = builder.id != null ? builder.id : UUID.randomUUID().toString();
@@ -36,6 +37,7 @@ public class DeliveryReceipt {
         this.timestamp = builder.timestamp != null ? builder.timestamp : Instant.now();
         this.errorMessage = builder.errorMessage;
         this.templateName = builder.templateName;
+        this.providerMessageId = builder.providerMessageId;
     }
 
     /** Unique identifier for this delivery attempt. */
@@ -73,6 +75,15 @@ public class DeliveryReceipt {
         return templateName;
     }
 
+    /**
+     * The provider-assigned message ID for delivery tracking.
+     * Non-null when sent through an API provider (e.g., SendGrid).
+     * Null for SMTP-sent emails.
+     */
+    public String getProviderMessageId() {
+        return providerMessageId;
+    }
+
     @Override
     public String toString() {
         return "DeliveryReceipt{" +
@@ -82,6 +93,7 @@ public class DeliveryReceipt {
                 ", status=" + status +
                 ", timestamp=" + timestamp +
                 (errorMessage != null ? ", error='" + errorMessage + '\'' : "") +
+                (providerMessageId != null ? ", providerMessageId='" + providerMessageId + '\'' : "") +
                 '}';
     }
 
@@ -99,6 +111,7 @@ public class DeliveryReceipt {
         private Instant timestamp;
         private String errorMessage;
         private String templateName;
+        private String providerMessageId;
 
         public Builder id(String id) {
             this.id = id;
@@ -132,6 +145,11 @@ public class DeliveryReceipt {
 
         public Builder templateName(String templateName) {
             this.templateName = templateName;
+            return this;
+        }
+
+        public Builder providerMessageId(String providerMessageId) {
+            this.providerMessageId = providerMessageId;
             return this;
         }
 

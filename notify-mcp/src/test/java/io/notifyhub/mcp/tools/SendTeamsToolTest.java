@@ -39,6 +39,7 @@ class SendTeamsToolTest {
     @BeforeEach
     void setUp() {
         when(teamsChannel.getName()).thenReturn("teams");
+        when(teamsChannel.sendWithResult(any())).thenCallRealMethod();
 
         notifyHub = NotifyHub.builder()
                 .channel(teamsChannel)

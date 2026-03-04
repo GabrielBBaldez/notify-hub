@@ -39,6 +39,7 @@ class SendSmsToolTest {
     @BeforeEach
     void setUp() {
         when(smsChannel.getName()).thenReturn("sms");
+        when(smsChannel.sendWithResult(any())).thenCallRealMethod();
 
         notifyHub = NotifyHub.builder()
                 .channel(smsChannel)

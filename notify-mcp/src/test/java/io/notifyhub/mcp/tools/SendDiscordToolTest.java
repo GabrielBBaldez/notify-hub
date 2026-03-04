@@ -39,6 +39,7 @@ class SendDiscordToolTest {
     @BeforeEach
     void setUp() {
         when(discordChannel.getName()).thenReturn("discord");
+        when(discordChannel.sendWithResult(any())).thenCallRealMethod();
 
         notifyHub = NotifyHub.builder()
                 .channel(discordChannel)

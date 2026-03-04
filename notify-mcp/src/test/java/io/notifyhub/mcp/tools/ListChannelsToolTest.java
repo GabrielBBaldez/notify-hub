@@ -43,12 +43,15 @@ class ListChannelsToolTest {
     void setUp() {
         when(emailChannel.getName()).thenReturn("email");
         when(emailChannel.isAvailable()).thenReturn(true);
+        when(emailChannel.sendWithResult(any())).thenCallRealMethod();
 
         when(slackChannel.getName()).thenReturn("slack");
         when(slackChannel.isAvailable()).thenReturn(true);
+        when(slackChannel.sendWithResult(any())).thenCallRealMethod();
 
         when(discordChannel.getName()).thenReturn("discord");
         when(discordChannel.isAvailable()).thenReturn(false);
+        when(discordChannel.sendWithResult(any())).thenCallRealMethod();
 
         notifyHub = NotifyHub.builder()
                 .channel(emailChannel)

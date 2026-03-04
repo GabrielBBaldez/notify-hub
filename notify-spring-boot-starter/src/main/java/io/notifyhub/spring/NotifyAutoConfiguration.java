@@ -63,7 +63,10 @@ import java.util.concurrent.ScheduledExecutorService;
     NotifyNotionAutoConfiguration.class,
     NotifyTwitchAutoConfiguration.class,
     NotifyYouTubeAutoConfiguration.class,
-    NotifyInstagramAutoConfiguration.class
+    NotifyInstagramAutoConfiguration.class,
+    NotifySendGridAutoConfiguration.class,
+    NotifyTikTokShopAutoConfiguration.class,
+    NotifyFacebookAutoConfiguration.class
 })
 public class NotifyAutoConfiguration {
 
@@ -163,7 +166,7 @@ public class NotifyAutoConfiguration {
 
     @Bean
     @ConditionalOnProperty(prefix = "notify.channels.email", name = "host")
-    @ConditionalOnMissingBean(SmtpEmailChannel.class)
+    @ConditionalOnMissingBean(name = {"smtpEmailChannel", "sendGridEmailChannel"})
     public SmtpEmailChannel smtpEmailChannel(NotifyProperties properties) {
         NotifyProperties.Email email = properties.getChannels().getEmail();
         SmtpConfig config = SmtpConfig.builder()

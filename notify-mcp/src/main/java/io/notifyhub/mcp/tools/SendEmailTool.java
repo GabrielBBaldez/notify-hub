@@ -59,7 +59,8 @@ public class SendEmailTool {
 
         Tool tool = Tool.builder()
                 .name("send_email")
-                .description("Send an email notification via SMTP.")
+                .description("Send an email notification via SMTP or SendGrid (whichever is configured). " +
+                        "When SendGrid is configured, returns a provider_message_id for delivery tracking.")
                 .inputSchema(jsonMapper, schema)
                 .build();
 
@@ -98,12 +99,17 @@ public class SendEmailTool {
 
         DeliveryReceipt receipt = builder.sendTracked();
 
-        return ToolResultHelper.success("Email sent to " + to, Map.of(
-                "id", receipt.getId(),
-                "channel", receipt.getChannelName(),
-                "recipient", receipt.getRecipient(),
-                "status", receipt.getStatus().name(),
-                "timestamp", receipt.getTimestamp().toString()
-        ));
+        java.util.LinkedHashMap<String, Object> data = new java.util.LinkedHashMap<>();
+        data.put("id", receipt.getId());
+        data.put("channel", receipt.getChannelName());
+        data.put("recipient", receipt.getRecipient());
+        data.put("status", receipt.getStatus().name());
+        data.put("timestamp", receipt.getTimestamp().toString());
+        if (receipt.getProviderMessageId() != null) {
+            data.put("provider_message_id", receipt.getProviderMessageId());
+            data.put("tracking_supported", true);
+        }
+
+        return ToolResultHelper.success("Email sent to " + to, data);
     }
 }

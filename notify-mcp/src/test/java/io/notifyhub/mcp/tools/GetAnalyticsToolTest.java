@@ -42,6 +42,7 @@ class GetAnalyticsToolTest {
     @BeforeEach
     void setUp() {
         when(emailChannel.getName()).thenReturn("email");
+        when(emailChannel.sendWithResult(any())).thenCallRealMethod();
 
         tracker = new InMemoryNotificationTracker();
         dlq = new InMemoryDeadLetterQueue();

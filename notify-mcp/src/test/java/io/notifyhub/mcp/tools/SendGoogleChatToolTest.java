@@ -39,6 +39,7 @@ class SendGoogleChatToolTest {
     @BeforeEach
     void setUp() {
         when(googleChatChannel.getName()).thenReturn("google-chat");
+        when(googleChatChannel.sendWithResult(any())).thenCallRealMethod();
 
         notifyHub = NotifyHub.builder()
                 .channel(googleChatChannel)

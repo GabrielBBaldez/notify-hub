@@ -4,6 +4,7 @@ import io.notifyhub.core.audience.AudienceManager;
 import io.notifyhub.core.audience.Contact;
 import io.notifyhub.core.channel.NotificationChannel;
 import io.notifyhub.core.channel.NotificationSendException;
+import io.notifyhub.core.channel.SendResult;
 import io.notifyhub.core.dedup.DeduplicationStore;
 import io.notifyhub.core.dlq.DeadLetter;
 import io.notifyhub.core.dlq.DeadLetterQueue;
@@ -333,14 +334,15 @@ public class NotifyHub {
             lastChannelName = channelName;
             try {
                 recipient = builder.resolveRecipient(channelName);
-                sendToChannel(channelName, builder);
+                SendResult result = sendToChannel(channelName, builder);
 
-                // Success — create receipt
+                // Success — create receipt with optional provider message ID
                 DeliveryReceipt receipt = DeliveryReceipt.builder()
                         .channelName(channelName)
                         .recipient(recipient)
                         .status(DeliveryStatus.SENT)
                         .templateName(builder.getTemplateName())
+                        .providerMessageId(result != null ? result.getProviderMessageId() : null)
                         .build();
 
                 if (tracker != null) {
@@ -383,13 +385,14 @@ public class NotifyHub {
         for (String channelName : channelNames) {
             String recipient = builder.resolveRecipient(channelName);
             try {
-                sendToChannel(channelName, builder);
+                SendResult result = sendToChannel(channelName, builder);
 
                 DeliveryReceipt receipt = DeliveryReceipt.builder()
                         .channelName(channelName)
                         .recipient(recipient)
                         .status(DeliveryStatus.SENT)
                         .templateName(builder.getTemplateName())
+                        .providerMessageId(result != null ? result.getProviderMessageId() : null)
                         .build();
 
                 receipts.add(receipt);
@@ -535,7 +538,7 @@ public class NotifyHub {
         });
     }
 
-    private void sendToChannel(String channelName, NotificationBuilder builder) {
+    private SendResult sendToChannel(String channelName, NotificationBuilder builder) {
         NotificationChannel channel = channels.get(channelName);
         if (channel == null) {
             throw new NotificationSendException(channelName,
@@ -549,7 +552,7 @@ public class NotifyHub {
                     : builder.computeDeduplicationHash();
             if (deduplicationStore.isDuplicate(dedupKey)) {
                 log.info("Duplicate notification skipped for channel '{}' (key: {})", channelName, dedupKey);
-                return;
+                return null;
             }
         }
 
@@ -596,7 +599,7 @@ public class NotifyHub {
                 ? builder.getRetryPolicy()
                 : defaultRetryPolicy;
 
-        sendWithRetry(channel, notification, policy);
+        SendResult result = sendWithRetry(channel, notification, policy);
 
         // Mark as sent in dedup store after successful delivery
         if (deduplicationStore != null) {
@@ -608,9 +611,10 @@ public class NotifyHub {
 
         log.info("Notification sent via '{}' to '{}'", channelName, recipient);
         notifyListenersSuccess(channelName, builder);
+        return result;
     }
 
-    private void sendWithRetry(NotificationChannel channel, Notification notification,
+    private SendResult sendWithRetry(NotificationChannel channel, Notification notification,
                                 RetryPolicy policy) {
         int attempts = policy.getMaxAttempts();
         NotificationSendException lastException = null;
@@ -623,8 +627,7 @@ public class NotifyHub {
                             i + 1, attempts, channel.getName(), delayMs);
                     Thread.sleep(delayMs);
                 }
-                channel.send(notification);
-                return; // success
+                return channel.sendWithResult(notification); // success — return provider metadata
             } catch (NotificationSendException e) {
                 lastException = e;
                 log.warn("Attempt {}/{} failed for channel '{}': {}",

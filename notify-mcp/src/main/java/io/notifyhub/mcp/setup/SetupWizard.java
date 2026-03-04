@@ -49,6 +49,11 @@ public class SetupWizard {
             field("PASSWORD", "Password (app password)", null,          true),
             field("FROM",     "From address",          null,             false)
         )),
+        new ChannelDef("sendgrid", "Email (SendGrid) — with open/bounce tracking", "Popular", List.of(
+            field("API_KEY",   "SendGrid API Key (SG.xxx)", null, true),
+            field("FROM",      "From address",               null, false),
+            field("FROM_NAME", "From name (optional)",       null, false)
+        )),
         new ChannelDef("slack", "Slack", "Popular", List.of(
             field("WEBHOOK_URL", "Webhook URL", null, false)
         )),
@@ -93,6 +98,16 @@ public class SetupWizard {
         new ChannelDef("instagram", "Instagram", "Social", List.of(
             field("ACCESS_TOKEN", "Access Token",  null, true),
             field("IG_USER_ID",   "IG User ID",    null, false)
+        )),
+        new ChannelDef("tiktok_shop", "TikTok Shop", "Social", List.of(
+            field("APP_KEY",      "App Key",        null, true),
+            field("APP_SECRET",   "App Secret",     null, true),
+            field("ACCESS_TOKEN", "Access Token",   null, true),
+            field("SHOP_ID",      "Shop ID",        null, false)
+        )),
+        new ChannelDef("facebook", "Facebook (Pages + Messenger)", "Social", List.of(
+            field("PAGE_ACCESS_TOKEN", "Page Access Token",  null, true),
+            field("PAGE_ID",           "Page ID",            null, false)
         )),
 
         // ─── Other ───
@@ -371,7 +386,16 @@ public class SetupWizard {
             targets.add(new ConfigTarget("Amazon Q Developer", amazonQConfig));
         }
 
-        // 10. Current directory (generic)
+        // 10. LM Studio
+        Path lmStudioConfig = findConfigPath(os, home,
+                ".lmstudio", "mcp.json",
+                ".lmstudio", "mcp.json",
+                ".lmstudio", "mcp.json");
+        if (lmStudioConfig != null) {
+            targets.add(new ConfigTarget("LM Studio", lmStudioConfig));
+        }
+
+        // 11. Current directory (generic)
         Path localConfig = Path.of(".mcp.json").toAbsolutePath().normalize();
         targets.add(new ConfigTarget("Current directory (.mcp.json)", localConfig));
 

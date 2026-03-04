@@ -39,6 +39,7 @@ class SendWhatsAppToolTest {
     @BeforeEach
     void setUp() {
         when(whatsappChannel.getName()).thenReturn("whatsapp");
+        when(whatsappChannel.sendWithResult(any())).thenCallRealMethod();
 
         notifyHub = NotifyHub.builder()
                 .channel(whatsappChannel)

@@ -58,6 +58,27 @@
                 </div>
                 <div class="value purple" th:text="${contactCount}">0</div>
             </div>
+            <div class="card" th:if="${trackingEnabled}">
+                <div class="label">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;opacity:0.6"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    Delivered
+                </div>
+                <div class="value green" th:text="${totalDelivered}">0</div>
+            </div>
+            <div class="card" th:if="${trackingEnabled}">
+                <div class="label">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;opacity:0.6"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    Opened
+                </div>
+                <div class="value blue" th:text="${totalOpened}">0</div>
+            </div>
+            <div class="card" th:if="${trackingEnabled}">
+                <div class="label">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;opacity:0.6"><polyline points="3 11 3 3 21 3 21 11"/><line x1="12" y1="17" x2="12" y2="3"/><polyline points="8 13 12 17 16 13"/></svg>
+                    Bounced
+                </div>
+                <div class="value red" th:text="${totalBounced}">0</div>
+            </div>
         </div>
 
         <!-- Recent Activity -->
@@ -90,6 +111,13 @@
                                 <span class="badge badge-pending" th:if="${r.status.name() == 'PENDING'}">Pending</span>
                                 <span class="badge badge-scheduled" th:if="${r.status.name() == 'SCHEDULED'}">Scheduled</span>
                                 <span class="badge badge-cancelled" th:if="${r.status.name() == 'CANCELLED'}">Cancelled</span>
+                                <span class="badge badge-delivered" th:if="${r.status.name() == 'DELIVERED'}">Delivered</span>
+                                <span class="badge badge-opened" th:if="${r.status.name() == 'OPENED'}">Opened</span>
+                                <span class="badge badge-clicked" th:if="${r.status.name() == 'CLICKED'}">Clicked</span>
+                                <span class="badge badge-bounced" th:if="${r.status.name() == 'BOUNCED'}">Bounced</span>
+                                <span class="badge badge-spam_complaint" th:if="${r.status.name() == 'SPAM_COMPLAINT'}">Spam</span>
+                                <span class="badge badge-dropped" th:if="${r.status.name() == 'DROPPED'}">Dropped</span>
+                                <span class="badge badge-deferred" th:if="${r.status.name() == 'DEFERRED'}">Deferred</span>
                             </td>
                         </tr>
                     </tbody>

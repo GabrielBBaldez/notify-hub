@@ -32,6 +32,22 @@
                     <option th:each="ch : ${channels}" th:value="${ch}" th:text="${ch}"
                             th:selected="${ch == selectedChannel}">channel</option>
                 </select>
+                <label for="status-filter">Filter by status:</label>
+                <select id="status-filter" name="status" onchange="this.form.submit()">
+                    <option value="">All Statuses</option>
+                    <option value="PENDING" th:selected="${selectedStatus == 'PENDING'}">Pending</option>
+                    <option value="SCHEDULED" th:selected="${selectedStatus == 'SCHEDULED'}">Scheduled</option>
+                    <option value="SENT" th:selected="${selectedStatus == 'SENT'}">Sent</option>
+                    <option value="FAILED" th:selected="${selectedStatus == 'FAILED'}">Failed</option>
+                    <option value="CANCELLED" th:selected="${selectedStatus == 'CANCELLED'}">Cancelled</option>
+                    <option value="DELIVERED" th:selected="${selectedStatus == 'DELIVERED'}">Delivered</option>
+                    <option value="OPENED" th:selected="${selectedStatus == 'OPENED'}">Opened</option>
+                    <option value="CLICKED" th:selected="${selectedStatus == 'CLICKED'}">Clicked</option>
+                    <option value="BOUNCED" th:selected="${selectedStatus == 'BOUNCED'}">Bounced</option>
+                    <option value="SPAM_COMPLAINT" th:selected="${selectedStatus == 'SPAM_COMPLAINT'}">Spam Complaint</option>
+                    <option value="DROPPED" th:selected="${selectedStatus == 'DROPPED'}">Dropped</option>
+                    <option value="DEFERRED" th:selected="${selectedStatus == 'DEFERRED'}">Deferred</option>
+                </select>
             </form>
 
             <div class="table-wrapper">
@@ -45,6 +61,7 @@
                             <th>Channel</th>
                             <th>Recipient</th>
                             <th>Template</th>
+                            <th>Provider Message ID</th>
                             <th>Timestamp</th>
                             <th>Error</th>
                         </tr>
@@ -57,10 +74,21 @@
                                 <span class="badge badge-pending" th:if="${r.status.name() == 'PENDING'}">Pending</span>
                                 <span class="badge badge-scheduled" th:if="${r.status.name() == 'SCHEDULED'}">Scheduled</span>
                                 <span class="badge badge-cancelled" th:if="${r.status.name() == 'CANCELLED'}">Cancelled</span>
+                                <span class="badge badge-delivered" th:if="${r.status.name() == 'DELIVERED'}">Delivered</span>
+                                <span class="badge badge-opened" th:if="${r.status.name() == 'OPENED'}">Opened</span>
+                                <span class="badge badge-clicked" th:if="${r.status.name() == 'CLICKED'}">Clicked</span>
+                                <span class="badge badge-bounced" th:if="${r.status.name() == 'BOUNCED'}">Bounced</span>
+                                <span class="badge badge-spam_complaint" th:if="${r.status.name() == 'SPAM_COMPLAINT'}">Spam</span>
+                                <span class="badge badge-dropped" th:if="${r.status.name() == 'DROPPED'}">Dropped</span>
+                                <span class="badge badge-deferred" th:if="${r.status.name() == 'DEFERRED'}">Deferred</span>
                             </td>
                             <td th:text="${r.channelName}">email</td>
                             <td th:text="${r.recipient}">user@example.com</td>
                             <td th:text="${r.templateName ?: '-'}">welcome</td>
+                            <td>
+                                <span class="id-text" th:if="${r.providerMessageId}" th:text="${r.providerMessageId}" th:title="${r.providerMessageId}">-</span>
+                                <span th:unless="${r.providerMessageId}">-</span>
+                            </td>
                             <td th:text="${#temporals.format(r.timestamp, 'yyyy-MM-dd HH:mm:ss')}">2024-01-01</td>
                             <td>
                                 <span class="error-text" th:if="${r.errorMessage}" th:text="${r.errorMessage}">error</span>

@@ -231,6 +231,13 @@ tbody tr:hover { background: rgba(167, 139, 250, 0.05); }
 .badge-failed { background: rgba(248, 113, 113, 0.15); color: var(--red); }
 .badge-scheduled, .badge-pending { background: rgba(251, 191, 36, 0.15); color: var(--yellow); }
 .badge-cancelled { background: rgba(139, 135, 168, 0.15); color: var(--text-secondary); }
+.badge-delivered { background-color: #10b981; color: #fff; }
+.badge-opened { background-color: #6366f1; color: #fff; }
+.badge-clicked { background-color: #8b5cf6; color: #fff; }
+.badge-bounced { background-color: #ef4444; color: #fff; }
+.badge-spam_complaint { background-color: #f97316; color: #fff; }
+.badge-dropped { background-color: #6b7280; color: #fff; }
+.badge-deferred { background-color: #eab308; color: #fff; }
 .badge-available, .badge-active, .badge-success { background: rgba(52, 211, 153, 0.15); color: var(--green); }
 .badge-unavailable, .badge-inactive, .badge-error { background: rgba(248, 113, 113, 0.15); color: var(--red); }
 

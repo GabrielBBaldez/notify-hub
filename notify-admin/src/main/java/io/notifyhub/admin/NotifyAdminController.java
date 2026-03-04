@@ -72,6 +72,13 @@ public class NotifyAdminController {
         long totalSent = 0;
         long totalFailed = 0;
         long totalPending = 0;
+        long totalDelivered = 0;
+        long totalOpened = 0;
+        long totalClicked = 0;
+        long totalBounced = 0;
+        long totalSpamComplaint = 0;
+        long totalDropped = 0;
+        long totalDeferred = 0;
         List<DeliveryReceipt> recentReceipts = Collections.emptyList();
         if (tracker != null) {
             List<DeliveryReceipt> all = tracker.findAll();
@@ -84,6 +91,27 @@ public class NotifyAdminController {
             totalPending = all.stream()
                     .filter(r -> r.getStatus() == DeliveryStatus.PENDING
                             || r.getStatus() == DeliveryStatus.SCHEDULED)
+                    .count();
+            totalDelivered = all.stream()
+                    .filter(r -> r.getStatus() == DeliveryStatus.DELIVERED)
+                    .count();
+            totalOpened = all.stream()
+                    .filter(r -> r.getStatus() == DeliveryStatus.OPENED)
+                    .count();
+            totalClicked = all.stream()
+                    .filter(r -> r.getStatus() == DeliveryStatus.CLICKED)
+                    .count();
+            totalBounced = all.stream()
+                    .filter(r -> r.getStatus() == DeliveryStatus.BOUNCED)
+                    .count();
+            totalSpamComplaint = all.stream()
+                    .filter(r -> r.getStatus() == DeliveryStatus.SPAM_COMPLAINT)
+                    .count();
+            totalDropped = all.stream()
+                    .filter(r -> r.getStatus() == DeliveryStatus.DROPPED)
+                    .count();
+            totalDeferred = all.stream()
+                    .filter(r -> r.getStatus() == DeliveryStatus.DEFERRED)
                     .count();
             recentReceipts = all.stream()
                     .sorted((a, b) -> {
@@ -98,6 +126,13 @@ public class NotifyAdminController {
         model.addAttribute("totalSent", totalSent);
         model.addAttribute("totalFailed", totalFailed);
         model.addAttribute("totalPending", totalPending);
+        model.addAttribute("totalDelivered", totalDelivered);
+        model.addAttribute("totalOpened", totalOpened);
+        model.addAttribute("totalClicked", totalClicked);
+        model.addAttribute("totalBounced", totalBounced);
+        model.addAttribute("totalSpamComplaint", totalSpamComplaint);
+        model.addAttribute("totalDropped", totalDropped);
+        model.addAttribute("totalDeferred", totalDeferred);
         model.addAttribute("trackingEnabled", tracker != null);
         model.addAttribute("recentReceipts", recentReceipts);
 
@@ -120,23 +155,31 @@ public class NotifyAdminController {
         return "notify-admin/dashboard";
     }
 
-    /** Tracking -- list all delivery receipts with optional channel filter. */
+    /** Tracking -- list all delivery receipts with optional channel and status filters. */
     @GetMapping("/tracking")
-    public String tracking(@RequestParam(name = "channel", required = false) String channel, Model model) {
+    public String tracking(@RequestParam(name = "channel", required = false) String channel,
+                           @RequestParam(name = "status", required = false) String status,
+                           Model model) {
         NotificationTracker tracker = hub.getTracker();
         List<DeliveryReceipt> receipts = Collections.emptyList();
         if (tracker != null) {
-            if (channel != null && !channel.isBlank()) {
-                receipts = tracker.findAll().stream()
-                        .filter(r -> channel.equalsIgnoreCase(r.getChannelName()))
-                        .toList();
-            } else {
-                receipts = tracker.findAll();
-            }
+            receipts = tracker.findAll().stream()
+                    .filter(r -> channel == null || channel.isBlank()
+                            || channel.equalsIgnoreCase(r.getChannelName()))
+                    .filter(r -> {
+                        if (status == null || status.isBlank()) return true;
+                        try {
+                            return r.getStatus() == DeliveryStatus.valueOf(status);
+                        } catch (IllegalArgumentException e) {
+                            return true;
+                        }
+                    })
+                    .toList();
         }
         model.addAttribute("receipts", receipts);
         model.addAttribute("channels", hub.getRegisteredChannels());
         model.addAttribute("selectedChannel", channel);
+        model.addAttribute("selectedStatus", status);
         model.addAttribute("trackingEnabled", tracker != null);
         return "notify-admin/tracking";
     }
@@ -277,6 +320,9 @@ public class NotifyAdminController {
             entry.put("date", date.toString());
             entry.put("sent", 0L);
             entry.put("failed", 0L);
+            entry.put("delivered", 0L);
+            entry.put("opened", 0L);
+            entry.put("bounced", 0L);
             timeline.add(entry);
         }
 
@@ -290,6 +336,12 @@ public class NotifyAdminController {
                             entry.put("sent", (Long) entry.get("sent") + 1);
                         } else if (r.getStatus() == DeliveryStatus.FAILED) {
                             entry.put("failed", (Long) entry.get("failed") + 1);
+                        } else if (r.getStatus() == DeliveryStatus.DELIVERED) {
+                            entry.put("delivered", (Long) entry.get("delivered") + 1);
+                        } else if (r.getStatus() == DeliveryStatus.OPENED) {
+                            entry.put("opened", (Long) entry.get("opened") + 1);
+                        } else if (r.getStatus() == DeliveryStatus.BOUNCED) {
+                            entry.put("bounced", (Long) entry.get("bounced") + 1);
                         }
                         break;
                     }

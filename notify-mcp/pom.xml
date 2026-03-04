@@ -36,6 +36,10 @@
         </dependency>
         <dependency>
             <groupId>io.github.gabrielbbaldez</groupId>
+            <artifactId>notify-sendgrid</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.gabrielbbaldez</groupId>
             <artifactId>notify-sms</artifactId>
         </dependency>
         <dependency>
@@ -93,6 +97,14 @@
         <dependency>
             <groupId>io.github.gabrielbbaldez</groupId>
             <artifactId>notify-instagram</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.gabrielbbaldez</groupId>
+            <artifactId>notify-tiktok-shop</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.gabrielbbaldez</groupId>
+            <artifactId>notify-facebook</artifactId>
         </dependency>
 
         <!-- MCP Java SDK (core — STDIO transport) -->

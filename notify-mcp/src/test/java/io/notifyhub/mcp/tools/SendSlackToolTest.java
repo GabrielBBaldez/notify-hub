@@ -39,6 +39,7 @@ class SendSlackToolTest {
     @BeforeEach
     void setUp() {
         when(slackChannel.getName()).thenReturn("slack");
+        when(slackChannel.sendWithResult(any())).thenCallRealMethod();
 
         notifyHub = NotifyHub.builder()
                 .channel(slackChannel)

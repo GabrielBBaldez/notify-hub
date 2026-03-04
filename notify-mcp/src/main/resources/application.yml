@@ -12,6 +12,18 @@ notify:
     telegram:
       bot-token: ${NOTIFY_CHANNELS_TELEGRAM_BOT_TOKEN:${NOTIFY_CHANNELS_TELEGRAM_BOTTOKEN:}}
       chat-id: ${NOTIFY_CHANNELS_TELEGRAM_CHAT_ID:${NOTIFY_CHANNELS_TELEGRAM_CHATID:}}
+    sendgrid:
+      api-key: ${NOTIFY_CHANNELS_SENDGRID_API_KEY:}
+      from: ${NOTIFY_CHANNELS_SENDGRID_FROM:}
+      from-name: ${NOTIFY_CHANNELS_SENDGRID_FROM_NAME:}
+    tiktok-shop:
+      app-key: ${NOTIFY_CHANNELS_TIKTOK_SHOP_APP_KEY:}
+      app-secret: ${NOTIFY_CHANNELS_TIKTOK_SHOP_APP_SECRET:}
+      access-token: ${NOTIFY_CHANNELS_TIKTOK_SHOP_ACCESS_TOKEN:}
+      shop-id: ${NOTIFY_CHANNELS_TIKTOK_SHOP_SHOP_ID:}
+    facebook:
+      page-access-token: ${NOTIFY_CHANNELS_FACEBOOK_PAGE_ACCESS_TOKEN:}
+      page-id: ${NOTIFY_CHANNELS_FACEBOOK_PAGE_ID:}
   tracking:
     enabled: true
   retry:

@@ -7,6 +7,7 @@ import io.modelcontextprotocol.server.McpServer;
 import io.modelcontextprotocol.server.McpSyncServer;
 import io.modelcontextprotocol.server.transport.StdioServerTransportProvider;
 import io.modelcontextprotocol.spec.McpSchema.ServerCapabilities;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.notifyhub.core.NotifyHub;
 import io.notifyhub.mcp.tools.*;
 import org.slf4j.Logger;
@@ -14,6 +15,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.file.*;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
@@ -90,8 +98,77 @@ public class McpServerRunner implements CommandLineRunner {
 
         log.info("NotifyHub MCP Server ready — 27 tools registered");
 
+        // Check for updates in background (non-blocking, max once per day)
+        Thread.ofVirtual().name("update-checker").start(this::checkForUpdatesQuietly);
+
         // Keep the process alive — MCP STDIO transport needs the JVM running
         Runtime.getRuntime().addShutdownHook(new Thread(keepAlive::countDown));
         keepAlive.await();
+    }
+
+    /**
+     * Background update check — runs silently, logs only if a new version exists.
+     * Checks at most once every 24 hours (caches last check timestamp).
+     */
+    private void checkForUpdatesQuietly() {
+        try {
+            // Rate limit: max 1 check per 24h
+            Path cacheFile = Path.of(System.getProperty("user.home"), ".notifyhub", "last-update-check");
+            if (Files.exists(cacheFile)) {
+                Instant lastCheck = Instant.ofEpochMilli(Long.parseLong(Files.readString(cacheFile).trim()));
+                if (Duration.between(lastCheck, Instant.now()).toHours() < 24) {
+                    return; // Already checked recently
+                }
+            }
+
+            HttpClient client = HttpClient.newBuilder()
+                    .connectTimeout(Duration.ofSeconds(5))
+                    .followRedirects(HttpClient.Redirect.NORMAL)
+                    .build();
+
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.github.com/repos/GabrielBBaldez/notify-hub/releases/latest"))
+                    .header("Accept", "application/vnd.github+json")
+                    .header("User-Agent", "NotifyHub-MCP/" + NotifyMcpServer.VERSION)
+                    .timeout(Duration.ofSeconds(10))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> resp = client.send(req, HttpResponse.BodyHandlers.ofString());
+            if (resp.statusCode() != 200) return;
+
+            JsonNode release = new ObjectMapper().readTree(resp.body());
+            String latestTag = release.path("tag_name").asText("");
+            String latest = latestTag.startsWith("v") ? latestTag.substring(1) : latestTag;
+
+            if (!latest.isBlank() && isNewer(latest, NotifyMcpServer.VERSION)) {
+                log.warn("New version available: v{} (current: v{}). Run: notifyhub-mcp --update",
+                        latest, NotifyMcpServer.VERSION);
+            }
+
+            // Save check timestamp
+            Files.createDirectories(cacheFile.getParent());
+            Files.writeString(cacheFile, String.valueOf(Instant.now().toEpochMilli()));
+
+        } catch (Exception e) {
+            // Silent — never interrupt the MCP server for an update check failure
+            log.debug("Update check failed: {}", e.getMessage());
+        }
+    }
+
+    private static boolean isNewer(String remote, String local) {
+        String[] r = remote.split("[.\\-]");
+        String[] l = local.split("[.\\-]");
+        for (int i = 0; i < Math.max(r.length, l.length); i++) {
+            int rv = i < r.length ? parseIntSafe(r[i]) : 0;
+            int lv = i < l.length ? parseIntSafe(l[i]) : 0;
+            if (rv > lv) return true;
+            if (rv < lv) return false;
+        }
+        return false;
+    }
+
+    private static int parseIntSafe(String s) {
+        try { return Integer.parseInt(s); } catch (NumberFormatException e) { return 0; }
     }
 }

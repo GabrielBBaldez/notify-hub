@@ -290,29 +290,126 @@ public class SetupWizard {
 
     private static Path chooseConfigTarget() {
         println(c(BOLD) + "  Configuration Target" + c(RST));
+        println(c(DIM) + "  Select where to save. You can run --setup again for other editors." + c(RST));
+        println("");
+
+        String os = System.getProperty("os.name", "").toLowerCase();
+        Path home = Path.of(System.getProperty("user.home"));
 
         List<ConfigTarget> targets = new ArrayList<>();
 
-        // Claude Desktop
-        Path desktopConfig = findClaudeDesktopConfig();
-        if (desktopConfig != null) {
-            targets.add(new ConfigTarget("Claude Desktop", desktopConfig));
+        // ── AI Assistants ──
+
+        // 1. Claude Desktop
+        Path claudeDesktop = findConfigPath(os, home,
+                "Claude", "claude_desktop_config.json",
+                "Claude", "claude_desktop_config.json",
+                ".config/Claude", "claude_desktop_config.json");
+        if (claudeDesktop != null) {
+            targets.add(new ConfigTarget("Claude Desktop", claudeDesktop));
         }
 
-        // Claude Code (global)
-        Path home = Path.of(System.getProperty("user.home"));
-        Path codeGlobal = home.resolve(".claude").resolve(".mcp.json");
-        targets.add(new ConfigTarget("Claude Code (global)", codeGlobal));
+        // 2. Claude Code (global)
+        targets.add(new ConfigTarget("Claude Code (global)",
+                home.resolve(".claude").resolve(".mcp.json")));
 
-        // Current directory
+        // 3. Cursor
+        Path cursorConfig = findConfigPath(os, home,
+                ".cursor", "mcp.json",
+                ".cursor", "mcp.json",
+                ".cursor", "mcp.json");
+        if (cursorConfig != null) {
+            targets.add(new ConfigTarget("Cursor", cursorConfig));
+        }
+
+        // 4. Windsurf (Codeium)
+        Path windsurfConfig = findConfigPath(os, home,
+                ".codeium/windsurf", "mcp_config.json",
+                ".codeium/windsurf", "mcp_config.json",
+                ".codeium/windsurf", "mcp_config.json");
+        if (windsurfConfig != null) {
+            targets.add(new ConfigTarget("Windsurf", windsurfConfig));
+        }
+
+        // 5. VS Code + GitHub Copilot (workspace level)
+        Path vscodeConfig = Path.of(".vscode", "mcp.json").toAbsolutePath().normalize();
+        targets.add(new ConfigTarget("VS Code (Copilot)", vscodeConfig));
+
+        // 6. Cline (VS Code extension)
+        Path clineConfig = findConfigPath(os, home,
+                ".cline", "cline_mcp_settings.json",
+                ".cline", "cline_mcp_settings.json",
+                ".cline", "cline_mcp_settings.json");
+        if (clineConfig != null) {
+            targets.add(new ConfigTarget("Cline", clineConfig));
+        }
+
+        // 7. Roo Code (VS Code extension)
+        Path rooConfig = findConfigPath(os, home,
+                ".roo", "mcp.json",
+                ".roo", "mcp.json",
+                ".roo", "mcp.json");
+        if (rooConfig != null) {
+            targets.add(new ConfigTarget("Roo Code", rooConfig));
+        }
+
+        // 8. Continue.dev
+        Path continueConfig = findConfigPath(os, home,
+                ".continue", "config.json",
+                ".continue", "config.json",
+                ".continue", "config.json");
+        if (continueConfig != null) {
+            targets.add(new ConfigTarget("Continue.dev", continueConfig));
+        }
+
+        // 9. Amazon Q Developer
+        Path amazonQConfig = findConfigPath(os, home,
+                ".amazonq", "mcp.json",
+                ".amazonq", "mcp.json",
+                ".amazonq", "mcp.json");
+        if (amazonQConfig != null) {
+            targets.add(new ConfigTarget("Amazon Q Developer", amazonQConfig));
+        }
+
+        // 10. Current directory (generic)
         Path localConfig = Path.of(".mcp.json").toAbsolutePath().normalize();
-        targets.add(new ConfigTarget("Current directory", localConfig));
+        targets.add(new ConfigTarget("Current directory (.mcp.json)", localConfig));
 
-        for (int i = 0; i < targets.size(); i++) {
-            ConfigTarget t = targets.get(i);
-            String exists = Files.exists(t.path()) ? c(GRN) + " (exists)" + c(RST) : "";
-            println("  " + c(ORG) + (i + 1) + c(RST) + ". " + t.name() + exists);
-            println("     " + c(DIM) + t.path() + c(RST));
+        // ── Display with detection ──
+
+        println(c(DIM) + "  ── Detected editors ──" + c(RST));
+        List<ConfigTarget> detected = new ArrayList<>();
+        List<ConfigTarget> notDetected = new ArrayList<>();
+
+        for (ConfigTarget t : targets) {
+            if (Files.exists(t.path()) || Files.exists(t.path().getParent())) {
+                detected.add(t);
+            } else {
+                notDetected.add(t);
+            }
+        }
+
+        // Reorder: detected first, then others
+        List<ConfigTarget> ordered = new ArrayList<>(detected);
+        if (!notDetected.isEmpty()) {
+            ordered.addAll(notDetected);
+        }
+
+        for (int i = 0; i < ordered.size(); i++) {
+            ConfigTarget t = ordered.get(i);
+            boolean exists = Files.exists(t.path());
+            boolean parentExists = Files.exists(t.path().getParent());
+            String status = exists ? c(GRN) + " (exists)" + c(RST)
+                          : parentExists ? c(YLW) + " (detected)" + c(RST)
+                          : "";
+
+            if (i == detected.size() && !notDetected.isEmpty()) {
+                println(c(DIM) + "  ── Other editors ──" + c(RST));
+            }
+
+            String num = String.format("%2d", i + 1);
+            println("  " + c(ORG) + num + c(RST) + ". " + t.name() + status);
+            println("      " + c(DIM) + t.path() + c(RST));
         }
 
         println("");
@@ -322,31 +419,48 @@ public class SetupWizard {
         if (!input.isBlank()) {
             try { choice = Integer.parseInt(input) - 1; } catch (NumberFormatException ignored) {}
         }
-        if (choice < 0 || choice >= targets.size()) choice = 0;
+        if (choice < 0 || choice >= ordered.size()) choice = 0;
 
+        println(c(GRN) + "  ✓ " + ordered.get(choice).name() + c(RST));
         println("");
-        return targets.get(choice).path();
+        return ordered.get(choice).path();
     }
 
     record ConfigTarget(String name, Path path) {}
 
-    private static Path findClaudeDesktopConfig() {
-        String os = System.getProperty("os.name", "").toLowerCase();
-        String home = System.getProperty("user.home");
-
-        Path configPath;
+    /**
+     * Build a config path based on OS. Returns null only if the path
+     * makes no sense (e.g. missing APPDATA on Windows).
+     * <p>
+     * For Windows, paths are relative to %APPDATA%.
+     * For Mac/Linux, paths are relative to home directory.
+     *
+     * @param winDir    Windows subdirectory under APPDATA (or home if starts with ".")
+     * @param winFile   Windows filename
+     * @param macDir    Mac subdirectory under home
+     * @param macFile   Mac filename
+     * @param linuxDir  Linux subdirectory under home
+     * @param linuxFile Linux filename
+     */
+    private static Path findConfigPath(String os, Path home,
+                                        String winDir, String winFile,
+                                        String macDir, String macFile,
+                                        String linuxDir, String linuxFile) {
         if (os.contains("win")) {
+            if (winDir.startsWith(".")) {
+                return home.resolve(winDir).resolve(winFile);
+            }
             String appData = System.getenv("APPDATA");
-            if (appData == null) return null;
-            configPath = Path.of(appData, "Claude", "claude_desktop_config.json");
+            if (appData == null) return home.resolve(winDir).resolve(winFile);
+            return Path.of(appData, winDir, winFile);
         } else if (os.contains("mac")) {
-            configPath = Path.of(home, "Library", "Application Support", "Claude", "claude_desktop_config.json");
+            if (macDir.startsWith(".") || macDir.startsWith("Library")) {
+                return home.resolve(macDir).resolve(macFile);
+            }
+            return home.resolve("Library").resolve("Application Support").resolve(macDir).resolve(macFile);
         } else {
-            configPath = Path.of(home, ".config", "Claude", "claude_desktop_config.json");
+            return home.resolve(linuxDir).resolve(linuxFile);
         }
-
-        // Return the path even if it doesn't exist yet — user might want to create it
-        return configPath;
     }
 
     // ═══════════════════════════════════════════════════════════════

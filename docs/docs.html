@@ -115,71 +115,126 @@
         <!-- ============================================ -->
         <section id="getting-started">
             <h2>Getting Started</h2>
-            <p>NotifyHub is a unified notification library for <strong>Java 17+</strong> and <strong>Spring Boot 3.x</strong>. One fluent API to send notifications across 17 channels — Email, SMS, WhatsApp, Slack, Telegram, Discord, Teams, Firebase Push, WebSocket, Google Chat, Twitter/X, LinkedIn, Notion, Twitch, YouTube, and Instagram.</p>
+            <p>Choose your path:</p>
 
-            <h3>Maven</h3>
-            <p>Add the Spring Boot starter to your <code>pom.xml</code>:</p>
-            <div class="code-block">
-                <div class="code-header">pom.xml</div>
+            <div class="getting-started-tabs">
+                <button class="gs-tab active" onclick="switchTab('nocode')">No Code (AI / MCP)</button>
+                <button class="gs-tab" onclick="switchTab('developer')">Developer (Java)</button>
+            </div>
+
+            <!-- NO CODE TAB -->
+            <div id="gs-nocode" class="gs-panel active">
+                <h3>Use NotifyHub with Claude, Cursor, or any AI assistant</h3>
+                <p>No programming required. Just download, setup, and start talking to your AI.</p>
+
+                <h4>Step 1: Download</h4>
+                <p>Download the NotifyHub MCP executable for your platform:</p>
+                <div class="code-block">
+                    <div class="code-header">Download</div>
+<pre><code># Windows
+https://github.com/GabrielBBaldez/notify-hub/releases/latest
+
+# Or if you have Java installed:
+java -jar notifyhub-mcp.jar --setup</code></pre>
+                </div>
+
+                <h4>Step 2: Run the Setup Wizard</h4>
+                <p>The wizard guides you through everything — no config files to edit manually.</p>
+                <div class="code-block">
+                    <div class="code-header">Terminal</div>
+<pre><code>notifyhub-mcp --setup
+
+# The wizard will:
+# 1. Ask for your license key (optional)
+# 2. Let you choose channels (Email, Slack, Telegram, etc.)
+# 3. Ask for credentials (API keys, tokens)
+# 4. Detect your AI editor (Claude, Cursor, VS Code...)
+# 5. Generate the config automatically</code></pre>
+                </div>
+
+                <h4>Step 3: Use with your AI</h4>
+                <p>Open Claude Desktop, Cursor, or any supported editor and just talk:</p>
+                <div class="code-block">
+                    <div class="code-header">Claude / Cursor / Any AI</div>
+<pre><code>"Send an email to john@example.com saying the project is complete"
+
+"Notify the team on Slack #general that deployment succeeded"
+
+"Send a Telegram message to the ops group about the outage"
+
+"Post a tweet announcing our v2.0 release"
+
+"Send an SMS to +1234567890 with the login code 482901"</code></pre>
+                </div>
+
+                <div class="callout callout-tip"><strong>Supported editors:</strong> Claude Desktop, Claude Code, Cursor, Windsurf, VS Code + Copilot, Cline, Roo Code, Continue.dev, Amazon Q Developer — the setup wizard detects all of them.</div>
+
+                <h4>Updating</h4>
+                <p>Check for updates and install with one command:</p>
+                <div class="code-block">
+                    <div class="code-header">Terminal</div>
+<pre><code>notifyhub-mcp --update</code></pre>
+                </div>
+                <p>Updates only replace the executable — your channel configuration stays intact.</p>
+            </div>
+
+            <!-- DEVELOPER TAB -->
+            <div id="gs-developer" class="gs-panel">
+                <h3>Integrate NotifyHub into your Java / Spring Boot application</h3>
+                <p>Add the dependency, configure your channels, and send notifications with a fluent API.</p>
+
+                <h4>Step 1: Add the dependency</h4>
+                <div class="code-block">
+                    <div class="code-header">pom.xml</div>
 <pre><code>&lt;dependency&gt;
     &lt;groupId&gt;io.github.gabrielbbaldez&lt;/groupId&gt;
     &lt;artifactId&gt;notify-spring-boot-starter&lt;/artifactId&gt;
     &lt;version&gt;0.9.0&lt;/version&gt;
-&lt;/dependency&gt;</code></pre>
-            </div>
-
-            <p>Then add the channel modules you need:</p>
-            <div class="code-block">
-                <div class="code-header">pom.xml — channel modules</div>
-<pre><code>&lt;!-- Pick the channels you need --&gt;
+&lt;/dependency&gt;
 &lt;dependency&gt;
     &lt;groupId&gt;io.github.gabrielbbaldez&lt;/groupId&gt;
-    &lt;artifactId&gt;notify-email&lt;/artifactId&gt;        &lt;!-- SMTP --&gt;
-&lt;/dependency&gt;
-&lt;dependency&gt;
-    &lt;artifactId&gt;notify-sms&lt;/artifactId&gt;          &lt;!-- SMS + WhatsApp (Twilio) --&gt;
-&lt;/dependency&gt;
-&lt;dependency&gt;
-    &lt;artifactId&gt;notify-slack&lt;/artifactId&gt;        &lt;!-- Slack webhooks --&gt;
-&lt;/dependency&gt;
-&lt;dependency&gt;
-    &lt;artifactId&gt;notify-telegram&lt;/artifactId&gt;     &lt;!-- Telegram Bot API --&gt;
-&lt;/dependency&gt;
-&lt;dependency&gt;
-    &lt;artifactId&gt;notify-discord&lt;/artifactId&gt;      &lt;!-- Discord webhooks --&gt;
-&lt;/dependency&gt;
-&lt;dependency&gt;
-    &lt;artifactId&gt;notify-teams&lt;/artifactId&gt;        &lt;!-- Microsoft Teams --&gt;
-&lt;/dependency&gt;
-&lt;dependency&gt;
-    &lt;artifactId&gt;notify-push-firebase&lt;/artifactId&gt;&lt;!-- Firebase Cloud Messaging --&gt;
-&lt;/dependency&gt;
-&lt;dependency&gt;
-    &lt;artifactId&gt;notify-websocket&lt;/artifactId&gt;    &lt;!-- Java WebSocket --&gt;
-&lt;/dependency&gt;
-&lt;dependency&gt;
-    &lt;artifactId&gt;notify-google-chat&lt;/artifactId&gt;  &lt;!-- Google Chat --&gt;
-&lt;/dependency&gt;
-&lt;dependency&gt;
-    &lt;artifactId&gt;notify-twitter&lt;/artifactId&gt;      &lt;!-- Twitter/X API v2 --&gt;
-&lt;/dependency&gt;
-&lt;dependency&gt;
-    &lt;artifactId&gt;notify-linkedin&lt;/artifactId&gt;     &lt;!-- LinkedIn REST API --&gt;
-&lt;/dependency&gt;
-&lt;dependency&gt;
-    &lt;artifactId&gt;notify-notion&lt;/artifactId&gt;       &lt;!-- Notion Database API --&gt;
-&lt;/dependency&gt;
-&lt;dependency&gt;
-    &lt;artifactId&gt;notify-twitch&lt;/artifactId&gt;       &lt;!-- Twitch Helix API --&gt;
-&lt;/dependency&gt;
-&lt;dependency&gt;
-    &lt;artifactId&gt;notify-youtube&lt;/artifactId&gt;      &lt;!-- YouTube Live Chat --&gt;
-&lt;/dependency&gt;
-&lt;dependency&gt;
-    &lt;artifactId&gt;notify-instagram&lt;/artifactId&gt;    &lt;!-- Instagram Graph API --&gt;
+    &lt;artifactId&gt;notify-email&lt;/artifactId&gt;
 &lt;/dependency&gt;</code></pre>
-            </div>
+                </div>
 
+                <h4>Step 2: Configure</h4>
+                <div class="code-block">
+                    <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    email:
+      host: smtp.gmail.com
+      port: 587
+      username: ${GMAIL_USER}
+      password: ${GMAIL_PASS}
+      from: noreply@myapp.com
+      tls: true</code></pre>
+                </div>
+
+                <h4>Step 3: Send</h4>
+                <div class="code-block">
+                    <div class="code-header">Java</div>
+<pre><code>@Service
+public class OrderService {
+    private final NotifyHub notify;
+
+    public OrderService(NotifyHub notify) {
+        this.notify = notify;
+    }
+
+    public void confirmOrder(User user) {
+        notify.to(user)
+            .via(Channel.EMAIL)
+            .fallback(Channel.SMS)
+            .subject("Order Confirmed!")
+            .content("Your order has shipped!")
+            .send();
+    }
+}</code></pre>
+                </div>
+
+                <div class="callout callout-tip"><strong>Tip:</strong> Only channels with their required properties configured are auto-activated. If you add <code>notify-slack</code> but don't set <code>notify.channels.slack.webhook-url</code>, the Slack channel won't be registered.</div>
+            </div>
         </section>
 
         <!-- QUICK START -->
@@ -2026,6 +2081,21 @@ mvn test -pl notify-spring-boot-starter</code></pre>
             });
         }
     })();
+    </script>
+
+    <!-- TAB SWITCHING (Getting Started) -->
+    <script>
+    function switchTab(tab) {
+        document.querySelectorAll('.gs-tab').forEach(function(t) { t.classList.remove('active'); });
+        document.querySelectorAll('.gs-panel').forEach(function(p) { p.classList.remove('active'); });
+        if (tab === 'nocode') {
+            document.querySelector('.gs-tab:first-child').classList.add('active');
+            document.getElementById('gs-nocode').classList.add('active');
+        } else {
+            document.querySelector('.gs-tab:last-child').classList.add('active');
+            document.getElementById('gs-developer').classList.add('active');
+        }
+    }
     </script>
 
 </body>

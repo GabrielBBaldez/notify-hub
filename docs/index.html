@@ -17,10 +17,10 @@
             <span>NotifyHub</span>
         </a>
         <div class="nav-links">
-            <a href="#features">Features</a>
+            <a href="#no-code">No Code</a>
+            <a href="#developer">Developers</a>
             <a href="#channels">Channels</a>
-            <a href="#code">Code</a>
-            <a href="#docker">Docker</a>
+            <a href="#features">Features</a>
             <a href="#mcp">AI / MCP</a>
             <a href="docs.html" class="nav-docs">Docs</a>
             <a href="https://github.com/GabrielBBaldez/notify-hub" class="nav-gh">GitHub</a>
@@ -32,10 +32,9 @@
         <div class="hero-glow"></div>
         <img src="logo.png" alt="NotifyHub" class="hero-logo" width="200">
         <h1>Notify<span class="accent">Hub</span></h1>
-        <p class="tagline">One API. Every channel.</p>
-        <p class="subtitle">Stop writing different code for each notification channel.<br>
-            NotifyHub gives you a single fluent Java API to send via <strong>17 channels</strong>,<br>
-            with fallback chains, templates, retry, scheduling, and more.</p>
+        <p class="tagline">Send notifications from AI. Or from code.</p>
+        <p class="subtitle">Use Claude, Cursor or any AI assistant to send notifications with zero code.<br>
+            Or integrate our Java API into your app — <strong>17 channels</strong>, one fluent interface.</p>
         <div class="badges">
             <a href="https://central.sonatype.com/namespace/io.github.gabrielbbaldez"><img src="https://img.shields.io/maven-central/v/io.github.gabrielbbaldez/notify-spring-boot-starter?style=flat-square&color=f97316" alt="Maven Central"></a>
             <a href="https://github.com/GabrielBBaldez/notify-hub/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/GabrielBBaldez/notify-hub/ci.yml?style=flat-square&label=CI" alt="CI"></a>
@@ -43,9 +42,9 @@
             <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" alt="MIT"></a>
         </div>
         <div class="hero-cta">
-            <a href="docs.html#getting-started" class="btn btn-primary">Get Started</a>
-            <a href="https://github.com/GabrielBBaldez/notify-hub" class="btn btn-outline">View on GitHub</a>
-            <a href="https://hub.docker.com/r/gabrielbbal10/notifyhub-api" class="btn btn-outline">Docker Hub</a>
+            <a href="#no-code" class="btn btn-primary">No Code? Start Here</a>
+            <a href="#developer" class="btn btn-outline">I'm a Developer</a>
+            <a href="docs.html" class="btn btn-outline">Docs</a>
         </div>
     </header>
 
@@ -69,6 +68,47 @@
                 <h3>AI Ready</h3>
                 <p>MCP Server with 27 tools. Let Claude, Cursor, or any AI assistant send notifications on your behalf.</p>
             </div>
+        </div>
+    </section>
+
+    <!-- NO CODE — MCP -->
+    <section class="no-code-section" id="no-code">
+        <h2>No Code Required</h2>
+        <p class="section-lead">Send notifications from Claude, Cursor, or any AI assistant. Just talk naturally — NotifyHub handles the rest.</p>
+
+        <div class="no-code-steps">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <h3>Download</h3>
+                <p>Get the NotifyHub MCP executable.<br>No Java, no dependencies.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <h3>Setup (3 min)</h3>
+                <p>Run <code>notifyhub-mcp --setup</code><br>The wizard configures everything.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <h3>Talk to AI</h3>
+                <p>Open Claude and say:<br><em>"Send an email to john@example.com"</em></p>
+            </div>
+        </div>
+
+        <div class="no-code-examples">
+            <h3>What you can say</h3>
+            <div class="prompt-grid">
+                <div class="prompt-card">"Send a Slack message to #general saying deployment is complete"</div>
+                <div class="prompt-card">"Notify my team on Discord that the build failed"</div>
+                <div class="prompt-card">"Email the client the project update"</div>
+                <div class="prompt-card">"Send a Telegram message to the ops channel"</div>
+                <div class="prompt-card">"Post on Twitter that v2.0 is live"</div>
+                <div class="prompt-card">"Send an SMS to +1234567890 with the verification code"</div>
+            </div>
+        </div>
+
+        <div class="no-code-editors">
+            <h3>Works with 10+ AI editors</h3>
+            <p class="editor-list">Claude Desktop &bull; Claude Code &bull; Cursor &bull; Windsurf &bull; VS Code + Copilot &bull; Cline &bull; Roo Code &bull; Continue.dev &bull; Amazon Q &bull; and more</p>
         </div>
     </section>
 
@@ -227,6 +267,25 @@
                 <h4>&#128065; OpenTelemetry</h4>
                 <p>Auto-configured tracing via Micrometer Observation API. Export spans to Jaeger, Tempo, or any OTLP collector.</p>
             </div>
+        </div>
+    </section>
+
+    <!-- FOR DEVELOPERS -->
+    <section class="dev-section" id="developer">
+        <h2>For Developers</h2>
+        <p class="section-lead">One fluent Java API. 17 channels. 3 lines of code. Spring Boot auto-configured.</p>
+        <div class="code-block">
+            <div class="code-header">Java — That's it. Really.</div>
+<pre><code>notify.to("user@email.com")
+    .via(EMAIL)
+    .fallback(SLACK)
+    .subject("Order Confirmed")
+    .content("Your order #123 has shipped!")
+    .send();</code></pre>
+        </div>
+        <div class="hero-cta" style="margin-top:32px;">
+            <a href="docs.html#getting-started" class="btn btn-primary">Developer Docs</a>
+            <a href="https://central.sonatype.com/namespace/io.github.gabrielbbaldez" class="btn btn-outline">Maven Central</a>
         </div>
     </section>
 

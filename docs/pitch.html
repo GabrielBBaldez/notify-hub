@@ -398,6 +398,55 @@
             font-weight: 600;
         }
 
+        /* ======= SLIDE 1 extras ======= */
+        .slide-1 .tagline-sub {
+            font-size: 1.15rem;
+            color: #888;
+            font-weight: 400;
+            margin-top: -30px;
+            margin-bottom: 50px;
+        }
+
+        /* ======= SLIDE: NO CODE ======= */
+        .slide-nocode {
+            background: radial-gradient(ellipse at 50% 50%, #1a1a3e 0%, #0a0a0a 70%);
+            padding: 50px 80px;
+        }
+
+        .slide-nocode h2 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            text-align: center;
+            letter-spacing: -1px;
+        }
+
+        .slide-nocode .accent {
+            background: linear-gradient(135deg, #f97316, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .slide-nocode .slide-sub {
+            font-size: 1.15rem;
+            color: #aaa;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .nocode-flow { display: flex; align-items: center; justify-content: center; gap: 16px; margin: 48px 0 32px; flex-wrap: wrap; }
+        .flow-step { background: rgba(249,115,22,0.08); border: 1px solid rgba(249,115,22,0.2); border-radius: 16px; padding: 28px 24px; text-align: center; width: 220px; }
+        .flow-step h3 { margin: 12px 0 8px; color: #f97316; }
+        .flow-step p { font-size: 0.92rem; color: #ccc; line-height: 1.5; }
+        .flow-step code { background: rgba(249,115,22,0.15); padding: 2px 8px; border-radius: 4px; font-size: 0.85em; }
+        .flow-icon { font-size: 2.5rem; }
+        .flow-arrow { font-size: 2rem; color: #f97316; font-weight: bold; }
+        .prompt-examples { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 24px auto; max-width: 700px; }
+        .prompt-ex { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 14px 18px; font-style: italic; color: #ccc; font-size: 0.9rem; }
+        .prompt-ex::before { content: '\1F4AC\0020'; }
+        .editors-list { color: #888; font-size: 0.9rem; margin-top: 24px; text-align: center; }
+        @media(max-width:700px) { .nocode-flow { flex-direction: column; } .flow-arrow { transform: rotate(90deg); } .prompt-examples { grid-template-columns: 1fr; } }
+
         /* ======= NAVIGATION ======= */
         .nav {
             position: fixed;
@@ -445,7 +494,8 @@
             <img src="logo.png" alt="NotifyHub">
             <h1>NotifyHub</h1>
         </div>
-        <p class="tagline"><strong>Uma API.</strong> Todos os canais de notificação.</p>
+        <p class="tagline"><strong>Notificações por IA. Ou por código.</strong></p>
+        <p class="tagline-sub">Use linguagem natural com seu AI agent — ou integre via API Java. Você escolhe.</p>
         <div class="stats-row">
             <div class="stat">
                 <div class="number">17</div>
@@ -490,14 +540,49 @@
         </div>
     </div>
 
-    <!-- SLIDE 3: MCP - CARRO CHEFE -->
-    <div class="slide slide-mcp" data-slide="3">
+    <!-- SLIDE 3: NO CODE -->
+    <section class="slide slide-nocode" data-slide="3" id="slide-nocode">
+        <h2>Sem Código. <span class="accent">Sem Complicação.</span></h2>
+        <p class="slide-sub">Use o Claude, Cursor ou qualquer IA para mandar notificações. Só fale.</p>
+
+        <div class="nocode-flow">
+            <div class="flow-step">
+                <div class="flow-icon">📥</div>
+                <h3>Baixa</h3>
+                <p>Um executável. Sem Java, sem dependências.</p>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+                <div class="flow-icon">⚡</div>
+                <h3>Setup (3 min)</h3>
+                <p><code>notifyhub-mcp --setup</code><br>Wizard configura tudo.</p>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+                <div class="flow-icon">💬</div>
+                <h3>Fala com a IA</h3>
+                <p>"Manda email pro João dizendo que o projeto tá pronto"</p>
+            </div>
+        </div>
+
+        <div class="prompt-examples">
+            <div class="prompt-ex">"Notifica o time no Slack que o deploy terminou"</div>
+            <div class="prompt-ex">"Manda um SMS pro cliente com o código de verificação"</div>
+            <div class="prompt-ex">"Posta no Twitter que a v2.0 saiu"</div>
+            <div class="prompt-ex">"Manda mensagem no Telegram pro grupo de operações"</div>
+        </div>
+
+        <p class="editors-list">Claude Desktop • Claude Code • Cursor • Windsurf • VS Code • Cline • Roo Code • Amazon Q • +mais</p>
+    </section>
+
+    <!-- SLIDE 4: MCP - CARRO CHEFE -->
+    <div class="slide slide-mcp" data-slide="4">
         <div class="mcp-layout">
             <div class="mcp-left">
                 <div class="mcp-badge">Diferencial exclusivo</div>
                 <h2>MCP Server</h2>
-                <p class="mcp-subtitle">Seu app conversa com <strong>inteligência artificial</strong>. A IA conversa com o <strong>NotifyHub</strong>.</p>
-                <p class="mcp-desc">MCP (Model Context Protocol) é o padrão da Anthropic que permite AI agents executarem ações no mundo real. NotifyHub é um dos primeiros a implementar isso pra notificações.</p>
+                <p class="mcp-subtitle">Pra <strong>não-devs</strong>: fale com a IA e ela envia. Pra <strong>devs</strong>: 29 tools prontas via protocolo padrão.</p>
+                <p class="mcp-desc">MCP (Model Context Protocol) é o padrão da Anthropic que permite AI agents executarem ações no mundo real. Qualquer pessoa usa via linguagem natural; desenvolvedores integram via API ou library Java.</p>
                 <div class="mcp-what">
                     <div class="mcp-what-item">
                         <span class="mcp-icon">💬</span>
@@ -560,8 +645,8 @@
         </div>
     </div>
 
-    <!-- SLIDE 4: FEATURES + CTA -->
-    <div class="slide slide-3" data-slide="4">
+    <!-- SLIDE 5: FEATURES + CTA -->
+    <div class="slide slide-3" data-slide="5">
         <h2>Tudo que sua aplicação precisa</h2>
         <div class="features-grid">
             <div class="feature-card">
@@ -606,11 +691,11 @@
         <button onclick="prev()">←</button>
         <button onclick="next()">→</button>
     </div>
-    <div class="slide-counter"><span id="current">1</span> / <span id="total">4</span></div>
+    <div class="slide-counter"><span id="current">1</span> / <span id="total">5</span></div>
 
     <script>
         let current = 1;
-        const total = 4;
+        const total = 5;
 
         function show(n) {
             document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));

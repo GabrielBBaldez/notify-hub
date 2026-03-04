@@ -404,6 +404,14 @@
     fill: currentColor;
 }
 
+/* --- GETTING STARTED TABS --- */
+.getting-started-tabs { display: flex; gap: 8px; margin: 24px 0; }
+.gs-tab { padding: 10px 24px; border: 1px solid var(--border); background: transparent; color: var(--fg2); border-radius: 8px; cursor: pointer; font-size: 0.95rem; transition: all 0.2s; }
+.gs-tab:hover { border-color: var(--accent); color: var(--fg); }
+.gs-tab.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+.gs-panel { display: none; }
+.gs-panel.active { display: block; }
+
 /* --- RESPONSIVE --- */
 @media (max-width: 900px) {
     .docs-menu-toggle { display: flex; }

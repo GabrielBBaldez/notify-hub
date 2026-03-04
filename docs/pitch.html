@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NotifyHub — Pitch Deck</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .slide {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            padding: 60px 80px;
+            position: absolute;
+            top: 0; left: 0;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .slide.active { display: flex; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ======= SLIDE 1: HERO ======= */
+        .slide-1 {
+            background: radial-gradient(ellipse at 30% 50%, #1a1a3e 0%, #0a0a0a 70%);
+            text-align: center;
+        }
+
+        .slide-1 .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .slide-1 .logo-area img {
+            width: 100px;
+            height: 100px;
+            filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.3));
+        }
+
+        .slide-1 .logo-area h1 {
+            font-size: 4.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #f97316 0%, #fb923c 50%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -2px;
+        }
+
+        .slide-1 .tagline {
+            font-size: 2rem;
+            font-weight: 300;
+            color: #a5a5a5;
+            margin-bottom: 50px;
+        }
+
+        .slide-1 .tagline strong {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .slide-1 .stats-row {
+            display: flex;
+            gap: 60px;
+            margin-top: 20px;
+        }
+
+        .slide-1 .stat {
+            text-align: center;
+        }
+
+        .slide-1 .stat .number {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #f97316, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .slide-1 .stat .label {
+            font-size: 1rem;
+            color: #888;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        /* ======= SLIDE 2: PROBLEMA + SOLUCAO ======= */
+        .slide-2 {
+            background: radial-gradient(ellipse at 70% 50%, #1a1a3e 0%, #0a0a0a 70%);
+            padding: 60px 100px;
+        }
+
+        .slide-2 h2 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 50px;
+            text-align: center;
+            letter-spacing: -1px;
+        }
+
+        .slide-2 h2 span {
+            background: linear-gradient(135deg, #f97316, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 80px 1fr;
+            gap: 0;
+            align-items: center;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        .comparison-col {
+            padding: 40px;
+            border-radius: 16px;
+        }
+
+        .comparison-col.before {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .comparison-col.after {
+            background: rgba(34, 197, 94, 0.08);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .comparison-col h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .comparison-col.before h3 { color: #ef4444; }
+        .comparison-col.after h3 { color: #22c55e; }
+
+        .comparison-col ul {
+            list-style: none;
+            font-size: 1.1rem;
+            line-height: 2.2;
+            color: #ccc;
+        }
+
+        .comparison-col ul li::before {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .comparison-col.before ul li::before {
+            content: "✗";
+            color: #ef4444;
+        }
+
+        .comparison-col.after ul li::before {
+            content: "✓";
+            color: #22c55e;
+        }
+
+        .comparison-arrow {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #555;
+        }
+
+        /* ======= SLIDE 3: MCP ======= */
+        .slide-mcp {
+            background: radial-gradient(ellipse at 40% 40%, #1a1a3e 0%, #0a0a0a 70%);
+            padding: 50px 80px;
+        }
+
+        .mcp-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            width: 100%;
+            max-width: 1200px;
+            align-items: center;
+        }
+
+        .mcp-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #f97316, #fbbf24);
+            color: #000;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 5px 14px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        .mcp-left h2 {
+            font-size: 3.2rem;
+            font-weight: 900;
+            letter-spacing: -2px;
+            margin-bottom: 16px;
+        }
+
+        .mcp-subtitle {
+            font-size: 1.2rem;
+            color: #ccc;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .mcp-desc {
+            font-size: 0.95rem;
+            color: #888;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .mcp-what {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .mcp-what-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .mcp-what-item .mcp-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .mcp-what-item strong {
+            display: block;
+            font-size: 0.95rem;
+            color: #f97316;
+            margin-bottom: 2px;
+        }
+
+        .mcp-what-item span:last-child {
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .mcp-right {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .mcp-tools-box {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 24px;
+        }
+
+        .mcp-tools-header {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #f97316;
+        }
+
+        .mcp-tools-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .mcp-tools-grid span {
+            background: rgba(249, 115, 22, 0.1);
+            border: 1px solid rgba(249, 115, 22, 0.2);
+            color: #fbbf24;
+            font-size: 0.75rem;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .mcp-compat {
+            text-align: center;
+            padding: 16px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+        }
+
+        .mcp-compat span {
+            display: block;
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .mcp-compat strong {
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        /* ======= SLIDE 4: FEATURES + CTA ======= */
+        .slide-3 {
+            background: radial-gradient(ellipse at 50% 30%, #1a1a3e 0%, #0a0a0a 70%);
+            padding: 50px 80px;
+        }
+
+        .slide-3 h2 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 45px;
+            text-align: center;
+            letter-spacing: -1px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            width: 100%;
+            max-width: 1100px;
+            margin-bottom: 45px;
+        }
+
+        .feature-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 28px;
+            transition: border-color 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(249, 115, 22, 0.4);
+        }
+
+        .feature-card .icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+
+        .feature-card h4 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            font-size: 0.92rem;
+            color: #999;
+            line-height: 1.5;
+        }
+
+        .cta-area {
+            text-align: center;
+        }
+
+        .cta-area .cta-text {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .cta-area .cta-sub {
+            font-size: 1.1rem;
+            color: #888;
+        }
+
+        .cta-area .cta-sub a {
+            color: #f97316;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* ======= NAVIGATION ======= */
+        .nav {
+            position: fixed;
+            bottom: 30px;
+            right: 40px;
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .nav button {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.06);
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav button:hover {
+            background: rgba(249, 115, 22, 0.3);
+            border-color: #f97316;
+        }
+
+        .slide-counter {
+            position: fixed;
+            bottom: 38px;
+            left: 40px;
+            font-size: 0.9rem;
+            color: #555;
+            font-weight: 500;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SLIDE 1: HERO -->
+    <div class="slide slide-1 active" data-slide="1">
+        <div class="logo-area">
+            <img src="logo.png" alt="NotifyHub">
+            <h1>NotifyHub</h1>
+        </div>
+        <p class="tagline"><strong>Uma API.</strong> Todos os canais de notificação.</p>
+        <div class="stats-row">
+            <div class="stat">
+                <div class="number">17</div>
+                <div class="label">Canais integrados</div>
+            </div>
+            <div class="stat">
+                <div class="number">1</div>
+                <div class="label">API unificada</div>
+            </div>
+            <div class="stat">
+                <div class="number">29</div>
+                <div class="label">AI Tools (MCP)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: PROBLEMA vs SOLUCAO -->
+    <div class="slide slide-2" data-slide="2">
+        <h2>O problema que <span>resolvemos</span></h2>
+        <div class="comparison">
+            <div class="comparison-col before">
+                <h3>Sem NotifyHub</h3>
+                <ul>
+                    <li>SDK diferente pra cada canal</li>
+                    <li>Semanas de integração</li>
+                    <li>Sem retry, sem tracking</li>
+                    <li>Código duplicado em todo projeto</li>
+                    <li>Zero visibilidade de falhas</li>
+                </ul>
+            </div>
+            <div class="comparison-arrow">→</div>
+            <div class="comparison-col after">
+                <h3>Com NotifyHub</h3>
+                <ul>
+                    <li>Uma API fluente pra tudo</li>
+                    <li>5 minutos pra integrar</li>
+                    <li>Retry, DLQ, rate limiting built-in</li>
+                    <li>17 canais com zero boilerplate</li>
+                    <li>Dashboard + Analytics em tempo real</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: MCP - CARRO CHEFE -->
+    <div class="slide slide-mcp" data-slide="3">
+        <div class="mcp-layout">
+            <div class="mcp-left">
+                <div class="mcp-badge">Diferencial exclusivo</div>
+                <h2>MCP Server</h2>
+                <p class="mcp-subtitle">Seu app conversa com <strong>inteligência artificial</strong>. A IA conversa com o <strong>NotifyHub</strong>.</p>
+                <p class="mcp-desc">MCP (Model Context Protocol) é o padrão da Anthropic que permite AI agents executarem ações no mundo real. NotifyHub é um dos primeiros a implementar isso pra notificações.</p>
+                <div class="mcp-what">
+                    <div class="mcp-what-item">
+                        <span class="mcp-icon">💬</span>
+                        <div>
+                            <strong>"Manda um email pro cliente sobre o pedido"</strong>
+                            <span>A IA entende e envia via NotifyHub</span>
+                        </div>
+                    </div>
+                    <div class="mcp-what-item">
+                        <span class="mcp-icon">📊</span>
+                        <div>
+                            <strong>"Quantas notificações falharam hoje?"</strong>
+                            <span>A IA consulta analytics e responde</span>
+                        </div>
+                    </div>
+                    <div class="mcp-what-item">
+                        <span class="mcp-icon">🚀</span>
+                        <div>
+                            <strong>"Avisa todos os VIPs no Slack e Email"</strong>
+                            <span>A IA seleciona audiência e dispara multi-canal</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mcp-right">
+                <div class="mcp-tools-box">
+                    <div class="mcp-tools-header">29 Tools disponíveis</div>
+                    <div class="mcp-tools-grid">
+                        <span>send_email</span>
+                        <span>send_sms</span>
+                        <span>send_slack</span>
+                        <span>send_telegram</span>
+                        <span>send_discord</span>
+                        <span>send_whatsapp</span>
+                        <span>send_teams</span>
+                        <span>send_push</span>
+                        <span>send_twitter</span>
+                        <span>send_linkedin</span>
+                        <span>send_notion</span>
+                        <span>send_youtube</span>
+                        <span>send_twitch</span>
+                        <span>send_google_chat</span>
+                        <span>send_multi_channel</span>
+                        <span>send_batch</span>
+                        <span>send_to_audience</span>
+                        <span>create_contact</span>
+                        <span>create_audience</span>
+                        <span>list_channels</span>
+                        <span>get_analytics</span>
+                        <span>list_delivery_receipts</span>
+                        <span>list_dead_letters</span>
+                        <span>...</span>
+                    </div>
+                </div>
+                <div class="mcp-compat">
+                    <span>Compatível com:</span>
+                    <strong>Claude Desktop &bull; Cursor &bull; Windsurf &bull; Qualquer cliente MCP</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: FEATURES + CTA -->
+    <div class="slide slide-3" data-slide="4">
+        <h2>Tudo que sua aplicação precisa</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="icon">📨</div>
+                <h4>17 Canais</h4>
+                <p>Email, SMS, WhatsApp, Slack, Telegram, Discord, Teams, Push, Twitter, LinkedIn, Notion, YouTube e mais.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🤖</div>
+                <h4>MCP Server</h4>
+                <p>29 tools prontas pra AI agents. Integração com Claude, GPT e qualquer LLM via protocolo MCP.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">📊</div>
+                <h4>Admin Dashboard</h4>
+                <p>Monitoramento em tempo real, analytics, delivery tracking e dead letter queue.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🔄</div>
+                <h4>Retry + DLQ</h4>
+                <p>Retry automático (fixo ou exponencial). Falhas vão pra dead letter queue pra reprocessar.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🐳</div>
+                <h4>Docker Ready</h4>
+                <p>Duas imagens prontas: REST API e MCP Server. Deploy em minutos com variáveis de ambiente.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">⚡</div>
+                <h4>Spring Boot</h4>
+                <p>Auto-configuration completa. Adiciona o starter, configura o YAML e já funciona.</p>
+            </div>
+        </div>
+        <div class="cta-area">
+            <div class="cta-text">Pronto pra simplificar suas notificações?</div>
+            <div class="cta-sub"><a href="https://github.com/GabrielBBaldez/notify-hub">github.com/GabrielBBaldez/notify-hub</a></div>
+        </div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <div class="nav">
+        <button onclick="prev()">←</button>
+        <button onclick="next()">→</button>
+    </div>
+    <div class="slide-counter"><span id="current">1</span> / <span id="total">4</span></div>
+
+    <script>
+        let current = 1;
+        const total = 4;
+
+        function show(n) {
+            document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+            const slide = document.querySelector(`[data-slide="${n}"]`);
+            if (slide) {
+                slide.classList.remove('active');
+                void slide.offsetWidth;
+                slide.classList.add('active');
+            }
+            document.getElementById('current').textContent = n;
+        }
+
+        function next() { if (current < total) { current++; show(current); } }
+        function prev() { if (current > 1) { current--; show(current); } }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+            if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+        });
+    </script>
+</body>
+</html>

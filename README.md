@@ -18,6 +18,12 @@
 
 </p>
 
+<p align="center">
+  <a href="https://gabrielbbaldez.github.io/notify-hub/"><strong>Website</strong></a> &nbsp;&middot;&nbsp;
+  <a href="https://gabrielbbaldez.github.io/notify-hub/docs.html"><strong>Documentation</strong></a> &nbsp;&middot;&nbsp;
+  <a href="https://gabrielbbaldez.github.io/notify-hub/docs.html#getting-started"><strong>Getting Started</strong></a>
+</p>
+
 ---
 
 Stop writing different code for each notification channel. NotifyHub gives you a single fluent API to send notifications via **Email, SMS, WhatsApp, Slack, Telegram, Discord, Microsoft Teams, Firebase Push, Webhooks, WebSocket, Google Chat, Twitter/X, LinkedIn, Notion, Twitch, YouTube, Instagram** — or any custom channel you create.

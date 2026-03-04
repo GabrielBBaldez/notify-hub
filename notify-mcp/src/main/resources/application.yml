@@ -8,6 +8,10 @@ spring:
 
 # Enable delivery tracking by default
 notify:
+  channels:
+    telegram:
+      bot-token: ${NOTIFY_CHANNELS_TELEGRAM_BOT_TOKEN:${NOTIFY_CHANNELS_TELEGRAM_BOTTOKEN:}}
+      chat-id: ${NOTIFY_CHANNELS_TELEGRAM_CHAT_ID:${NOTIFY_CHANNELS_TELEGRAM_CHATID:}}
   tracking:
     enabled: true
   retry:

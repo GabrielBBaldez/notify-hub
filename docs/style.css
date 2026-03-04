@@ -375,7 +375,7 @@ footer {
     .admin-features { grid-template-columns: repeat(2, 1fr); }
     .env-grid { grid-template-columns: 1fr; }
     .footer-grid { grid-template-columns: 1fr; gap: 24px; }
-    .nav-links a:not(.nav-gh) { display: none; }
+    .nav-links a:not(.nav-gh):not(.nav-docs) { display: none; }
 }
 
 @media (max-width: 600px) {

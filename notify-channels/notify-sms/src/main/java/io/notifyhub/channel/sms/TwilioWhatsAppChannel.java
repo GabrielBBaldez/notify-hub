@@ -2,6 +2,7 @@ package io.notifyhub.channel.sms;
 
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.rest.api.v2010.account.MessageCreator;
 import com.twilio.type.PhoneNumber;
 import io.notifyhub.core.Notification;
 import io.notifyhub.core.channel.NotificationChannel;
@@ -57,11 +58,18 @@ public class TwilioWhatsAppChannel implements NotificationChannel {
             String toNumber = "whatsapp:" + notification.getRecipient();
             String fromNumber = "whatsapp:" + config.getFromNumber();
 
-            Message message = Message.creator(
+            String imageUrl = notification.getImageUrl();
+            MessageCreator creator = Message.creator(
                     new PhoneNumber(toNumber),
                     new PhoneNumber(fromNumber),
                     content
-            ).create();
+            );
+
+            if (imageUrl != null && !imageUrl.isBlank()) {
+                creator.setMediaUrl(java.util.List.of(java.net.URI.create(imageUrl)));
+            }
+
+            Message message = creator.create();
 
             log.debug("WhatsApp sent to '{}', SID: {}", notification.getRecipient(), message.getSid());
 

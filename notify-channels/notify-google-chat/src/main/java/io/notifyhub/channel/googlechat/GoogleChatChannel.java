@@ -52,9 +52,17 @@ public class GoogleChatChannel implements NotificationChannel {
     @Override
     public void send(Notification notification) {
         String content = notification.getRenderedContent();
+        String imageUrl = notification.getImageUrl();
 
         try {
-            String payload = String.format("{\"text\": \"%s\"}", escapeJson(content));
+            String payload;
+            if (imageUrl != null && !imageUrl.isBlank()) {
+                payload = "{\"text\": \"" + escapeJson(content) + "\", "
+                        + "\"cards\": [{\"sections\": [{\"widgets\": [{\"image\": "
+                        + "{\"imageUrl\": \"" + escapeJson(imageUrl) + "\"}}]}]}]}";
+            } else {
+                payload = String.format("{\"text\": \"%s\"}", escapeJson(content));
+            }
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(resolveWebhookUrl(notification.getRecipient())))

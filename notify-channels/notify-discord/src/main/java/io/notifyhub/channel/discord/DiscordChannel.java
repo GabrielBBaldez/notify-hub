@@ -50,6 +50,7 @@ public class DiscordChannel implements NotificationChannel {
     @Override
     public void send(Notification notification) {
         String content = notification.getRenderedContent();
+        String imageUrl = notification.getImageUrl();
 
         try {
             StringBuilder payload = new StringBuilder();
@@ -60,6 +61,11 @@ public class DiscordChannel implements NotificationChannel {
             }
             if (config.getAvatarUrl() != null && !config.getAvatarUrl().isBlank()) {
                 payload.append(", \"avatar_url\": \"").append(escapeJson(config.getAvatarUrl())).append("\"");
+            }
+
+            if (imageUrl != null && !imageUrl.isBlank()) {
+                payload.append(", \"embeds\": [{\"image\": {\"url\": \"")
+                       .append(escapeJson(imageUrl)).append("\"}}]");
             }
 
             payload.append("}");

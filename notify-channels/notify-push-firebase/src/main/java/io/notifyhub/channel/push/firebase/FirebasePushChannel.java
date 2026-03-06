@@ -58,13 +58,18 @@ public class FirebasePushChannel implements NotificationChannel {
         String subject = notification.getSubject();
         String title = (subject != null && !subject.isBlank()) ? subject : "Notification";
 
+        String imageUrl = notification.getImageUrl();
+
         try {
-            String payload = String.format(
-                    "{\"to\": \"%s\", \"notification\": {\"title\": \"%s\", \"body\": \"%s\"}}",
-                    escapeJson(token),
-                    escapeJson(title),
-                    escapeJson(content)
-            );
+            StringBuilder sb = new StringBuilder();
+            sb.append("{\"to\": \"").append(escapeJson(token)).append("\", ");
+            sb.append("\"notification\": {\"title\": \"").append(escapeJson(title)).append("\"");
+            sb.append(", \"body\": \"").append(escapeJson(content)).append("\"");
+            if (imageUrl != null && !imageUrl.isBlank()) {
+                sb.append(", \"image\": \"").append(escapeJson(imageUrl)).append("\"");
+            }
+            sb.append("}}");
+            String payload = sb.toString();
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(FCM_API))

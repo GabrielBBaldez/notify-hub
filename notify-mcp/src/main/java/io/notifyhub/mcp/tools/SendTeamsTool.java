@@ -45,6 +45,10 @@ public class SendTeamsTool {
                       "type": "object",
                       "description": "Template parameters as key-value pairs",
                       "additionalProperties": true
+                    },
+                    "imageUrl": {
+                      "type": "string",
+                      "description": "Optional image URL to embed in the notification"
                     }
                   },
                   "required": ["recipient"]
@@ -73,6 +77,7 @@ public class SendTeamsTool {
         String body = (String) args.get("body");
         String template = (String) args.get("template");
         Map<String, Object> params = (Map<String, Object>) args.get("params");
+        String imageUrl = (String) args.get("imageUrl");
 
         if (body == null && template == null) {
             return ToolResultHelper.error("Either 'body' or 'template' must be provided");
@@ -87,6 +92,7 @@ public class SendTeamsTool {
         } else {
             builder.content(body);
         }
+        if (imageUrl != null) builder.image(imageUrl);
 
         DeliveryReceipt receipt = builder.sendTracked();
 

@@ -170,6 +170,11 @@ public class SendGridEmailChannel implements NotificationChannel, EmailStatusPro
                 ? notification.getRenderedContent()
                 : (notification.getRawContent() != null ? notification.getRawContent() : "");
 
+        String imageUrl = notification.getImageUrl();
+        if (imageUrl != null && !imageUrl.isBlank()) {
+            content = content + "<br/><img src=\"" + imageUrl + "\" alt=\"image\" style=\"max-width:100%\" />";
+        }
+
         boolean isHtml = content.contains("<") && content.contains(">");
         String contentType = isHtml ? "text/html" : "text/plain";
 

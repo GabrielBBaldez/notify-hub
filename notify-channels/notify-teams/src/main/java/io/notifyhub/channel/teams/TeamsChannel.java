@@ -50,14 +50,22 @@ public class TeamsChannel implements NotificationChannel {
     public void send(Notification notification) {
         String content = notification.getRenderedContent();
         String subject = notification.getSubject();
+        String imageUrl = notification.getImageUrl();
 
         try {
             String summary = subject != null && !subject.isBlank() ? escapeJson(subject) : escapeJson(content);
-            String payload = String.format(
-                    "{\"@type\":\"MessageCard\",\"summary\":\"%s\",\"text\":\"%s\"}",
-                    summary,
-                    escapeJson(content)
-            );
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("{\"@type\":\"MessageCard\",\"summary\":\"").append(summary).append("\"");
+            sb.append(",\"text\":\"").append(escapeJson(content)).append("\"");
+
+            if (imageUrl != null && !imageUrl.isBlank()) {
+                sb.append(",\"sections\":[{\"images\":[{\"image\":\"")
+                  .append(escapeJson(imageUrl)).append("\"}]}]");
+            }
+
+            sb.append("}");
+            String payload = sb.toString();
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(resolveWebhookUrl(notification.getRecipient())))

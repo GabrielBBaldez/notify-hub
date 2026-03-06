@@ -67,6 +67,9 @@ public class NotificationBuilder {
     // Attachments
     private final List<Attachment> attachments = new ArrayList<>();
 
+    // Image
+    private String imageUrl;
+
     // Priority
     private Priority priority = Priority.NORMAL;
 
@@ -190,6 +193,14 @@ public class NotificationBuilder {
     /** Attach a pre-built {@link Attachment}. */
     public NotificationBuilder attach(Attachment attachment) {
         this.attachments.add(attachment);
+        return this;
+    }
+
+    // ===================== IMAGE =====================
+
+    /** Set an image URL to embed in the notification. */
+    public NotificationBuilder image(String imageUrl) {
+        this.imageUrl = imageUrl;
         return this;
     }
 
@@ -476,6 +487,10 @@ public class NotificationBuilder {
 
     Priority getPriority() {
         return priority;
+    }
+
+    String getImageUrl() {
+        return imageUrl;
     }
 
     Locale getLocale() {

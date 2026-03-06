@@ -34,6 +34,7 @@ public class BatchNotificationBuilder {
     private String rawContent;
     private final Map<String, Object> params = new LinkedHashMap<>();
     private Priority priority = Priority.NORMAL;
+    private String imageUrl;
 
     // Package-private constructor
     BatchNotificationBuilder(NotifyHub hub, List<String> recipients, List<? extends Notifiable> notifiables) {
@@ -87,6 +88,14 @@ public class BatchNotificationBuilder {
     /** Add multiple template parameters. */
     public BatchNotificationBuilder params(Map<String, Object> params) {
         this.params.putAll(params);
+        return this;
+    }
+
+    // ===================== IMAGE =====================
+
+    /** Set an image URL to embed in the notification. */
+    public BatchNotificationBuilder image(String imageUrl) {
+        this.imageUrl = imageUrl;
         return this;
     }
 
@@ -174,5 +183,8 @@ public class BatchNotificationBuilder {
         }
         b.params(params);
         b.priority(priority);
+        if (imageUrl != null) {
+            b.image(imageUrl);
+        }
     }
 }

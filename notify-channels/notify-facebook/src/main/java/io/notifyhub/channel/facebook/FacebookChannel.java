@@ -57,11 +57,12 @@ public class FacebookChannel implements NotificationChannel {
     public void send(Notification notification) {
         String content = notification.getRenderedContent();
         String recipient = resolveRecipient(notification.getRecipient());
+        String imageUrl = notification.getImageUrl();
 
         if ("feed".equalsIgnoreCase(recipient) || recipient.toLowerCase().startsWith("feed:")) {
-            postToFeed(content);
+            postToFeed(content, imageUrl);
         } else {
-            sendMessengerMessage(recipient, content);
+            sendMessengerMessage(recipient, content, imageUrl);
         }
     }
 
@@ -78,13 +79,20 @@ public class FacebookChannel implements NotificationChannel {
     /**
      * Sends a message via the Facebook Page Messenger (Send API).
      */
-    private void sendMessengerMessage(String recipientId, String content) {
+    private void sendMessengerMessage(String recipientId, String content, String imageUrl) {
         try {
-            String payload = String.format(
-                    "{\"recipient\":{\"id\":\"%s\"},\"message\":{\"text\":\"%s\"}}",
-                    escapeJson(recipientId),
-                    escapeJson(content)
-            );
+            String payload;
+            if (imageUrl != null && !imageUrl.isBlank()) {
+                payload = "{\"recipient\":{\"id\":\"" + escapeJson(recipientId) + "\"},"
+                        + "\"message\":{\"attachment\":{\"type\":\"image\","
+                        + "\"payload\":{\"url\":\"" + escapeJson(imageUrl) + "\",\"is_reusable\":true}}}}";
+            } else {
+                payload = String.format(
+                        "{\"recipient\":{\"id\":\"%s\"},\"message\":{\"text\":\"%s\"}}",
+                        escapeJson(recipientId),
+                        escapeJson(content)
+                );
+            }
 
             String url = GRAPH_API + "/" + config.getPageId() + "/messages"
                     + "?access_token=" + config.getPageAccessToken();
@@ -115,12 +123,18 @@ public class FacebookChannel implements NotificationChannel {
     /**
      * Publishes a post to the Facebook Page feed.
      */
-    private void postToFeed(String content) {
+    private void postToFeed(String content, String imageUrl) {
         try {
-            String payload = String.format(
-                    "{\"message\":\"%s\"}",
-                    escapeJson(content)
-            );
+            String payload;
+            if (imageUrl != null && !imageUrl.isBlank()) {
+                payload = "{\"message\":\"" + escapeJson(content) + "\","
+                        + "\"link\":\"" + escapeJson(imageUrl) + "\"}";
+            } else {
+                payload = String.format(
+                        "{\"message\":\"%s\"}",
+                        escapeJson(content)
+                );
+            }
 
             String url = GRAPH_API + "/" + config.getPageId() + "/feed"
                     + "?access_token=" + config.getPageAccessToken();

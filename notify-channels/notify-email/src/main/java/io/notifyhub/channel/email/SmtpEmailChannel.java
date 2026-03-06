@@ -71,6 +71,10 @@ public class SmtpEmailChannel implements NotificationChannel {
 
             // Body (with or without attachments)
             String content = notification.getRenderedContent();
+            String imageUrl = notification.getImageUrl();
+            if (imageUrl != null && !imageUrl.isBlank()) {
+                content = content + "<br/><img src=\"" + imageUrl + "\" alt=\"image\" style=\"max-width:100%\" />";
+            }
 
             if (notification.getAttachments().isEmpty()) {
                 // Simple message — no attachments

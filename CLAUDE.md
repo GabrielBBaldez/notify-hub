@@ -283,3 +283,9 @@ Defined in `.claude/launch.json`:
 - When mocking `NotificationChannel` in MCP tests, add `when(channel.sendWithResult(any())).thenCallRealMethod()` in setUp()
 - `mvn spring-boot:run -pl notify-demo` uses JARs from local Maven repo — run `mvn install -DskipTests` first after changing dependency modules
 - Setup wizard supports 11 editors: Claude Code, Cursor, Windsurf, VS Code, Zed, IDEA, Neovim, Emacs, Roo Code, PearAI, LM Studio
+- **MCP env vars — THREE config sources, priority matters:**
+  - Claude Desktop reads from `%APPDATA%/Claude/claude_desktop_config.json` (Windows) / `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
+  - Claude Code reads from `.mcp.json` (project root) and `~/.claude/.mcp.json` (user-level)
+  - If a channel's env var is missing from the RIGHT config file, the channel won't register — even if it's in the other files
+  - When adding a new channel, update ALL config files where the MCP server is defined
+- **Do NOT add `notify.channels.*` entries with empty defaults in MCP `application.yml`** — `${ENV_VAR:}` resolves to `""` when unset, which tricks `@ConditionalOnProperty` into creating a bean that crashes on validation. Spring Boot's relaxed binding auto-maps env vars (e.g., `NOTIFY_CHANNELS_TELEGRAM_BOTTOKEN` → `notify.channels.telegram.bot-token`) without needing YAML entries

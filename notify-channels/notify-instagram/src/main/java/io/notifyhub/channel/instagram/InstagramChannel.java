@@ -57,11 +57,12 @@ public class InstagramChannel implements NotificationChannel {
     public void send(Notification notification) {
         String content = notification.getRenderedContent();
         String recipient = resolveRecipient(notification.getRecipient());
+        String imageUrl = notification.getImageUrl();
 
         if ("feed".equalsIgnoreCase(recipient)) {
-            postToFeed(content);
+            postToFeed(content, imageUrl);
         } else {
-            sendDirectMessage(recipient, content);
+            sendDirectMessage(recipient, content, imageUrl);
         }
     }
 
@@ -78,13 +79,20 @@ public class InstagramChannel implements NotificationChannel {
     /**
      * Sends a direct message via the Instagram Messaging API.
      */
-    private void sendDirectMessage(String recipientId, String content) {
+    private void sendDirectMessage(String recipientId, String content, String imageUrl) {
         try {
-            String payload = String.format(
-                    "{\"recipient\":{\"id\":\"%s\"},\"message\":{\"text\":\"%s\"}}",
-                    escapeJson(recipientId),
-                    escapeJson(content)
-            );
+            String payload;
+            if (imageUrl != null && !imageUrl.isBlank()) {
+                payload = "{\"recipient\":{\"id\":\"" + escapeJson(recipientId) + "\"},"
+                        + "\"message\":{\"attachment\":{\"type\":\"image\","
+                        + "\"payload\":{\"url\":\"" + escapeJson(imageUrl) + "\"}}}}";
+            } else {
+                payload = String.format(
+                        "{\"recipient\":{\"id\":\"%s\"},\"message\":{\"text\":\"%s\"}}",
+                        escapeJson(recipientId),
+                        escapeJson(content)
+                );
+            }
 
             String url = GRAPH_API + "/" + config.getIgUserId() + "/messages";
 
@@ -115,13 +123,19 @@ public class InstagramChannel implements NotificationChannel {
     /**
      * Publishes a text post to the Instagram feed (two-step: create media container, then publish).
      */
-    private void postToFeed(String content) {
+    private void postToFeed(String content, String imageUrl) {
         try {
             // Step 1: Create media container
-            String createPayload = String.format(
-                    "{\"caption\":\"%s\",\"media_type\":\"TEXT\"}",
-                    escapeJson(content)
-            );
+            String createPayload;
+            if (imageUrl != null && !imageUrl.isBlank()) {
+                createPayload = "{\"caption\":\"" + escapeJson(content) + "\","
+                        + "\"image_url\":\"" + escapeJson(imageUrl) + "\"}";
+            } else {
+                createPayload = String.format(
+                        "{\"caption\":\"%s\",\"media_type\":\"TEXT\"}",
+                        escapeJson(content)
+                );
+            }
 
             String createUrl = GRAPH_API + "/" + config.getIgUserId() + "/media";
 

@@ -588,7 +588,7 @@ public class NotifyHub {
                 recipient, channelName, builder.getSubject(),
                 builder.getTemplateName(), builder.getRawContent(),
                 builder.getParams(), builder.getAttachments(),
-                builder.getPriority()
+                builder.getPriority(), builder.getImageUrl()
         );
         if (renderedContent != null) {
             notification.setRenderedContent(renderedContent);

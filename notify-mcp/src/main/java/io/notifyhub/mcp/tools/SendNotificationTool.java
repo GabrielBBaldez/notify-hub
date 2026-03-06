@@ -56,6 +56,10 @@ public class SendNotificationTool {
                       "type": "string",
                       "description": "Notification priority",
                       "enum": ["URGENT", "HIGH", "NORMAL", "LOW"]
+                    },
+                    "imageUrl": {
+                      "type": "string",
+                      "description": "Optional image URL to embed in the notification"
                     }
                   },
                   "required": ["channel", "recipient"]
@@ -86,6 +90,7 @@ public class SendNotificationTool {
         String template = (String) args.get("template");
         Map<String, Object> params = (Map<String, Object>) args.get("params");
         String priority = (String) args.get("priority");
+        String imageUrl = (String) args.get("imageUrl");
 
         if (body == null && template == null) {
             return ToolResultHelper.error("Either 'body' or 'template' must be provided");
@@ -108,6 +113,7 @@ public class SendNotificationTool {
             builder.content(body);
         }
         if (priority != null) builder.priority(Priority.valueOf(priority));
+        if (imageUrl != null) builder.image(imageUrl);
 
         DeliveryReceipt receipt = builder.sendTracked();
 

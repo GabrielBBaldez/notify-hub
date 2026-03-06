@@ -51,12 +51,21 @@ public class SlackChannel implements NotificationChannel {
         String content = notification.getRenderedContent();
         String recipient = notification.getRecipient();
 
+        String imageUrl = notification.getImageUrl();
+
         try {
-            String payload = String.format(
-                    "{\"text\": \"%s\", \"channel\": \"%s\"}",
-                    escapeJson(content),
-                    escapeJson(recipient)
-            );
+            StringBuilder sb = new StringBuilder();
+            sb.append("{\"text\": \"").append(escapeJson(content)).append("\"");
+            sb.append(", \"channel\": \"").append(escapeJson(recipient)).append("\"");
+
+            if (imageUrl != null && !imageUrl.isBlank()) {
+                sb.append(", \"attachments\": [{\"image_url\": \"")
+                  .append(escapeJson(imageUrl))
+                  .append("\", \"text\": \"\"}]");
+            }
+
+            sb.append("}");
+            String payload = sb.toString();
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(resolveWebhookUrl(notification.getRecipient())))

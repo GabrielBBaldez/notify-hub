@@ -19,16 +19,24 @@ public final class Notification {
     private final Map<String, Object> params;
     private final List<Attachment> attachments;
     private final Priority priority;
+    private final String imageUrl;
 
     public Notification(String recipient, String channelName, String subject,
                  String templateName, String rawContent, Map<String, Object> params) {
         this(recipient, channelName, subject, templateName, rawContent, params,
-                Collections.emptyList(), Priority.NORMAL);
+                Collections.emptyList(), Priority.NORMAL, null);
     }
 
     public Notification(String recipient, String channelName, String subject,
                  String templateName, String rawContent, Map<String, Object> params,
                  List<Attachment> attachments, Priority priority) {
+        this(recipient, channelName, subject, templateName, rawContent, params,
+                attachments, priority, null);
+    }
+
+    public Notification(String recipient, String channelName, String subject,
+                 String templateName, String rawContent, Map<String, Object> params,
+                 List<Attachment> attachments, Priority priority, String imageUrl) {
         this.recipient = recipient;
         this.channelName = channelName;
         this.subject = subject;
@@ -41,6 +49,7 @@ public final class Notification {
                 ? Collections.unmodifiableList(attachments)
                 : Collections.emptyList();
         this.priority = priority != null ? priority : Priority.NORMAL;
+        this.imageUrl = imageUrl;
     }
 
     /** The recipient address (email, phone, push token, etc.) */
@@ -83,6 +92,11 @@ public final class Notification {
         return priority;
     }
 
+    /** Image URL to embed in the notification. May be null if no image. */
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
     /**
      * Returns the rendered content — either from template or raw content.
      * The template is rendered by the NotifyHub before passing to the channel.
@@ -108,6 +122,7 @@ public final class Notification {
                 ", template='" + templateName + '\'' +
                 ", priority=" + priority +
                 ", attachments=" + attachments.size() +
+                (imageUrl != null ? ", imageUrl='" + imageUrl + '\'' : "") +
                 '}';
     }
 }

@@ -52,9 +52,10 @@ public class WebhookChannel implements NotificationChannel {
         String content = notification.getRenderedContent();
         String recipient = notification.getRecipient();
         String subject = notification.getSubject();
+        String imageUrl = notification.getImageUrl();
 
         try {
-            String payload = renderPayload(config.getPayloadTemplate(), recipient, subject, content);
+            String payload = renderPayload(config.getPayloadTemplate(), recipient, subject, content, imageUrl);
 
             HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                     .uri(URI.create(config.getUrl()))
@@ -102,11 +103,12 @@ public class WebhookChannel implements NotificationChannel {
      * Replaces {@code {{recipient}}}, {@code {{subject}}}, and {@code {{content}}}
      * placeholders in the template with escaped values.
      */
-    String renderPayload(String template, String recipient, String subject, String content) {
+    String renderPayload(String template, String recipient, String subject, String content, String imageUrl) {
         return template
                 .replace("{{recipient}}", escapeJson(recipient))
                 .replace("{{subject}}", escapeJson(subject))
-                .replace("{{content}}", escapeJson(content));
+                .replace("{{content}}", escapeJson(content))
+                .replace("{{imageUrl}}", escapeJson(imageUrl));
     }
 
     private String escapeJson(String text) {

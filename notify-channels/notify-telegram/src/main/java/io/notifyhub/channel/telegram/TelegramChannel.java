@@ -32,6 +32,7 @@ public class TelegramChannel implements NotificationChannel {
 
     private static final Logger log = LoggerFactory.getLogger(TelegramChannel.class);
     private static final String TELEGRAM_API = "https://api.telegram.org/bot%s/sendMessage";
+    private static final String TELEGRAM_PHOTO_API = "https://api.telegram.org/bot%s/sendPhoto";
 
     private final TelegramConfig config;
     private final HttpClient httpClient;
@@ -58,14 +59,28 @@ public class TelegramChannel implements NotificationChannel {
                     "No chat ID provided and no default chat ID configured");
         }
 
-        try {
-            String payload = String.format(
-                    "{\"chat_id\": \"%s\", \"text\": \"%s\", \"parse_mode\": \"HTML\"}",
-                    escapeJson(chatId),
-                    escapeJson(content)
-            );
+        String imageUrl = notification.getImageUrl();
 
-            String url = String.format(TELEGRAM_API, config.getBotToken());
+        try {
+            String payload;
+            String url;
+
+            if (imageUrl != null && !imageUrl.isBlank()) {
+                payload = String.format(
+                        "{\"chat_id\": \"%s\", \"photo\": \"%s\", \"caption\": \"%s\", \"parse_mode\": \"HTML\"}",
+                        escapeJson(chatId),
+                        escapeJson(imageUrl),
+                        escapeJson(content)
+                );
+                url = String.format(TELEGRAM_PHOTO_API, config.getBotToken());
+            } else {
+                payload = String.format(
+                        "{\"chat_id\": \"%s\", \"text\": \"%s\", \"parse_mode\": \"HTML\"}",
+                        escapeJson(chatId),
+                        escapeJson(content)
+                );
+                url = String.format(TELEGRAM_API, config.getBotToken());
+            }
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))

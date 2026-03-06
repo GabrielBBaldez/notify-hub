@@ -64,7 +64,8 @@ class WebhookChannelTest {
                 "{\"recipient\":\"{{recipient}}\",\"subject\":\"{{subject}}\",\"content\":\"{{content}}\"}",
                 "user@example.com",
                 "Hello",
-                "World");
+                "World",
+                null);
 
         assertEquals("{\"recipient\":\"user@example.com\",\"subject\":\"Hello\",\"content\":\"World\"}", result);
     }
@@ -82,7 +83,8 @@ class WebhookChannelTest {
                 "{\"content\":\"{{content}}\"}",
                 "user",
                 "subject",
-                "Line1\nLine2\twith \"quotes\"");
+                "Line1\nLine2\twith \"quotes\"",
+                null);
 
         assertEquals("{\"content\":\"Line1\\nLine2\\twith \\\"quotes\\\"\"}", result);
     }
@@ -98,6 +100,7 @@ class WebhookChannelTest {
 
         String result = channel.renderPayload(
                 "{\"recipient\":\"{{recipient}}\",\"subject\":\"{{subject}}\",\"content\":\"{{content}}\"}",
+                null,
                 null,
                 null,
                 null);

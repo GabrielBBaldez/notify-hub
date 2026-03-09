@@ -525,6 +525,12 @@ future.thenRun(() -> log.info("Invoice email sent"));</code></pre>
     .tls(true)
     .build();</code></pre>
             </div>
+            <h4>Getting Credentials</h4>
+            <ol>
+                <li><strong>Gmail:</strong> Enable 2FA on your Google account, then go to <a href="https://myaccount.google.com/apppasswords" target="_blank">App Passwords</a> and generate one for "Mail"</li>
+                <li><strong>AWS SES:</strong> Go to SES Console &gt; SMTP Settings &gt; Create SMTP credentials</li>
+                <li><strong>Other SMTP:</strong> Use the host, port, username, and password provided by your email provider</li>
+            </ol>
             <h4>Usage</h4>
             <div class="code-block">
                 <div class="code-header">Java</div>
@@ -561,6 +567,13 @@ future.thenRun(() -> log.info("Invoice email sent"));</code></pre>
     .fromNumber("+15551234567")
     .build();</code></pre>
             </div>
+            <h4>Getting Credentials</h4>
+            <ol>
+                <li>Create an account at <a href="https://www.twilio.com/try-twilio" target="_blank">Twilio</a></li>
+                <li>Go to <strong>Console &gt; Account Info</strong> to find your <strong>Account SID</strong> and <strong>Auth Token</strong></li>
+                <li>Buy or use a trial <strong>phone number</strong> with SMS capability</li>
+            </ol>
+            <div class="callout callout-tip"><strong>Tip:</strong> Free trial accounts can only send to verified numbers. Upgrade to remove this restriction.</div>
             <h4>Usage</h4>
             <div class="code-block">
                 <div class="code-header">Java</div>
@@ -610,6 +623,23 @@ hub.registerChannel(new WhatsAppChannel(config));</code></pre>
       phone-number-id: ${WHATSAPP_PHONE_NUMBER_ID}</code></pre>
             </div>
 
+            <h4>Getting Credentials</h4>
+            <p><strong>Option A — Twilio:</strong></p>
+            <ol>
+                <li>Create an account at <a href="https://www.twilio.com/try-twilio" target="_blank">Twilio</a></li>
+                <li>Go to <strong>Console &gt; Account Info</strong> to find your <strong>Account SID</strong> and <strong>Auth Token</strong></li>
+                <li>In <strong>Messaging &gt; Try it out &gt; Send a WhatsApp message</strong>, activate the WhatsApp sandbox</li>
+                <li>The <strong>From Number</strong> is the Twilio sandbox number (e.g., <code>+14155238886</code>)</li>
+            </ol>
+            <p><strong>Option B — Meta WhatsApp Cloud API:</strong></p>
+            <ol>
+                <li>Go to <a href="https://developers.facebook.com/apps" target="_blank">Meta for Developers</a> and create an app with <strong>"Conectar-se com clientes pelo WhatsApp"</strong></li>
+                <li>Create a <strong>Business Portfolio</strong> if prompted</li>
+                <li>Go to <strong>WhatsApp &gt; API Setup</strong> and click <strong>Generate Access Token</strong></li>
+                <li>Copy the <strong>Phone Number ID</strong> shown on the same page</li>
+                <li>Add your phone number as a <strong>test recipient</strong> in step 3 and verify with the code</li>
+            </ol>
+            <div class="callout callout-tip"><strong>Tip:</strong> The Meta test token expires in 60 minutes. For production, generate a permanent System User token in the Business Manager.</div>
             <h4>Usage</h4>
             <div class="code-block">
                 <div class="code-header">Java</div>
@@ -659,6 +689,13 @@ notify.to("+5511999999999")
     ))
     .build();</code></pre>
             </div>
+            <h4>Getting Credentials</h4>
+            <ol>
+                <li>Go to <a href="https://api.slack.com/apps" target="_blank">Slack API</a> and create a new app (or select existing)</li>
+                <li>Go to <strong>Incoming Webhooks</strong> and toggle it <strong>On</strong></li>
+                <li>Click <strong>Add New Webhook to Workspace</strong> and select the target channel</li>
+                <li>Copy the <strong>Webhook URL</strong> (starts with <code>https://hooks.slack.com/services/...</code>)</li>
+            </ol>
             <h4>Usage</h4>
             <div class="code-block">
                 <div class="code-header">Java</div>
@@ -695,6 +732,13 @@ notify.to("+5511999999999")
     .recipients(Map.of("admin", "123456789"))
     .build();</code></pre>
             </div>
+            <h4>Getting Credentials</h4>
+            <ol>
+                <li>Open Telegram and search for <a href="https://t.me/BotFather" target="_blank">@BotFather</a></li>
+                <li>Send <code>/newbot</code>, choose a name and username to get the <strong>Bot Token</strong></li>
+                <li>To get a <strong>Chat ID</strong>: add the bot to a group or send it a message, then call <code>https://api.telegram.org/bot{TOKEN}/getUpdates</code> and look for the <code>chat.id</code> field</li>
+            </ol>
+            <div class="callout callout-tip"><strong>Tip:</strong> For group chats, the Chat ID is negative (e.g., <code>-1001234567890</code>). For direct messages, it's a positive number.</div>
             <h4>Usage</h4>
             <div class="code-block">
                 <div class="code-header">Java</div>
@@ -732,6 +776,12 @@ notify.to("+5511999999999")
     .recipients(Map.of("alerts", "https://discord.com/api/webhooks/..."))
     .build();</code></pre>
             </div>
+            <h4>Getting Credentials</h4>
+            <ol>
+                <li>In Discord, go to the channel &gt; <strong>Edit Channel</strong> &gt; <strong>Integrations</strong> &gt; <strong>Webhooks</strong></li>
+                <li>Click <strong>New Webhook</strong>, give it a name and avatar</li>
+                <li>Click <strong>Copy Webhook URL</strong></li>
+            </ol>
             <h4>Usage</h4>
             <div class="code-block">
                 <div class="code-header">Java</div>
@@ -766,6 +816,14 @@ notify.to("+5511999999999")
     .recipients(Map.of("devops", "https://outlook.office.com/webhook/..."))
     .build();</code></pre>
             </div>
+            <h4>Getting Credentials</h4>
+            <ol>
+                <li>In Microsoft Teams, go to the channel where you want notifications</li>
+                <li>Click <strong>... &gt; Connectors &gt; Incoming Webhook</strong></li>
+                <li>Give the webhook a name and optional image, then click <strong>Create</strong></li>
+                <li>Copy the <strong>Webhook URL</strong></li>
+            </ol>
+            <div class="callout callout-tip"><strong>Tip:</strong> Microsoft is migrating Incoming Webhooks to the "Workflows" app. If the Connectors option is not available, use Power Automate to create a webhook workflow.</div>
             <h4>Usage</h4>
             <div class="code-block">
                 <div class="code-header">Java</div>
@@ -801,6 +859,13 @@ notify.to("+5511999999999")
     .recipients(Map.of("team", "https://chat.googleapis.com/..."))
     .build();</code></pre>
             </div>
+            <h4>Getting Credentials</h4>
+            <ol>
+                <li>Open the Google Chat space where you want to send messages</li>
+                <li>Click the space name &gt; <strong>Apps &amp; integrations</strong> &gt; <strong>Manage webhooks</strong></li>
+                <li>Click <strong>Add webhook</strong>, give it a name and (optional) avatar URL</li>
+                <li>Copy the <strong>Webhook URL</strong></li>
+            </ol>
             <h4>Usage</h4>
             <div class="code-block">
                 <div class="code-header">Java</div>
@@ -832,6 +897,14 @@ notify.to("+5511999999999")
     .serverKey("AAAA...")
     .build();</code></pre>
             </div>
+            <h4>Getting Credentials</h4>
+            <ol>
+                <li>Go to <a href="https://console.firebase.google.com" target="_blank">Firebase Console</a> and create or select a project</li>
+                <li>Go to <strong>Project Settings &gt; Cloud Messaging</strong> tab</li>
+                <li>Copy the <strong>Server Key</strong> (Legacy API) or use the Firebase Admin SDK with a service account JSON</li>
+                <li><strong>Device tokens</strong> are generated by the client app (Android/iOS/Web) when registering for push notifications</li>
+            </ol>
+            <div class="callout callout-tip"><strong>Tip:</strong> The legacy Server Key is being deprecated. For new projects, use the Firebase Admin SDK with a service account key file.</div>
             <h4>Usage</h4>
             <div class="code-block">
                 <div class="code-header">Java</div>
@@ -949,6 +1022,14 @@ notify.to("+5511999999999")
     .accessToken("token").accessTokenSecret("tokenSecret")
     .build();</code></pre>
             </div>
+            <h4>Getting Credentials</h4>
+            <ol>
+                <li>Go to <a href="https://developer.x.com/en/portal/dashboard" target="_blank">X Developer Portal</a> and create a project + app</li>
+                <li>In <strong>Keys and Tokens</strong>, generate <strong>API Key</strong> and <strong>API Secret</strong></li>
+                <li>Generate <strong>Access Token</strong> and <strong>Access Token Secret</strong> with Read and Write permissions</li>
+                <li>Make sure your app has <strong>OAuth 1.0a</strong> enabled under User authentication settings</li>
+            </ol>
+            <div class="callout callout-tip"><strong>Tip:</strong> Free tier allows 1,500 tweets/month. The Access Token and Secret are tied to your account and don't expire.</div>
             <h4>Usage</h4>
             <div class="code-block">
                 <div class="code-header">Java</div>
@@ -981,6 +1062,14 @@ notify.to("+5511999999999")
     .authorId("urn:li:person:abc123")
     .build();</code></pre>
             </div>
+            <h4>Getting Credentials</h4>
+            <ol>
+                <li>Go to <a href="https://www.linkedin.com/developers/apps" target="_blank">LinkedIn Developer Portal</a> and create an app</li>
+                <li>In <strong>Products</strong>, request access to <strong>Share on LinkedIn</strong> and <strong>Sign In with LinkedIn using OpenID Connect</strong></li>
+                <li>Use the OAuth 2.0 flow to get an <strong>Access Token</strong> with scope <code>w_member_social</code></li>
+                <li>Your <strong>Author ID</strong> is your LinkedIn URN: <code>urn:li:person:{id}</code>. Get it by calling <code>GET /v2/userinfo</code> with the token</li>
+            </ol>
+            <div class="callout callout-tip"><strong>Tip:</strong> LinkedIn access tokens expire in 60 days. Use the refresh token flow to renew automatically.</div>
             <h4>Usage</h4>
             <div class="code-block">
                 <div class="code-header">Java</div>
@@ -1013,6 +1102,14 @@ notify.to("+5511999999999")
     .recipients(Map.of("tasks", "another-db-id"))
     .build();</code></pre>
             </div>
+            <h4>Getting Credentials</h4>
+            <ol>
+                <li>Go to <a href="https://www.notion.so/my-integrations" target="_blank">Notion Integrations</a> and create a new integration</li>
+                <li>Copy the <strong>Internal Integration Token</strong> (starts with <code>secret_</code>)</li>
+                <li>Open the target Notion database, click <strong>... &gt; Connections &gt; Connect to</strong> and select your integration</li>
+                <li>The <strong>Database ID</strong> is in the database URL: <code>notion.so/{workspace}/{<strong>database-id</strong>}?v=...</code></li>
+            </ol>
+            <div class="callout callout-tip"><strong>Tip:</strong> The database must have a "Title" property. NotifyHub uses <code>subject</code> for the page title and <code>body</code> for the page content.</div>
             <h4>Usage</h4>
             <div class="code-block">
                 <div class="code-header">Java</div>
@@ -1056,6 +1153,14 @@ notify.to("+5511999999999")
     .build();
 // getAccessToken() auto-renews 5 minutes before expiry</code></pre>
             </div>
+            <h4>Getting Credentials</h4>
+            <ol>
+                <li>Go to <a href="https://dev.twitch.tv/console" target="_blank">Twitch Developer Console</a> and register a new application</li>
+                <li>Copy the <strong>Client ID</strong> from the app settings</li>
+                <li>Generate an <strong>Access Token</strong> using the OAuth Authorization Code flow with scopes <code>user:write:chat</code> and <code>user:bot</code></li>
+                <li>Your <strong>Broadcaster ID</strong> is your numeric Twitch user ID (find it at <a href="https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/" target="_blank">Twitch ID Lookup</a>)</li>
+                <li><strong>Sender ID</strong> is usually the same as Broadcaster ID (your bot account)</li>
+            </ol>
             <h4>Usage</h4>
             <div class="code-block">
                 <div class="code-header">Java</div>
@@ -1099,6 +1204,16 @@ notify.to("+5511999999999")
     .build();
 // Token auto-refreshes via Google OAuth2 endpoint</code></pre>
             </div>
+            <h4>Getting Credentials</h4>
+            <ol>
+                <li>Go to <a href="https://console.cloud.google.com" target="_blank">Google Cloud Console</a> and create a project</li>
+                <li>Enable the <strong>YouTube Data API v3</strong></li>
+                <li>Create <strong>OAuth 2.0 credentials</strong> (Web application type)</li>
+                <li>Use the <a href="https://developers.google.com/oauthplayground" target="_blank">OAuth Playground</a> to generate an Access Token with scope <code>youtube.force-ssl</code></li>
+                <li>Get your <strong>Channel ID</strong> from YouTube Studio &gt; Settings &gt; Advanced Settings</li>
+                <li>The <strong>Live Chat ID</strong> is obtained from an active livestream via the API: <code>GET /liveBroadcasts?mine=true</code></li>
+            </ol>
+            <div class="callout callout-tip"><strong>Tip:</strong> Set <code>refresh-token</code>, <code>client-id</code>, and <code>client-secret</code> for automatic token renewal. Without them, access tokens expire in ~1 hour.</div>
             <h4>Usage</h4>
             <div class="code-block">
                 <div class="code-header">Java</div>
@@ -1132,6 +1247,15 @@ notify.to("+5511999999999")
     .recipients(Map.of("support", "user-id"))
     .build();</code></pre>
             </div>
+            <h4>Getting Credentials</h4>
+            <ol>
+                <li>Go to <a href="https://developers.facebook.com/apps" target="_blank">Meta for Developers</a> and select your app</li>
+                <li>In <strong>Casos de uso</strong>, add <strong>"Gerenciar mensagens e conteudo no Instagram"</strong></li>
+                <li>Link your Instagram Professional account to a Facebook Page</li>
+                <li>Generate an <strong>Access Token</strong> with <code>instagram_basic</code> and <code>instagram_manage_messages</code> permissions via the Graph API Explorer</li>
+                <li>Get your <strong>IG User ID</strong> by calling <code>GET /me?fields=id</code> with the Instagram token</li>
+            </ol>
+            <div class="callout callout-tip"><strong>Tip:</strong> Instagram API requires a Professional (Business or Creator) account linked to a Facebook Page. Personal accounts are not supported.</div>
             <h4>Usage</h4>
             <div class="code-block">
                 <div class="code-header">Java</div>
@@ -1167,6 +1291,13 @@ notify.to("+5511999999999")
     .fromName("MyApp")
     .build();</code></pre>
             </div>
+            <h4>Getting Credentials</h4>
+            <ol>
+                <li>Create a free account at <a href="https://signup.sendgrid.com" target="_blank">SendGrid</a></li>
+                <li>Go to <strong>Settings &gt; API Keys</strong> and create a new API key with "Mail Send" permission</li>
+                <li>Complete <strong>Sender Authentication</strong> (domain or single sender) to avoid emails going to spam</li>
+            </ol>
+            <div class="callout callout-tip"><strong>Tip:</strong> The free tier allows 100 emails/day. Use "Restricted Access" API keys with only the permissions you need.</div>
             <h4>Usage</h4>
             <div class="code-block">
                 <div class="code-header">Java</div>
@@ -1194,7 +1325,7 @@ DeliveryStatus status = sendgrid.checkEmailStatus(providerMessageId);
         <!-- CH: TIKTOK SHOP -->
         <section id="ch-tiktok-shop">
             <div class="ch-doc-header">
-                <img src="https://cdn.simpleicons.org/tiktok" width="24" height="24" alt="TikTok Shop">
+                <img src="https://cdn.simpleicons.org/tiktok/EE1D52" width="24" height="24" alt="TikTok Shop">
                 <h3>TikTok Shop</h3>
             </div>
             <p>Send notifications via the TikTok Shop API with HMAC-SHA256 signed requests for secure communication.</p>
@@ -1218,6 +1349,13 @@ DeliveryStatus status = sendgrid.checkEmailStatus(providerMessageId);
     .shopId("shop-id")
     .build();</code></pre>
             </div>
+            <h4>Getting Credentials</h4>
+            <ol>
+                <li>Go to <a href="https://partner.tiktokshop.com" target="_blank">TikTok Shop Partner Center</a> and register as a developer</li>
+                <li>Create an app to get your <strong>App Key</strong> and <strong>App Secret</strong></li>
+                <li>Authorize the app for a shop to get the <strong>Access Token</strong></li>
+                <li>Your <strong>Shop ID</strong> is found in the TikTok Shop Seller Center dashboard</li>
+            </ol>
             <h4>Usage</h4>
             <div class="code-block">
                 <div class="code-header">Java</div>
@@ -1252,6 +1390,15 @@ DeliveryStatus status = sendgrid.checkEmailStatus(providerMessageId);
     .pageId("123456789")
     .build();</code></pre>
             </div>
+            <h4>Getting Credentials</h4>
+            <ol>
+                <li>Go to <a href="https://developers.facebook.com/apps" target="_blank">Meta for Developers</a> and create or select your app</li>
+                <li>In <strong>Casos de uso</strong>, add <strong>"Interagir com clientes no Messenger"</strong></li>
+                <li>Go to your app's <strong>Settings &gt; Basic</strong> to find the App ID and App Secret</li>
+                <li>Link a Facebook Page to the app and generate a <strong>Page Access Token</strong> via the Graph API Explorer</li>
+                <li>The <strong>Page ID</strong> is visible on your Page's "About" section or via the Graph API</li>
+            </ol>
+            <div class="callout callout-tip"><strong>Tip:</strong> For long-lived tokens, exchange the short-lived token via the <code>/oauth/access_token</code> endpoint. Short-lived tokens expire in ~1 hour.</div>
             <h4>Usage — Page Feed Post</h4>
             <div class="code-block">
                 <div class="code-header">Java</div>

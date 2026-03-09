@@ -344,6 +344,8 @@
                             <publishingServerId>central</publishingServerId>
                             <autoPublish>false</autoPublish>
                             <waitUntil>validated</waitUntil>
+                            <deploymentName>v1.0.0</deploymentName>
+                            <skipPublishing>false</skipPublishing>
                         </configuration>
                     </plugin>
                 </plugins>

@@ -16,9 +16,7 @@
 
     <properties>
         <mcp-sdk.version>0.18.1</mcp-sdk.version>
-        <maven.deploy.skip>true</maven.deploy.skip>
-        <maven.install.skip>true</maven.install.skip>
-        <gpg.skip>true</gpg.skip>
+        <maven.deploy.skip>false</maven.deploy.skip>
     </properties>
 
     <dependencies>

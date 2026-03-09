@@ -133,7 +133,7 @@ notify.to(user)
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-spring-boot-starter</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -143,21 +143,21 @@ notify.to(user)
 > <dependency>
 >     <groupId>io.github.gabrielbbaldez</groupId>
 >     <artifactId>notify-sms</artifactId>
->     <version>0.9.0</version>
+>     <version>1.0.0</version>
 > </dependency>
 >
 > <!-- Slack / Telegram / Discord / Teams / Firebase Push / Webhook -->
 > <dependency>
 >     <groupId>io.github.gabrielbbaldez</groupId>
 >     <artifactId>notify-slack</artifactId>
->     <version>0.9.0</version>
+>     <version>1.0.0</version>
 > </dependency>
 >
 > <!-- WebSocket / Google Chat -->
 > <dependency>
 >     <groupId>io.github.gabrielbbaldez</groupId>
 >     <artifactId>notify-websocket</artifactId>
->     <version>0.9.0</version>
+>     <version>1.0.0</version>
 > </dependency>
 > ```
 
@@ -477,7 +477,7 @@ For database persistence, add the JPA tracker module:
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-tracker-jpa</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -838,7 +838,7 @@ Decouple notification sending with async message queues. NotifyHub provides two 
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-queue-rabbitmq</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -877,7 +877,7 @@ producer.enqueue(QueuedNotification.builder()
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-queue-kafka</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -951,7 +951,7 @@ notify:
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-admin</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1019,7 +1019,7 @@ GET /actuator/info
 ```json
 {
   "notifyhub": {
-    "version": "0.9.0",
+    "version": "1.0.0",
     "channels": ["email", "slack", "teams"],
     "tracking.enabled": true,
     "dlq.enabled": true
@@ -1326,7 +1326,7 @@ mvn clean package -pl notify-mcp -am -DskipTests
   "mcpServers": {
     "notify-hub": {
       "command": "java",
-      "args": ["-jar", "path/to/notify-mcp-0.9.0.jar"],
+      "args": ["-jar", "path/to/notify-mcp-1.0.0.jar"],
       "env": {
         "NOTIFY_CHANNELS_EMAIL_HOST": "smtp.gmail.com",
         "NOTIFY_CHANNELS_EMAIL_PORT": "587",
@@ -1347,7 +1347,7 @@ mvn clean package -pl notify-mcp -am -DskipTests
   "mcpServers": {
     "notify-hub": {
       "command": "java",
-      "args": ["-jar", "path/to/notify-mcp-0.9.0.jar"],
+      "args": ["-jar", "path/to/notify-mcp-1.0.0.jar"],
       "env": {
         "NOTIFY_CHANNELS_DISCORD_WEBHOOK_URL": "https://discord.com/api/webhooks/..."
       }
@@ -1683,7 +1683,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-spring-boot-starter</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1699,7 +1699,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-core</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1715,7 +1715,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-email</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1731,7 +1731,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-sms</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1747,7 +1747,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-slack</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1763,7 +1763,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-telegram</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1779,7 +1779,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-discord</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1795,7 +1795,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-teams</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1811,7 +1811,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-push-firebase</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1827,7 +1827,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-webhook</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1843,7 +1843,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-websocket</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1859,7 +1859,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-google-chat</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1875,7 +1875,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-twitch</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1891,7 +1891,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-youtube</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1907,7 +1907,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-sendgrid</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1923,7 +1923,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-tiktok-shop</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1939,7 +1939,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-facebook</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1955,7 +1955,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-whatsapp</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1971,7 +1971,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-tracker-jpa</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1987,7 +1987,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-admin</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -2003,7 +2003,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-queue-rabbitmq</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -2019,7 +2019,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-queue-kafka</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -2035,7 +2035,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-mcp</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -2086,6 +2086,7 @@ Below is every module, what it does, when you need it, and how to add it.
 - [x] **v0.9.0** — MCP advanced tools: audiences, contacts, batch send, DLQ, analytics (16 channels, 26 MCP tools)
 - [x] **v0.10.0** — Instagram channel: DMs and feed posts via Meta Graph API (17 channels, 27 MCP tools, 25 modules)
 - [x] **v0.11.0** — SendGrid (email delivery tracking), TikTok Shop, Facebook channels, WhatsApp Cloud API (Meta), notification scheduling tools, per-message sender overrides for Slack/Discord, media attachments for WhatsApp (20 channels, 33 MCP tools, 28 modules)
+- [x] **v1.0.0** — Stable release: Getting Credentials documentation for all channels, landing page icon fixes, version consolidation
 
 ---
 

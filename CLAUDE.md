@@ -29,7 +29,7 @@ mvn test -pl notify-mcp -Dtest="SendEmailToolTest"
 ## Project Identity
 
 - **Group ID**: `io.github.gabrielbbaldez`
-- **Version**: `0.9.0`
+- **Version**: `1.0.0`
 - **Java**: 17+ (source & target)
 - **Spring Boot**: 3.2.5 (optional — core works standalone)
 - **License**: MIT
@@ -245,15 +245,15 @@ mvn test -pl notify-mcp -Dtest="SendEmailToolTest"  # Single class
 ### Release Process
 
 1. Update version in all `pom.xml` files
-2. Commit and tag: `git tag v0.9.0`
-3. Push tag: `git push origin v0.9.0`
+2. Commit and tag: `git tag v1.0.0`
+3. Push tag: `git push origin v1.0.0`
 4. GitHub Actions builds, signs, publishes to Maven Central
 
 ## MCP Server (notify-mcp)
 
 - 33 tools for AI agent integration
 - STDIO transport (JSON-RPC)
-- Built as fat JAR: `java -jar notify-mcp-0.9.0.jar`
+- Built as fat JAR: `java -jar notify-mcp-1.0.0.jar`
 - Each tool is a class in `io.notifyhub.mcp.tools/`
 - Config via environment variables (see `.mcp.json`)
 

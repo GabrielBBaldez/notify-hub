@@ -52,13 +52,13 @@ notify.to(user)
 | <img src="https://cdn.simpleicons.org/slack" width="16"> | Slack | Webhook HTTP, JSON payload | `.via(SLACK)` |
 | <img src="https://cdn.simpleicons.org/telegram" width="16"> | Telegram | Bot API, HTTP client setup | `.via(TELEGRAM)` |
 | <img src="https://cdn.simpleicons.org/discord" width="16"> | Discord | Webhook HTTP, JSON payload | `.via(DISCORD)` |
-| <img src="https://cdn.simpleicons.org/microsoftteams/6264A7" width="16"> | Teams | Incoming Webhook, MessageCard JSON | `.via(TEAMS)` |
+| 🟣 | Teams | Incoming Webhook, MessageCard JSON | `.via(TEAMS)` |
 | <img src="https://cdn.simpleicons.org/firebase" width="16"> | Push | Firebase Admin SDK, credentials... | `.via(PUSH)` |
 | 🔗 | Webhook | Custom HTTP, payload template | `.via(Channel.custom("pagerduty"))` |
 | 🔌 | WebSocket | Java WebSocket API, reconnect logic | `.via(WEBSOCKET)` |
 | <img src="https://cdn.simpleicons.org/googlechat" width="16"> | Google Chat | Webhook HTTP, JSON payload | `.via(GOOGLE_CHAT)` |
 | <img src="https://cdn.simpleicons.org/x/white" width="16"> | Twitter/X | OAuth 1.0a, API v2 setup | `.via(TWITTER)` |
-| <img src="https://cdn.simpleicons.org/linkedin/0A66C2" width="16"> | LinkedIn | OAuth 2.0, REST API setup | `.via(LINKEDIN)` |
+| 🔵 | LinkedIn | OAuth 2.0, REST API setup | `.via(LINKEDIN)` |
 | <img src="https://cdn.simpleicons.org/notion/white" width="16"> | Notion | Integration Token, API setup | `.via(NOTION)` |
 | <img src="https://cdn.simpleicons.org/twitch" width="16"> | Twitch | OAuth 2.0, Twitch API setup | `.via(TWITCH)` |
 | <img src="https://cdn.simpleicons.org/youtube" width="16"> | YouTube | YouTube Data API v3 setup | `.via(YOUTUBE)` |
@@ -919,13 +919,13 @@ Both modules support: templates, priority, deduplication keys, delivery tracking
 | <img src="https://cdn.simpleicons.org/slack" width="18"> | **Slack** | Incoming Webhooks | `notify-slack` |
 | <img src="https://cdn.simpleicons.org/telegram" width="18"> | **Telegram** | Bot API | `notify-telegram` |
 | <img src="https://cdn.simpleicons.org/discord" width="18"> | **Discord** | Webhooks | `notify-discord` |
-| <img src="https://cdn.simpleicons.org/microsoftteams/6264A7" width="18"> | **Microsoft Teams** | Incoming Webhooks | `notify-teams` |
+| 🟣 | **Microsoft Teams** | Incoming Webhooks | `notify-teams` |
 | <img src="https://cdn.simpleicons.org/firebase" width="18"> | **Push (FCM)** | Firebase Cloud Messaging | `notify-push-firebase` |
 | 🔗 | **Webhook** | Any HTTP endpoint | `notify-webhook` |
 | 🔌 | **WebSocket** | JDK WebSocket (`java.net.http`) | `notify-websocket` |
 | <img src="https://cdn.simpleicons.org/googlechat" width="18"> | **Google Chat** | Webhooks | `notify-google-chat` |
 | <img src="https://cdn.simpleicons.org/x/white" width="18"> | **Twitter/X** | API v2 (OAuth 1.0a) | `notify-twitter` |
-| <img src="https://cdn.simpleicons.org/linkedin/0A66C2" width="18"> | **LinkedIn** | REST API (OAuth 2.0) | `notify-linkedin` |
+| 🔵 | **LinkedIn** | REST API (OAuth 2.0) | `notify-linkedin` |
 | <img src="https://cdn.simpleicons.org/notion/white" width="18"> | **Notion** | API (Integration Token) | `notify-notion` |
 | <img src="https://cdn.simpleicons.org/twitch" width="18"> | **Twitch** | Helix API (OAuth 2.0 auto-refresh) | `notify-twitch` |
 | <img src="https://cdn.simpleicons.org/youtube" width="18"> | **YouTube** | Data API v3 (OAuth auto-refresh) | `notify-youtube` |

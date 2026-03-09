@@ -47,24 +47,24 @@ notify.to(user)
 | | Problem | Without NotifyHub | With NotifyHub |
 |:-:|---------|------------------|----------------|
 | <img src="https://cdn.simpleicons.org/gmail" width="16"> | Email | JavaMail config, MIME types, Session... | `.via(EMAIL)` |
-| <img src="https://cdn.simpleicons.org/twilio" width="16"> | SMS | Twilio SDK, different API entirely | `.via(SMS)` |
+| 📱 | SMS | Twilio SDK, different API entirely | `.via(SMS)` |
 | <img src="https://cdn.simpleicons.org/whatsapp" width="16"> | WhatsApp | Twilio or Meta Cloud API setup | `.via(WHATSAPP)` |
 | <img src="https://cdn.simpleicons.org/slack" width="16"> | Slack | Webhook HTTP, JSON payload | `.via(SLACK)` |
 | <img src="https://cdn.simpleicons.org/telegram" width="16"> | Telegram | Bot API, HTTP client setup | `.via(TELEGRAM)` |
 | <img src="https://cdn.simpleicons.org/discord" width="16"> | Discord | Webhook HTTP, JSON payload | `.via(DISCORD)` |
-| <img src="https://cdn.simpleicons.org/microsoftteams" width="16"> | Teams | Incoming Webhook, MessageCard JSON | `.via(TEAMS)` |
+| <img src="https://cdn.simpleicons.org/microsoftteams/6264A7" width="16"> | Teams | Incoming Webhook, MessageCard JSON | `.via(TEAMS)` |
 | <img src="https://cdn.simpleicons.org/firebase" width="16"> | Push | Firebase Admin SDK, credentials... | `.via(PUSH)` |
-| <img src="https://cdn.simpleicons.org/webhook" width="16"> | Webhook | Custom HTTP, payload template | `.via(Channel.custom("pagerduty"))` |
-| <img src="https://cdn.simpleicons.org/socketdotio" width="16"> | WebSocket | Java WebSocket API, reconnect logic | `.via(WEBSOCKET)` |
+| 🔗 | Webhook | Custom HTTP, payload template | `.via(Channel.custom("pagerduty"))` |
+| 🔌 | WebSocket | Java WebSocket API, reconnect logic | `.via(WEBSOCKET)` |
 | <img src="https://cdn.simpleicons.org/googlechat" width="16"> | Google Chat | Webhook HTTP, JSON payload | `.via(GOOGLE_CHAT)` |
 | <img src="https://cdn.simpleicons.org/x/white" width="16"> | Twitter/X | OAuth 1.0a, API v2 setup | `.via(TWITTER)` |
-| <img src="https://cdn.simpleicons.org/linkedin" width="16"> | LinkedIn | OAuth 2.0, REST API setup | `.via(LINKEDIN)` |
+| <img src="https://cdn.simpleicons.org/linkedin/0A66C2" width="16"> | LinkedIn | OAuth 2.0, REST API setup | `.via(LINKEDIN)` |
 | <img src="https://cdn.simpleicons.org/notion/white" width="16"> | Notion | Integration Token, API setup | `.via(NOTION)` |
 | <img src="https://cdn.simpleicons.org/twitch" width="16"> | Twitch | OAuth 2.0, Twitch API setup | `.via(TWITCH)` |
 | <img src="https://cdn.simpleicons.org/youtube" width="16"> | YouTube | YouTube Data API v3 setup | `.via(YOUTUBE)` |
 | <img src="https://cdn.simpleicons.org/instagram" width="16"> | Instagram | Meta Graph API setup | `.via(INSTAGRAM)` |
-| <img src="https://cdn.simpleicons.org/sendgrid" width="16"> | SendGrid | SendGrid SDK, event webhooks | `.via(SENDGRID)` |
-| <img src="https://cdn.simpleicons.org/tiktok" width="16"> | TikTok Shop | HMAC-SHA256 auth, Shop API | `.via(TIKTOK_SHOP)` |
+| 📧 | SendGrid | SendGrid SDK, event webhooks | `.via(SENDGRID)` |
+| <img src="https://cdn.simpleicons.org/tiktok/EE1D52" width="16"> | TikTok Shop | HMAC-SHA256 auth, Shop API | `.via(TIKTOK_SHOP)` |
 | <img src="https://cdn.simpleicons.org/facebook" width="16"> | Facebook | Graph API, Page + Messenger | `.via(FACEBOOK)` |
 | | Multiple channels | Completely different code for each | Same fluent API |
 | Fallback | Manual try/catch chain | `.fallback(SMS)` |
@@ -914,24 +914,24 @@ Both modules support: templates, priority, deduplication keys, delivery tracking
 | | Channel | Provider | Module |
 |:-:|---------|----------|--------|
 | <img src="https://cdn.simpleicons.org/gmail" width="18"> | **Email** | SMTP (Gmail, SES, Outlook, any) | `notify-email` |
-| <img src="https://cdn.simpleicons.org/twilio" width="18"> | **SMS** | Twilio | `notify-sms` |
+| 📱 | **SMS** | Twilio | `notify-sms` |
 | <img src="https://cdn.simpleicons.org/whatsapp" width="18"> | **WhatsApp** | Twilio or Meta Cloud API | `notify-sms` / `notify-whatsapp` |
 | <img src="https://cdn.simpleicons.org/slack" width="18"> | **Slack** | Incoming Webhooks | `notify-slack` |
 | <img src="https://cdn.simpleicons.org/telegram" width="18"> | **Telegram** | Bot API | `notify-telegram` |
 | <img src="https://cdn.simpleicons.org/discord" width="18"> | **Discord** | Webhooks | `notify-discord` |
-| <img src="https://cdn.simpleicons.org/microsoftteams" width="18"> | **Microsoft Teams** | Incoming Webhooks | `notify-teams` |
+| <img src="https://cdn.simpleicons.org/microsoftteams/6264A7" width="18"> | **Microsoft Teams** | Incoming Webhooks | `notify-teams` |
 | <img src="https://cdn.simpleicons.org/firebase" width="18"> | **Push (FCM)** | Firebase Cloud Messaging | `notify-push-firebase` |
-| <img src="https://cdn.simpleicons.org/webhook" width="18"> | **Webhook** | Any HTTP endpoint | `notify-webhook` |
-| <img src="https://cdn.simpleicons.org/socketdotio" width="18"> | **WebSocket** | JDK WebSocket (`java.net.http`) | `notify-websocket` |
+| 🔗 | **Webhook** | Any HTTP endpoint | `notify-webhook` |
+| 🔌 | **WebSocket** | JDK WebSocket (`java.net.http`) | `notify-websocket` |
 | <img src="https://cdn.simpleicons.org/googlechat" width="18"> | **Google Chat** | Webhooks | `notify-google-chat` |
 | <img src="https://cdn.simpleicons.org/x/white" width="18"> | **Twitter/X** | API v2 (OAuth 1.0a) | `notify-twitter` |
-| <img src="https://cdn.simpleicons.org/linkedin" width="18"> | **LinkedIn** | REST API (OAuth 2.0) | `notify-linkedin` |
+| <img src="https://cdn.simpleicons.org/linkedin/0A66C2" width="18"> | **LinkedIn** | REST API (OAuth 2.0) | `notify-linkedin` |
 | <img src="https://cdn.simpleicons.org/notion/white" width="18"> | **Notion** | API (Integration Token) | `notify-notion` |
 | <img src="https://cdn.simpleicons.org/twitch" width="18"> | **Twitch** | Helix API (OAuth 2.0 auto-refresh) | `notify-twitch` |
 | <img src="https://cdn.simpleicons.org/youtube" width="18"> | **YouTube** | Data API v3 (OAuth auto-refresh) | `notify-youtube` |
 | <img src="https://cdn.simpleicons.org/instagram" width="18"> | **Instagram** | Meta Graph API | `notify-instagram` |
-| <img src="https://cdn.simpleicons.org/sendgrid" width="18"> | **SendGrid** | SendGrid Email API (delivery tracking) | `notify-sendgrid` |
-| <img src="https://cdn.simpleicons.org/tiktok" width="18"> | **TikTok Shop** | TikTok Shop API (HMAC-SHA256) | `notify-tiktok-shop` |
+| 📧 | **SendGrid** | SendGrid Email API (delivery tracking) | `notify-sendgrid` |
+| <img src="https://cdn.simpleicons.org/tiktok/EE1D52" width="18"> | **TikTok Shop** | TikTok Shop API (HMAC-SHA256) | `notify-tiktok-shop` |
 | <img src="https://cdn.simpleicons.org/facebook" width="18"> | **Facebook** | Graph API (Page posts + Messenger) | `notify-facebook` |
 | ➕ | **Custom** | Any — implement one interface | `notify-core` |
 

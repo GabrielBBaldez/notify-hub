@@ -10,6 +10,9 @@ import io.notifyhub.core.channel.NotificationSendException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
+import java.util.List;
+
 /**
  * WhatsApp notification channel using Twilio API.
  *
@@ -65,8 +68,14 @@ public class TwilioWhatsAppChannel implements NotificationChannel {
                     content
             );
 
-            if (imageUrl != null && !imageUrl.isBlank()) {
-                creator.setMediaUrl(java.util.List.of(java.net.URI.create(imageUrl)));
+            // Support media via URL (Twilio fetches the image/video from the URL)
+            // Check params first (per-notification override), then fall back to imageUrl
+            Object mediaUrl = notification.getParams().get("mediaUrl");
+            if (mediaUrl != null && !mediaUrl.toString().isEmpty()) {
+                creator.setMediaUrl(List.of(URI.create(mediaUrl.toString())));
+                log.debug("WhatsApp media attached: {}", mediaUrl);
+            } else if (imageUrl != null && !imageUrl.isBlank()) {
+                creator.setMediaUrl(List.of(URI.create(imageUrl)));
             }
 
             Message message = creator.create();

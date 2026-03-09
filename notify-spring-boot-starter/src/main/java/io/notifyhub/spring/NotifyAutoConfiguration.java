@@ -66,7 +66,8 @@ import java.util.concurrent.ScheduledExecutorService;
     NotifyInstagramAutoConfiguration.class,
     NotifySendGridAutoConfiguration.class,
     NotifyTikTokShopAutoConfiguration.class,
-    NotifyFacebookAutoConfiguration.class
+    NotifyFacebookAutoConfiguration.class,
+    NotifyWhatsAppCloudAutoConfiguration.class
 })
 public class NotifyAutoConfiguration {
 

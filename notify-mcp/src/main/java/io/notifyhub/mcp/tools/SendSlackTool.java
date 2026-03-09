@@ -45,6 +45,14 @@ public class SendSlackTool {
                     "imageUrl": {
                       "type": "string",
                       "description": "Optional image URL to embed in the notification"
+                    },
+                    "sender_name": {
+                      "type": "string",
+                      "description": "Override bot display name for this message"
+                    },
+                    "sender_avatar": {
+                      "type": "string",
+                      "description": "Override bot avatar URL for this message"
                     }
                   },
                   "required": ["recipient"]
@@ -73,6 +81,8 @@ public class SendSlackTool {
         String template = (String) args.get("template");
         Map<String, Object> params = (Map<String, Object>) args.get("params");
         String imageUrl = (String) args.get("imageUrl");
+        String senderName = (String) args.get("sender_name");
+        String senderAvatar = (String) args.get("sender_avatar");
 
         if (body == null && template == null) {
             return ToolResultHelper.error("Either 'body' or 'template' must be provided");
@@ -87,6 +97,13 @@ public class SendSlackTool {
             builder.content(body);
         }
         if (imageUrl != null) builder.image(imageUrl);
+
+        if (senderName != null && !senderName.isEmpty()) {
+            builder.param("senderName", senderName);
+        }
+        if (senderAvatar != null && !senderAvatar.isEmpty()) {
+            builder.param("senderAvatar", senderAvatar);
+        }
 
         DeliveryReceipt receipt = builder.sendTracked();
 

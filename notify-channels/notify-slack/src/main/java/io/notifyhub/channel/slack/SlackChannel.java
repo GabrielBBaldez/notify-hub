@@ -54,23 +54,34 @@ public class SlackChannel implements NotificationChannel {
         String imageUrl = notification.getImageUrl();
 
         try {
-            StringBuilder sb = new StringBuilder();
-            sb.append("{\"text\": \"").append(escapeJson(content)).append("\"");
-            sb.append(", \"channel\": \"").append(escapeJson(recipient)).append("\"");
+            // Per-notification override via params, fallback to config
+            String username = resolveParam(notification, "senderName", config.getUsername());
+            String iconUrl = resolveParam(notification, "senderAvatar", config.getIconUrl());
+
+            StringBuilder payload = new StringBuilder();
+            payload.append("{\"text\": \"").append(escapeJson(content)).append("\"");
+            payload.append(", \"channel\": \"").append(escapeJson(recipient)).append("\"");
+
+            if (username != null && !username.isBlank()) {
+                payload.append(", \"username\": \"").append(escapeJson(username)).append("\"");
+            }
+            if (iconUrl != null && !iconUrl.isBlank()) {
+                payload.append(", \"icon_url\": \"").append(escapeJson(iconUrl)).append("\"");
+            }
 
             if (imageUrl != null && !imageUrl.isBlank()) {
-                sb.append(", \"attachments\": [{\"image_url\": \"")
+                payload.append(", \"attachments\": [{\"image_url\": \"")
                   .append(escapeJson(imageUrl))
                   .append("\", \"text\": \"\"}]");
             }
 
-            sb.append("}");
-            String payload = sb.toString();
+            payload.append("}");
+            String payloadStr = payload.toString();
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(resolveWebhookUrl(notification.getRecipient())))
                     .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(payload))
+                    .POST(HttpRequest.BodyPublishers.ofString(payloadStr))
                     .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -109,6 +120,14 @@ public class SlackChannel implements NotificationChannel {
             return recipient;
         }
         return config.getWebhookUrl();
+    }
+
+    private String resolveParam(Notification notification, String paramName, String configDefault) {
+        Object value = notification.getParams().get(paramName);
+        if (value != null && !value.toString().isEmpty()) {
+            return value.toString();
+        }
+        return configDefault;
     }
 
     private String escapeJson(String text) {

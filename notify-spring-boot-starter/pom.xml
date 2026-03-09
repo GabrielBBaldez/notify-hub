@@ -113,6 +113,11 @@
             <artifactId>notify-facebook</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>io.github.gabrielbbaldez</groupId>
+            <artifactId>notify-whatsapp</artifactId>
+            <optional>true</optional>
+        </dependency>
 
         <!-- Spring Boot -->
         <dependency>

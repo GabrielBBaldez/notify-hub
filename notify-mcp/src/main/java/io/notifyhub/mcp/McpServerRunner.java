@@ -101,7 +101,13 @@ public class McpServerRunner implements CommandLineRunner {
         // Email tracking tool
         server.addTool(new CheckEmailStatusTool(notifyHub).specification(jsonMapper));
 
-        log.info("NotifyHub MCP Server ready — 30 tools registered");
+        // Scheduling tools
+        ScheduledNotificationRegistry schedulingRegistry = new ScheduledNotificationRegistry();
+        server.addTool(new ScheduleNotificationTool(notifyHub, schedulingRegistry).specification(jsonMapper));
+        server.addTool(new ListScheduledNotificationsTool(schedulingRegistry).specification(jsonMapper));
+        server.addTool(new CancelScheduledNotificationTool(schedulingRegistry).specification(jsonMapper));
+
+        log.info("NotifyHub MCP Server ready — 33 tools registered");
 
         // Check for updates in background (non-blocking, max once per day)
         Thread.ofVirtual().name("update-checker").start(this::checkForUpdatesQuietly);

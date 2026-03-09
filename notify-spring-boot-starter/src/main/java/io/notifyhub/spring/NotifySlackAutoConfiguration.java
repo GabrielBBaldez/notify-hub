@@ -25,10 +25,12 @@ public class NotifySlackAutoConfiguration {
     @ConditionalOnMissingBean(SlackChannel.class)
     public SlackChannel slackChannel(NotifyProperties properties) {
         NotifyProperties.Slack slack = properties.getChannels().getSlack();
-        SlackConfig config = SlackConfig.builder()
+        SlackConfig.Builder builder = SlackConfig.builder()
                 .webhookUrl(slack.getWebhookUrl())
-                .recipients(slack.getRecipients())
-                .build();
+                .recipients(slack.getRecipients());
+        if (slack.getUsername() != null) builder.username(slack.getUsername());
+        if (slack.getIconUrl() != null) builder.iconUrl(slack.getIconUrl());
+        SlackConfig config = builder.build();
         log.info("NotifyHub: Slack channel configured (webhook)");
         return new SlackChannel(config);
     }

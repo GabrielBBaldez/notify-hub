@@ -11,6 +11,13 @@ spring:
 # Do NOT add notify.channels.* entries with empty defaults here — ${ENV_VAR:} resolves to ""
 # which tricks @ConditionalOnProperty into creating beans that crash on validation.
 notify:
+  channels:
+    telegram:
+      bot-token: ${NOTIFY_CHANNELS_TELEGRAM_BOT_TOKEN:${NOTIFY_CHANNELS_TELEGRAM_BOTTOKEN:}}
+      chat-id: ${NOTIFY_CHANNELS_TELEGRAM_CHAT_ID:${NOTIFY_CHANNELS_TELEGRAM_CHATID:}}
+    # SendGrid, TikTok Shop, Facebook: do NOT add empty defaults here.
+    # Relaxed binding auto-maps env vars (e.g. NOTIFY_CHANNELS_SENDGRID_API_KEY).
+    # Empty defaults ("") activate @ConditionalOnProperty but fail config validation.
   tracking:
     enabled: true
   retry:

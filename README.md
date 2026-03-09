@@ -26,7 +26,7 @@
 
 ---
 
-Stop writing different code for each notification channel. NotifyHub gives you a single fluent API to send notifications via **Email, SMS, WhatsApp, Slack, Telegram, Discord, Microsoft Teams, Firebase Push, Webhooks, WebSocket, Google Chat, Twitter/X, LinkedIn, Notion, Twitch, YouTube, Instagram** — or any custom channel you create.
+Stop writing different code for each notification channel. NotifyHub gives you a single fluent API to send notifications via **Email, SMS, WhatsApp, Slack, Telegram, Discord, Microsoft Teams, Firebase Push, Webhooks, WebSocket, Google Chat, Twitter/X, LinkedIn, Notion, Twitch, YouTube, Instagram, SendGrid, TikTok Shop, Facebook** — or any custom channel you create.
 
 ```java
 notify.to(user)
@@ -48,7 +48,7 @@ notify.to(user)
 |:-:|---------|------------------|----------------|
 | <img src="https://cdn.simpleicons.org/gmail" width="16"> | Email | JavaMail config, MIME types, Session... | `.via(EMAIL)` |
 | <img src="https://cdn.simpleicons.org/twilio" width="16"> | SMS | Twilio SDK, different API entirely | `.via(SMS)` |
-| <img src="https://cdn.simpleicons.org/whatsapp" width="16"> | WhatsApp | Another Twilio setup, prefix logic | `.via(WHATSAPP)` |
+| <img src="https://cdn.simpleicons.org/whatsapp" width="16"> | WhatsApp | Twilio or Meta Cloud API setup | `.via(WHATSAPP)` |
 | <img src="https://cdn.simpleicons.org/slack" width="16"> | Slack | Webhook HTTP, JSON payload | `.via(SLACK)` |
 | <img src="https://cdn.simpleicons.org/telegram" width="16"> | Telegram | Bot API, HTTP client setup | `.via(TELEGRAM)` |
 | <img src="https://cdn.simpleicons.org/discord" width="16"> | Discord | Webhook HTTP, JSON payload | `.via(DISCORD)` |
@@ -63,6 +63,9 @@ notify.to(user)
 | <img src="https://cdn.simpleicons.org/twitch" width="16"> | Twitch | OAuth 2.0, Twitch API setup | `.via(TWITCH)` |
 | <img src="https://cdn.simpleicons.org/youtube" width="16"> | YouTube | YouTube Data API v3 setup | `.via(YOUTUBE)` |
 | <img src="https://cdn.simpleicons.org/instagram" width="16"> | Instagram | Meta Graph API setup | `.via(INSTAGRAM)` |
+| <img src="https://cdn.simpleicons.org/sendgrid" width="16"> | SendGrid | SendGrid SDK, event webhooks | `.via(SENDGRID)` |
+| <img src="https://cdn.simpleicons.org/tiktok" width="16"> | TikTok Shop | HMAC-SHA256 auth, Shop API | `.via(TIKTOK_SHOP)` |
+| <img src="https://cdn.simpleicons.org/facebook" width="16"> | Facebook | Graph API, Page + Messenger | `.via(FACEBOOK)` |
 | | Multiple channels | Completely different code for each | Same fluent API |
 | Fallback | Manual try/catch chain | `.fallback(SMS)` |
 | Retry | Implement yourself | Built-in exponential backoff |
@@ -136,7 +139,7 @@ notify.to(user)
 
 > **Need extra channels?** Add optional modules:
 > ```xml
-> <!-- SMS + WhatsApp (Twilio) -->
+> <!-- SMS + WhatsApp (Twilio) / WhatsApp Cloud API (Meta) -->
 > <dependency>
 >     <groupId>io.github.gabrielbbaldez</groupId>
 >     <artifactId>notify-sms</artifactId>
@@ -340,6 +343,16 @@ notify.to(user)
     .send();
 ```
 
+**WhatsApp media attachments:** When using the WhatsApp Cloud API (`notify-whatsapp`), attach images, videos, and PDFs to messages via a public URL:
+
+```java
+notify.toPhone("+5511999999999")
+    .via(Channel.WHATSAPP)
+    .content("Here is your invoice")
+    .param("media_url", "https://example.com/invoice.pdf")
+    .send();
+```
+
 ### Priority Levels
 
 Set notification priority. **URGENT** notifications bypass rate limiting:
@@ -442,6 +455,20 @@ DeliveryReceipt receipt = notify.to(user)
 System.out.println(receipt.getStatus());    // SENT
 System.out.println(receipt.getId());         // uuid
 System.out.println(receipt.getTimestamp());  // 2025-01-15T10:30:00Z
+```
+
+**Email delivery tracking (SendGrid):** When using the `notify-sendgrid` module, delivery tracking goes beyond basic sent/failed status. Track when emails are delivered, opened, clicked, bounced, or marked as spam:
+
+```java
+SendResult result = notify.to(user)
+    .via(Channel.SENDGRID)
+    .subject("Welcome!")
+    .content("Hello!")
+    .sendWithResult();
+
+// Later, check delivery status
+DeliveryStatus status = hub.checkEmailStatus(result.getProviderMessageId());
+// DELIVERED, OPENED, CLICKED, BOUNCED, SPAM_COMPLAINT, DROPPED, DEFERRED
 ```
 
 For database persistence, add the JPA tracker module:
@@ -782,6 +809,25 @@ NOTIFY_CHANNELS_GOOGLE_CHAT_RECIPIENTS_TEAM=https://chat.googleapis.com/v1/space
 
 Supported on: **Discord, Slack, Telegram, Teams, Google Chat**.
 
+**Per-message sender name/avatar override (Slack & Discord):**
+
+Override the bot display name and avatar on a per-message basis — useful for sending notifications as different "personas" without changing the global config:
+
+```java
+// Slack
+notify.to("engineering").via(SLACK)
+    .param("sender_name", "DeployBot")
+    .content("Deploy complete!")
+    .send();
+
+// Discord
+notify.to("alerts").via(DISCORD)
+    .param("sender_name", "AlertBot")
+    .param("sender_avatar", "https://example.com/alert-avatar.png")
+    .content("Server is down!")
+    .send();
+```
+
 ### Message Queue (RabbitMQ / Kafka)
 
 Decouple notification sending with async message queues. NotifyHub provides two modules:
@@ -869,7 +915,7 @@ Both modules support: templates, priority, deduplication keys, delivery tracking
 |:-:|---------|----------|--------|
 | <img src="https://cdn.simpleicons.org/gmail" width="18"> | **Email** | SMTP (Gmail, SES, Outlook, any) | `notify-email` |
 | <img src="https://cdn.simpleicons.org/twilio" width="18"> | **SMS** | Twilio | `notify-sms` |
-| <img src="https://cdn.simpleicons.org/whatsapp" width="18"> | **WhatsApp** | Twilio | `notify-sms` |
+| <img src="https://cdn.simpleicons.org/whatsapp" width="18"> | **WhatsApp** | Twilio or Meta Cloud API | `notify-sms` / `notify-whatsapp` |
 | <img src="https://cdn.simpleicons.org/slack" width="18"> | **Slack** | Incoming Webhooks | `notify-slack` |
 | <img src="https://cdn.simpleicons.org/telegram" width="18"> | **Telegram** | Bot API | `notify-telegram` |
 | <img src="https://cdn.simpleicons.org/discord" width="18"> | **Discord** | Webhooks | `notify-discord` |
@@ -884,6 +930,9 @@ Both modules support: templates, priority, deduplication keys, delivery tracking
 | <img src="https://cdn.simpleicons.org/twitch" width="18"> | **Twitch** | Helix API (OAuth 2.0 auto-refresh) | `notify-twitch` |
 | <img src="https://cdn.simpleicons.org/youtube" width="18"> | **YouTube** | Data API v3 (OAuth auto-refresh) | `notify-youtube` |
 | <img src="https://cdn.simpleicons.org/instagram" width="18"> | **Instagram** | Meta Graph API | `notify-instagram` |
+| <img src="https://cdn.simpleicons.org/sendgrid" width="18"> | **SendGrid** | SendGrid Email API (delivery tracking) | `notify-sendgrid` |
+| <img src="https://cdn.simpleicons.org/tiktok" width="18"> | **TikTok Shop** | TikTok Shop API (HMAC-SHA256) | `notify-tiktok-shop` |
+| <img src="https://cdn.simpleicons.org/facebook" width="18"> | **Facebook** | Graph API (Page posts + Messenger) | `notify-facebook` |
 | ➕ | **Custom** | Any — implement one interface | `notify-core` |
 
 ---
@@ -1061,9 +1110,13 @@ notify:
       from-number: "+1234567890"
 
     whatsapp:
+      # Option 1: Twilio backend
       account-sid: ${TWILIO_SID}
       auth-token: ${TWILIO_TOKEN}
       from-number: "+14155238886"
+      # Option 2: WhatsApp Cloud API (Meta) — use notify-whatsapp module
+      # access-token: ${WHATSAPP_ACCESS_TOKEN}
+      # phone-number-id: ${WHATSAPP_PHONE_NUMBER_ID}
 
     slack:
       webhook-url: ${SLACK_WEBHOOK}
@@ -1118,6 +1171,21 @@ notify:
       recipients:                          # named aliases (optional)
         team-a: https://chat.googleapis.com/v1/spaces/XXX/messages?key=YYY
         team-b: https://chat.googleapis.com/v1/spaces/ZZZ/messages?key=WWW
+
+    sendgrid:
+      api-key: ${SENDGRID_API_KEY}
+      from: noreply@myapp.com
+      from-name: MyApp
+
+    tiktok-shop:
+      app-key: ${TIKTOK_APP_KEY}
+      app-secret: ${TIKTOK_APP_SECRET}
+      access-token: ${TIKTOK_ACCESS_TOKEN}
+      shop-id: ${TIKTOK_SHOP_ID}
+
+    facebook:
+      page-access-token: ${FACEBOOK_PAGE_ACCESS_TOKEN}
+      page-id: ${FACEBOOK_PAGE_ID}
 
   retry:
     max-attempts: 3
@@ -1298,7 +1366,7 @@ mvn clean package -pl notify-mcp -am -DskipTests
 | `send_slack` | Send to Slack channel | `recipient`, `body` or `template` |
 | `send_telegram` | Send via Telegram Bot | `recipient`, `body` or `template` |
 | `send_discord` | Send to Discord channel | `recipient`, `body` or `template` |
-| `send_whatsapp` | Send WhatsApp via Twilio | `phone`, `body` or `template` |
+| `send_whatsapp` | Send WhatsApp message (Twilio or Cloud API) | `phone`, `body` or `template` |
 | `send_teams` | Send to Microsoft Teams | `recipient`, `body` or `template` |
 | `send_google_chat` | Send to Google Chat | `recipient`, `body` or `template` |
 | `send_push` | Send push via Firebase | `push_token`, `body` |
@@ -1308,6 +1376,8 @@ mvn clean package -pl notify-mcp -am -DskipTests
 | `send_twitch` | Send Twitch chat message + polls | `recipient`, `body` or `template` |
 | `send_youtube` | Send YouTube live chat message | `recipient`, `body` or `template` |
 | `send_instagram` | Send Instagram DM or feed post | `recipient`, `body` or `template` |
+| `send_facebook` | Send Facebook page post or Messenger message | `recipient`, `body` or `template` |
+| `send_tiktok_shop` | Send TikTok Shop notification | `body` or `template` |
 | `send_multi_channel` | Send to multiple channels | `channels[]`, `recipient`, `body` or `template` |
 | `send_batch` | Send to multiple recipients at once | `recipients[]`, `channel`, `body` or `template` |
 | `send_to_audience` | Send to a named audience | `audience`, `channel`, `body` or `template` |
@@ -1319,6 +1389,10 @@ mvn clean package -pl notify-mcp -am -DskipTests
 | `create_audience` | Create audience with tag filters | `name`, `tags[]` |
 | `list_audiences` | List audiences with contact counts | _(none)_ |
 | `get_analytics` | Delivery stats by channel/status | _(none)_ |
+| `schedule_notification` | Schedule a notification for future delivery | `channel`, `recipient`, `delay` or `scheduled_at` |
+| `list_scheduled_notifications` | List scheduled notifications | _(none)_ |
+| `cancel_scheduled_notification` | Cancel a pending scheduled notification | `id` |
+| `check_email_status` | Check delivery status of email (SendGrid) | `receipt_id` |
 
 All send tools optionally accept: `subject`, `template`, `params`, `priority`.
 
@@ -1415,9 +1489,20 @@ Open [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.ht
 | **SMS** | `NOTIFY_CHANNELS_SMS_ACCOUNT_SID` | Yes (for sms) | Twilio Account SID |
 | | `NOTIFY_CHANNELS_SMS_AUTH_TOKEN` | Yes (for sms) | Twilio Auth Token |
 | | `NOTIFY_CHANNELS_SMS_FROM_NUMBER` | Yes (for sms) | `+12025551234` |
-| **WhatsApp** | `NOTIFY_CHANNELS_WHATSAPP_ACCOUNT_SID` | Yes (for whatsapp) | Twilio Account SID |
-| | `NOTIFY_CHANNELS_WHATSAPP_AUTH_TOKEN` | Yes (for whatsapp) | Twilio Auth Token |
-| | `NOTIFY_CHANNELS_WHATSAPP_FROM_NUMBER` | Yes (for whatsapp) | `+14155238886` |
+| **WhatsApp (Twilio)** | `NOTIFY_CHANNELS_WHATSAPP_ACCOUNT_SID` | Yes (for whatsapp/twilio) | Twilio Account SID |
+| | `NOTIFY_CHANNELS_WHATSAPP_AUTH_TOKEN` | Yes (for whatsapp/twilio) | Twilio Auth Token |
+| | `NOTIFY_CHANNELS_WHATSAPP_FROM_NUMBER` | Yes (for whatsapp/twilio) | `+14155238886` |
+| **WhatsApp (Cloud API)** | `NOTIFY_CHANNELS_WHATSAPP_ACCESS_TOKEN` | Yes (for whatsapp/cloud) | Meta access token |
+| | `NOTIFY_CHANNELS_WHATSAPP_PHONE_NUMBER_ID` | Yes (for whatsapp/cloud) | Phone number ID |
+| **SendGrid** | `NOTIFY_CHANNELS_SENDGRID_API_KEY` | Yes (for sendgrid) | SendGrid API key |
+| | `NOTIFY_CHANNELS_SENDGRID_FROM` | Yes (for sendgrid) | `noreply@myapp.com` |
+| | `NOTIFY_CHANNELS_SENDGRID_FROM_NAME` | No | `MyApp` |
+| **TikTok Shop** | `NOTIFY_CHANNELS_TIKTOK_SHOP_APP_KEY` | Yes (for tiktok) | TikTok App Key |
+| | `NOTIFY_CHANNELS_TIKTOK_SHOP_APP_SECRET` | Yes (for tiktok) | TikTok App Secret |
+| | `NOTIFY_CHANNELS_TIKTOK_SHOP_ACCESS_TOKEN` | Yes (for tiktok) | TikTok Access Token |
+| | `NOTIFY_CHANNELS_TIKTOK_SHOP_SHOP_ID` | Yes (for tiktok) | TikTok Shop ID |
+| **Facebook** | `NOTIFY_CHANNELS_FACEBOOK_PAGE_ACCESS_TOKEN` | Yes (for facebook) | Facebook Page Access Token |
+| | `NOTIFY_CHANNELS_FACEBOOK_PAGE_ID` | Yes (for facebook) | Facebook Page ID |
 
 **Example with multiple channels:**
 
@@ -1525,7 +1610,7 @@ notify-hub/
 │
 ├── notify-channels/
 │   ├── notify-email/                     # SMTP email (Jakarta Mail + attachments)
-│   ├── notify-sms/                       # Twilio SMS + WhatsApp
+│   ├── notify-sms/                       # Twilio SMS + WhatsApp (Twilio)
 │   ├── notify-slack/                     # Slack webhooks (JDK HttpClient)
 │   ├── notify-telegram/                  # Telegram Bot API (JDK HttpClient)
 │   ├── notify-discord/                   # Discord webhooks (JDK HttpClient)
@@ -1536,7 +1621,11 @@ notify-hub/
 │   ├── notify-google-chat/              # Google Chat webhooks (JDK HttpClient)
 │   ├── notify-twitch/                   # Twitch chat + polls via Helix API (JDK HttpClient)
 │   ├── notify-youtube/                  # YouTube live chat via Data API v3 (JDK HttpClient)
-│   └── notify-instagram/               # Instagram DM + feed via Meta Graph API (JDK HttpClient)
+│   ├── notify-instagram/               # Instagram DM + feed via Meta Graph API (JDK HttpClient)
+│   ├── notify-sendgrid/               # SendGrid Email with delivery tracking (JDK HttpClient)
+│   ├── notify-tiktok-shop/            # TikTok Shop API with HMAC-SHA256 (JDK HttpClient)
+│   ├── notify-facebook/               # Facebook Graph API — Page posts + Messenger (JDK HttpClient)
+│   └── notify-whatsapp/               # WhatsApp Cloud API via Meta Graph API (JDK HttpClient)
 │
 ├── notify-tracker-jpa/                   # JPA-backed delivery tracker
 │
@@ -1555,7 +1644,7 @@ notify-hub/
 ├── notify-mcp/                           # MCP Server for AI agents
 │   ├── NotifyMcpServer                   # Spring Boot headless main
 │   ├── McpServerRunner                   # STDIO MCP server bootstrap
-│   └── tools/                            # 27 MCP tools (send, batch, audiences, DLQ, analytics)
+│   └── tools/                            # 33 MCP tools (send, batch, audiences, DLQ, analytics, scheduling)
 │
 └── notify-demo/                          # Demo app (run it!)
 ```
@@ -1634,9 +1723,9 @@ Below is every module, what it does, when you need it, and how to add it.
 
 #### `notify-sms` — Twilio SMS + WhatsApp Channel
 
-**What it does:** Sends SMS and WhatsApp messages through the Twilio API. Handles phone number formatting (E.164) and the `whatsapp:` prefix automatically.
+**What it does:** Sends SMS and WhatsApp messages through the Twilio API. Handles phone number formatting (E.164) and the `whatsapp:` prefix automatically. For WhatsApp, you can also use the `notify-whatsapp` module for Meta Cloud API as an alternative backend.
 
-**When to use:** You need to send SMS or WhatsApp messages. Requires a Twilio account with Account SID, Auth Token, and a phone number.
+**When to use:** You need to send SMS or WhatsApp messages via Twilio. Requires a Twilio account with Account SID, Auth Token, and a phone number.
 
 ```xml
 <dependency>
@@ -1808,6 +1897,70 @@ Below is every module, what it does, when you need it, and how to add it.
 
 ---
 
+#### `notify-sendgrid` — SendGrid Email Channel
+
+**What it does:** Sends emails through the SendGrid Email API with full delivery tracking support. Tracks email status including delivered, opened, clicked, bounced, and spam complaints. Uses the JDK `HttpClient` — no external SDK needed.
+
+**When to use:** You want email delivery tracking (opened, clicked, bounced, spam) or prefer SendGrid over SMTP. Requires a SendGrid API key.
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-sendgrid</artifactId>
+    <version>0.9.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-tiktok-shop` — TikTok Shop Channel
+
+**What it does:** Sends notifications via the TikTok Shop API with HMAC-SHA256 authentication. Handles request signing automatically. Uses the JDK `HttpClient` — no external SDK needed.
+
+**When to use:** You want to send TikTok Shop notifications. Requires TikTok Shop API credentials (app key, app secret, access token, shop ID).
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-tiktok-shop</artifactId>
+    <version>0.9.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-facebook` — Facebook Channel
+
+**What it does:** Sends Facebook Page posts and Messenger messages via the Facebook Graph API. Supports both public page posts and private Messenger DMs. Uses the JDK `HttpClient` — no external SDK needed.
+
+**When to use:** You want to post to a Facebook Page or send Messenger messages. Requires a Facebook Page Access Token and Page ID.
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-facebook</artifactId>
+    <version>0.9.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-whatsapp` — WhatsApp Cloud API Channel
+
+**What it does:** Sends WhatsApp messages via the Meta WhatsApp Cloud API (Graph API). Supports text messages and media attachments (images, videos, PDFs). Uses the JDK `HttpClient` — no external SDK needed. This is an alternative to the Twilio-based WhatsApp in `notify-sms`.
+
+**When to use:** You want to send WhatsApp messages via Meta's Cloud API instead of Twilio. Requires a WhatsApp Business access token and phone number ID.
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-whatsapp</artifactId>
+    <version>0.9.0</version>
+</dependency>
+```
+
+---
+
 #### `notify-tracker-jpa` — JPA Delivery Tracker
 
 **What it does:** Persists delivery receipts to a relational database (MySQL, PostgreSQL, H2, etc.) using Spring Data JPA. Stores notification ID, channel, recipient, status, timestamp, and error messages. Provides query methods for filtering and counting.
@@ -1874,7 +2027,7 @@ Below is every module, what it does, when you need it, and how to add it.
 
 #### `notify-mcp` — MCP Server for AI Agents
 
-**What it does:** Exposes all NotifyHub channels as MCP (Model Context Protocol) tools, allowing AI agents (Claude Desktop, Claude Code, Cursor) to send notifications through natural language commands. Runs as a headless Spring Boot app communicating via STDIO JSON-RPC. Provides 27 tools: send via any channel, batch send, audience management, DLQ monitoring, and delivery analytics.
+**What it does:** Exposes all NotifyHub channels as MCP (Model Context Protocol) tools, allowing AI agents (Claude Desktop, Claude Code, Cursor) to send notifications through natural language commands. Runs as a headless Spring Boot app communicating via STDIO JSON-RPC. Provides 33 tools: send via any channel, batch send, audience management, DLQ monitoring, delivery analytics, notification scheduling, and email delivery tracking.
 
 **When to use:** You want AI agents to send notifications on your behalf. Configure the JAR path in your MCP client's config file and the agent will discover all available tools automatically.
 
@@ -1904,6 +2057,10 @@ Below is every module, what it does, when you need it, and how to add it.
 | Send to Google Chat | `notify-spring-boot-starter` + `notify-google-chat` |
 | Send to Twitch chat | `notify-spring-boot-starter` + `notify-twitch` |
 | Send to YouTube live chat | `notify-spring-boot-starter` + `notify-youtube` |
+| Send email with delivery tracking | `notify-spring-boot-starter` + `notify-sendgrid` |
+| Send to TikTok Shop | `notify-spring-boot-starter` + `notify-tiktok-shop` |
+| Send to Facebook / Messenger | `notify-spring-boot-starter` + `notify-facebook` |
+| Send WhatsApp via Meta Cloud API | `notify-spring-boot-starter` + `notify-whatsapp` |
 | Prevent duplicate sends | `notify-spring-boot-starter` (built-in, config-driven) |
 | A/B test templates | `notify-spring-boot-starter` (built-in, use `.templateVersion()`) |
 | Persist tracking to database | `notify-spring-boot-starter` + `notify-tracker-jpa` |
@@ -1928,6 +2085,7 @@ Below is every module, what it does, when you need it, and how to add it.
 - [x] **v0.8.0** — Twitch, YouTube channels, admin dashboard redesign (16 channels, 18 MCP tools, 24 modules)
 - [x] **v0.9.0** — MCP advanced tools: audiences, contacts, batch send, DLQ, analytics (16 channels, 26 MCP tools)
 - [x] **v0.10.0** — Instagram channel: DMs and feed posts via Meta Graph API (17 channels, 27 MCP tools, 25 modules)
+- [x] **v0.11.0** — SendGrid (email delivery tracking), TikTok Shop, Facebook channels, WhatsApp Cloud API (Meta), notification scheduling tools, per-message sender overrides for Slack/Discord, media attachments for WhatsApp (20 channels, 33 MCP tools, 28 modules)
 
 ---
 

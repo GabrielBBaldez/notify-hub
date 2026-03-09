@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Documentation — NotifyHub</title>
-    <meta name="description" content="Complete documentation for NotifyHub — unified notification library for Java 17+ and Spring Boot 3.x. All 17 channels, fluent API, configs, templates, and more.">
+    <meta name="description" content="Complete documentation for NotifyHub — unified notification library for Java 17+ and Spring Boot 3.x. All 20 channels, fluent API, configs, templates, and more.">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="docs.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
@@ -58,7 +58,7 @@
         <div class="sidebar-section">
             <span class="sidebar-label">Channels</span>
             <details open>
-                <summary>All 17 Channels</summary>
+                <summary>All 20 Channels</summary>
                 <div class="sub-links">
                     <a href="#ch-email">Email (SMTP)</a>
                     <a href="#ch-sms">SMS (Twilio)</a>
@@ -77,6 +77,9 @@
                     <a href="#ch-twitch">Twitch</a>
                     <a href="#ch-youtube">YouTube</a>
                     <a href="#ch-instagram">Instagram</a>
+                    <a href="#ch-sendgrid">SendGrid</a>
+                    <a href="#ch-tiktok-shop">TikTok Shop</a>
+                    <a href="#ch-facebook">Facebook</a>
                 </div>
             </details>
             <a href="#custom-channels">Custom Channels</a>
@@ -322,6 +325,8 @@ Channel.SLACK, Channel.TELEGRAM, Channel.DISCORD, Channel.TEAMS
 Channel.WEBSOCKET, Channel.GOOGLE_CHAT
 Channel.TWITTER, Channel.LINKEDIN, Channel.NOTION
 Channel.TWITCH, Channel.YOUTUBE, Channel.INSTAGRAM
+Channel.TIKTOK_SHOP, Channel.FACEBOOK
+Channel.custom("sendgrid")   // SendGrid email with tracking
 Channel.custom("pagerduty")  // Custom channels</code></pre>
             </div>
 
@@ -476,7 +481,7 @@ future.thenRun(() -> log.info("Invoice email sent"));</code></pre>
         <!-- ============================================ -->
         <section id="channels">
             <h2>Channels</h2>
-            <p>NotifyHub supports 17 built-in channels. Each channel requires its own module dependency and configuration. Below is the complete reference for each channel.</p>
+            <p>NotifyHub supports 20 built-in channels. Each channel requires its own module dependency and configuration. Below is the complete reference for each channel.</p>
 
             <div class="callout callout-tip"><strong>Multi-channel:</strong> You can send to multiple channels at once with a single call:
             <div class="code-block" style="margin-top:10px">
@@ -570,12 +575,14 @@ future.thenRun(() -> log.info("Invoice email sent"));</code></pre>
         <section id="ch-whatsapp">
             <div class="ch-doc-header">
                 <img src="https://cdn.simpleicons.org/whatsapp" width="24" height="24" alt="WhatsApp">
-                <h3>WhatsApp (Twilio)</h3>
+                <h3>WhatsApp</h3>
             </div>
-            <p>Send WhatsApp messages via Twilio's WhatsApp Business API. Uses the same Twilio credentials as SMS.</p>
+            <p>Send WhatsApp messages via <strong>Twilio</strong> or <strong>Meta WhatsApp Cloud API</strong>. Supports text messages and media attachments.</p>
             <p><strong>Module:</strong> <code>notify-sms</code> (same module as SMS)</p>
+
+            <h4>Option A: Twilio Backend</h4>
             <div class="code-block">
-                <div class="code-header">application.yml</div>
+                <div class="code-header">application.yml — Twilio</div>
 <pre><code>notify:
   channels:
     whatsapp:
@@ -584,7 +591,7 @@ future.thenRun(() -> log.info("Invoice email sent"));</code></pre>
       from-number: "+14155238886"</code></pre>
             </div>
             <div class="code-block">
-                <div class="code-header">Java (Standalone)</div>
+                <div class="code-header">Java (Standalone — Twilio)</div>
 <pre><code>TwilioConfig config = TwilioConfig.builder()
         .accountSid("AC...")
         .authToken("token")
@@ -592,6 +599,17 @@ future.thenRun(() -> log.info("Invoice email sent"));</code></pre>
         .build();
 hub.registerChannel(new WhatsAppChannel(config));</code></pre>
             </div>
+
+            <h4>Option B: Meta WhatsApp Cloud API</h4>
+            <div class="code-block">
+                <div class="code-header">application.yml — Cloud API</div>
+<pre><code>notify:
+  channels:
+    whatsapp:
+      access-token: ${WHATSAPP_ACCESS_TOKEN}
+      phone-number-id: ${WHATSAPP_PHONE_NUMBER_ID}</code></pre>
+            </div>
+
             <h4>Usage</h4>
             <div class="code-block">
                 <div class="code-header">Java</div>
@@ -600,6 +618,17 @@ hub.registerChannel(new WhatsAppChannel(config));</code></pre>
     .body("Your order has been shipped!")
     .send();</code></pre>
             </div>
+            <h4>Media Attachments</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>// Attach media (image, video, PDF) via public URL
+notify.to("+5511999999999")
+    .via(Channel.WHATSAPP)
+    .body("Here is your invoice")
+    .param("mediaUrl", "https://example.com/invoice.pdf")
+    .send();</code></pre>
+            </div>
+            <div class="callout callout-info"><strong>Dual backend:</strong> NotifyHub auto-detects which backend to use based on your configuration. If <code>account-sid</code> is set, Twilio is used. If <code>access-token</code> and <code>phone-number-id</code> are set, Meta Cloud API is used.</div>
         </section>
 
         <!-- CH: SLACK -->
@@ -1113,6 +1142,137 @@ hub.registerChannel(new WhatsAppChannel(config));</code></pre>
             </div>
         </section>
 
+        <!-- CH: SENDGRID -->
+        <section id="ch-sendgrid">
+            <div class="ch-doc-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#1A82E2"><rect x="0" y="0" width="8" height="8"/><rect x="8" y="0" width="8" height="8"/><rect x="8" y="8" width="8" height="8"/><rect x="16" y="8" width="8" height="8"/><rect x="16" y="16" width="8" height="8"/><rect x="8" y="16" width="8" height="8"/></svg>
+                <h3>SendGrid</h3>
+            </div>
+            <p>Send emails via the SendGrid API with full delivery tracking support. Track delivery status including opened, clicked, bounced, spam complaints, dropped, and deferred events.</p>
+            <p><strong>Module:</strong> <code>notify-sendgrid</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    sendgrid:
+      api-key: ${SENDGRID_API_KEY}
+      from: noreply@myapp.com
+      from-name: MyApp</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Java (Standalone)</div>
+<pre><code>SendGridConfig config = SendGridConfig.builder()
+    .apiKey("SG.xxxxxx")
+    .from("noreply@myapp.com")
+    .fromName("MyApp")
+    .build();</code></pre>
+            </div>
+            <h4>Usage</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>// Send and get provider message ID for tracking
+SendResult result = notify.to("user@example.com")
+    .via(Channel.custom("sendgrid"))
+    .subject("Welcome to MyApp!")
+    .body("Thanks for signing up.")
+    .sendWithResult();
+
+String providerMessageId = result.getProviderMessageId();</code></pre>
+            </div>
+            <h4>Delivery Tracking</h4>
+            <p>SendGrid supports advanced email delivery tracking. Check the status of a sent email:</p>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>// Check email delivery status
+EmailStatusProvider sendgrid = (EmailStatusProvider) hub.getChannel("sendgrid");
+DeliveryStatus status = sendgrid.checkEmailStatus(providerMessageId);
+// Returns: DELIVERED, OPENED, CLICKED, BOUNCED, SPAM_COMPLAINT, DROPPED, DEFERRED</code></pre>
+            </div>
+            <div class="callout callout-tip"><strong>Tracking statuses:</strong> SendGrid provides granular delivery events: <code>DELIVERED</code>, <code>OPENED</code>, <code>CLICKED</code>, <code>BOUNCED</code>, <code>SPAM_COMPLAINT</code>, <code>DROPPED</code>, and <code>DEFERRED</code>. Use the MCP tool <code>check_email_status</code> to query these from an AI assistant.</div>
+        </section>
+
+        <!-- CH: TIKTOK SHOP -->
+        <section id="ch-tiktok-shop">
+            <div class="ch-doc-header">
+                <img src="https://cdn.simpleicons.org/tiktok" width="24" height="24" alt="TikTok Shop">
+                <h3>TikTok Shop</h3>
+            </div>
+            <p>Send notifications via the TikTok Shop API with HMAC-SHA256 signed requests for secure communication.</p>
+            <p><strong>Module:</strong> <code>notify-tiktok-shop</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    tiktok-shop:
+      app-key: ${TIKTOK_SHOP_APP_KEY}
+      app-secret: ${TIKTOK_SHOP_APP_SECRET}
+      access-token: ${TIKTOK_SHOP_ACCESS_TOKEN}
+      shop-id: ${TIKTOK_SHOP_ID}</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Java (Standalone)</div>
+<pre><code>TikTokShopConfig config = TikTokShopConfig.builder()
+    .appKey("app-key")
+    .appSecret("app-secret")
+    .accessToken("access-token")
+    .shopId("shop-id")
+    .build();</code></pre>
+            </div>
+            <h4>Usage</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.to("shop-id")
+    .via(Channel.TIKTOK_SHOP)
+    .body("Your order has been shipped!")
+    .send();</code></pre>
+            </div>
+            <div class="callout callout-info"><strong>HMAC-SHA256:</strong> All requests to the TikTok Shop API are automatically signed with HMAC-SHA256 using your <code>app-secret</code>. No manual signing required.</div>
+        </section>
+
+        <!-- CH: FACEBOOK -->
+        <section id="ch-facebook">
+            <div class="ch-doc-header">
+                <img src="https://cdn.simpleicons.org/facebook" width="24" height="24" alt="Facebook">
+                <h3>Facebook</h3>
+            </div>
+            <p>Post to Facebook Page feeds and send Messenger DMs via the Facebook Graph API.</p>
+            <p><strong>Module:</strong> <code>notify-facebook</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    facebook:
+      page-access-token: ${FACEBOOK_PAGE_ACCESS_TOKEN}
+      page-id: ${FACEBOOK_PAGE_ID}</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Java (Standalone)</div>
+<pre><code>FacebookConfig config = FacebookConfig.builder()
+    .pageAccessToken("EAAGx...")
+    .pageId("123456789")
+    .build();</code></pre>
+            </div>
+            <h4>Usage — Page Feed Post</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>// Post to page feed — use "feed" as recipient
+notify.to("feed")
+    .via(Channel.FACEBOOK)
+    .body("Exciting news! Our v2.0 release is live.")
+    .send();</code></pre>
+            </div>
+            <h4>Usage — Messenger DM</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>// Send Messenger DM — use PSID as recipient
+notify.to("1234567890123456")
+    .via(Channel.FACEBOOK)
+    .body("Thanks for contacting us! We'll reply shortly.")
+    .send();</code></pre>
+            </div>
+            <div class="callout callout-info"><strong>Recipient types:</strong> Use <code>"feed"</code> as the recipient to publish a post on your Page's feed. Use a Page-Scoped ID (PSID) to send a Messenger DM to a specific user.</div>
+        </section>
+
         <!-- ============================================ -->
         <!-- SECTION: CUSTOM CHANNELS                     -->
         <!-- ============================================ -->
@@ -1355,21 +1515,46 @@ notify.toAudience("premium-users")
         <!-- ============================================ -->
         <section id="scheduling">
             <h2>Scheduling</h2>
-            <p>Schedule notifications for future delivery:</p>
+            <p>Schedule notifications for future delivery with delay-based or absolute-time scheduling. List pending notifications and cancel them before delivery.</p>
+
+            <h3>Schedule with Delay</h3>
             <div class="code-block">
                 <div class="code-header">Java</div>
-<pre><code>// Schedule with delay
+<pre><code>// Schedule with relative delay
 notify.to(user)
     .via(Channel.PUSH)
     .content("Don't forget your appointment tomorrow!")
-    .schedule(Duration.ofHours(24));
+    .schedule(Duration.ofHours(24));</code></pre>
+            </div>
 
-// Schedule at specific time
+            <h3>Schedule at Specific Time</h3>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>// Schedule at absolute time
 notify.to(user)
     .via(Channel.EMAIL)
     .template("weekly-digest")
     .scheduleAt(Instant.parse("2024-12-25T09:00:00Z"));</code></pre>
             </div>
+
+            <h3>List Scheduled Notifications</h3>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>// List all scheduled notifications
+List&lt;ScheduledNotification&gt; pending = hub.getScheduledNotifications();
+
+// Filter by status
+List&lt;ScheduledNotification&gt; sent = hub.getScheduledNotifications("SENT");</code></pre>
+            </div>
+
+            <h3>Cancel Scheduled Notifications</h3>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>// Cancel before delivery
+hub.cancelScheduledNotification(notificationId);</code></pre>
+            </div>
+
+            <h3>Configuration</h3>
             <div class="code-block">
                 <div class="code-header">application.yml</div>
 <pre><code>notify:
@@ -1377,6 +1562,20 @@ notify.to(user)
     enabled: true
     pool-size: 2</code></pre>
             </div>
+
+            <h3>MCP / AI Usage</h3>
+            <p>Use the scheduling tools from any AI assistant:</p>
+            <div class="code-block">
+                <div class="code-header">Claude / Cursor / Any AI</div>
+<pre><code>"Schedule an email to user@test.com in 30 minutes reminding about the meeting"
+
+"Schedule a Slack notification for tomorrow at 9am saying standup starts soon"
+
+"List all scheduled notifications"
+
+"Cancel the scheduled notification with ID abc-123"</code></pre>
+            </div>
+            <div class="callout callout-info"><strong>MCP tools:</strong> Use <code>schedule_notification</code> with either <code>delay</code> (e.g., "5m", "1h30m") or <code>scheduled_at</code> (ISO 8601) for flexible scheduling. Use <code>list_scheduled_notifications</code> and <code>cancel_scheduled_notification</code> to manage pending deliveries.</div>
         </section>
 
         <!-- ============================================ -->
@@ -1513,6 +1712,21 @@ public class MyService {
     instagram:
       access-token: ${INSTAGRAM_ACCESS_TOKEN}
       ig-user-id: ${INSTAGRAM_USER_ID}
+
+    sendgrid:
+      api-key: ${SENDGRID_API_KEY}
+      from: noreply@myapp.com
+      from-name: MyApp
+
+    tiktok-shop:
+      app-key: ${TIKTOK_SHOP_APP_KEY}
+      app-secret: ${TIKTOK_SHOP_APP_SECRET}
+      access-token: ${TIKTOK_SHOP_ACCESS_TOKEN}
+      shop-id: ${TIKTOK_SHOP_ID}
+
+    facebook:
+      page-access-token: ${FACEBOOK_PAGE_ACCESS_TOKEN}
+      page-id: ${FACEBOOK_PAGE_ID}
 
     webhooks:
       - name: pagerduty
@@ -1760,6 +1974,12 @@ open http://localhost:8080/swagger-ui.html</code></pre>
                     <tr><td><code>NOTIFY_CHANNELS_SMS_ACCOUNT_SID</code></td><td>AC...</td></tr>
                     <tr><td><code>NOTIFY_CHANNELS_SMS_AUTH_TOKEN</code></td><td>token</td></tr>
                     <tr><td><code>NOTIFY_CHANNELS_SMS_FROM_NUMBER</code></td><td>+15551234567</td></tr>
+                    <tr><td><code>NOTIFY_CHANNELS_SENDGRID_API_KEY</code></td><td>SG.xxxxxx</td></tr>
+                    <tr><td><code>NOTIFY_CHANNELS_SENDGRID_FROM</code></td><td>noreply@myapp.com</td></tr>
+                    <tr><td><code>NOTIFY_CHANNELS_TIKTOK_SHOP_APP_KEY</code></td><td>app-key</td></tr>
+                    <tr><td><code>NOTIFY_CHANNELS_TIKTOK_SHOP_APP_SECRET</code></td><td>app-secret</td></tr>
+                    <tr><td><code>NOTIFY_CHANNELS_FACEBOOK_PAGE_ACCESS_TOKEN</code></td><td>EAAGx...</td></tr>
+                    <tr><td><code>NOTIFY_CHANNELS_FACEBOOK_PAGE_ID</code></td><td>123456789</td></tr>
                 </tbody>
             </table>
         </section>
@@ -1769,13 +1989,13 @@ open http://localhost:8080/swagger-ui.html</code></pre>
         <!-- ============================================ -->
         <section id="mcp-server">
             <h2>MCP Server</h2>
-            <p>NotifyHub includes an MCP (Model Context Protocol) server with <strong>27 tools</strong> for AI agent integration. Connect it to Claude Desktop, Claude Code, Cursor, or any MCP-compatible client.</p>
+            <p>NotifyHub includes an MCP (Model Context Protocol) server with <strong>33 tools</strong> for AI agent integration. Connect it to Claude Desktop, Claude Code, Cursor, or any MCP-compatible client.</p>
 
-            <h3>All 27 Tools</h3>
+            <h3>All 33 Tools</h3>
             <table>
                 <thead><tr><th>Category</th><th>Tool</th><th>Description</th></tr></thead>
                 <tbody>
-                    <tr><td rowspan="15"><strong>Channel Send</strong></td><td><code>send_email</code></td><td>Send via SMTP</td></tr>
+                    <tr><td rowspan="17"><strong>Channel Send</strong></td><td><code>send_email</code></td><td>Send via SMTP</td></tr>
                     <tr><td><code>send_sms</code></td><td>Send via Twilio</td></tr>
                     <tr><td><code>send_whatsapp</code></td><td>Send via Twilio WhatsApp</td></tr>
                     <tr><td><code>send_slack</code></td><td>Send via webhook</td></tr>
@@ -1790,6 +2010,8 @@ open http://localhost:8080/swagger-ui.html</code></pre>
                     <tr><td><code>send_twitch</code></td><td>Twitch Helix API</td></tr>
                     <tr><td><code>send_youtube</code></td><td>YouTube Live Chat</td></tr>
                     <tr><td><code>send_instagram</code></td><td>Instagram Graph API</td></tr>
+                    <tr><td><code>send_tiktok_shop</code></td><td>TikTok Shop API (HMAC-SHA256)</td></tr>
+                    <tr><td><code>send_facebook</code></td><td>Facebook Graph API (Page + Messenger)</td></tr>
                     <tr><td rowspan="4"><strong>Unified</strong></td><td><code>send_notification</code></td><td>Send via any channel</td></tr>
                     <tr><td><code>send_batch</code></td><td>Same message to multiple recipients</td></tr>
                     <tr><td><code>send_multi_channel</code></td><td>Same message across multiple channels</td></tr>
@@ -1798,10 +2020,14 @@ open http://localhost:8080/swagger-ui.html</code></pre>
                     <tr><td><code>list_contacts</code></td><td>List/filter contacts</td></tr>
                     <tr><td><code>create_audience</code></td><td>Create audience by tag filter</td></tr>
                     <tr><td><code>list_audiences</code></td><td>List audiences</td></tr>
-                    <tr><td rowspan="4"><strong>Monitoring</strong></td><td><code>list_channels</code></td><td>List configured channels</td></tr>
+                    <tr><td rowspan="3"><strong>Scheduling</strong></td><td><code>schedule_notification</code></td><td>Schedule for future delivery (delay or absolute time)</td></tr>
+                    <tr><td><code>list_scheduled_notifications</code></td><td>List pending/sent/cancelled scheduled notifications</td></tr>
+                    <tr><td><code>cancel_scheduled_notification</code></td><td>Cancel a pending scheduled notification</td></tr>
+                    <tr><td rowspan="5"><strong>Monitoring</strong></td><td><code>list_channels</code></td><td>List configured channels</td></tr>
                     <tr><td><code>list_delivery_receipts</code></td><td>View delivery history</td></tr>
                     <tr><td><code>list_dead_letters</code></td><td>View failed notifications</td></tr>
                     <tr><td><code>get_analytics</code></td><td>Delivery analytics and stats</td></tr>
+                    <tr><td><code>check_email_status</code></td><td>Check email delivery status (SendGrid: delivered, opened, bounced, etc.)</td></tr>
                 </tbody>
             </table>
 
@@ -1814,6 +2040,9 @@ open http://localhost:8080/swagger-ui.html</code></pre>
                 <li>"Notify the team on Slack and Telegram that the build passed"</li>
                 <li>"Show me the delivery analytics — how many sent vs failed?"</li>
                 <li>"List all dead letters and show me what failed"</li>
+                <li>"Schedule an email to the team for tomorrow at 9am about the standup"</li>
+                <li>"Check if that email to john@test.com was delivered or bounced"</li>
+                <li>"Post on our Facebook page that the sale starts today"</li>
             </ul>
         </section>
 
@@ -1933,8 +2162,11 @@ mvn test -pl notify-spring-boot-starter</code></pre>
                     <tr><td><code>notify-twitch</code></td><td>Twitch Helix API.</td></tr>
                     <tr><td><code>notify-youtube</code></td><td>YouTube Data API v3.</td></tr>
                     <tr><td><code>notify-instagram</code></td><td>Instagram Graph API.</td></tr>
+                    <tr><td><code>notify-sendgrid</code></td><td>SendGrid Email API (with delivery tracking).</td></tr>
+                    <tr><td><code>notify-tiktok-shop</code></td><td>TikTok Shop API (HMAC-SHA256).</td></tr>
+                    <tr><td><code>notify-facebook</code></td><td>Facebook Graph API (Page + Messenger).</td></tr>
                     <tr><td><code>notify-spring-boot-starter</code></td><td>Auto-configuration + properties.</td></tr>
-                    <tr><td><code>notify-mcp</code></td><td>MCP Server for AI assistants (27 tools).</td></tr>
+                    <tr><td><code>notify-mcp</code></td><td>MCP Server for AI assistants (33 tools).</td></tr>
                     <tr><td><code>notify-demo</code></td><td>Demo application.</td></tr>
                 </tbody>
             </table>

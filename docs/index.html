@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NotifyHub — One API. Every Channel.</title>
-    <meta name="description" content="Unified notification library for Java and Spring Boot. Send via Email, SMS, Slack, Discord, Telegram, Teams, WhatsApp, Google Chat, Push, WebSocket, Twitter/X, LinkedIn, Notion, Twitch, YouTube, Instagram with one fluent API.">
+    <meta name="description" content="Unified notification library for Java and Spring Boot. Send via Email, SMS, Slack, Discord, Telegram, Teams, WhatsApp, Google Chat, Push, WebSocket, Twitter/X, LinkedIn, Notion, Twitch, YouTube, Instagram, SendGrid, TikTok Shop, Facebook with one fluent API.">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="logo.png" type="image/png">
 </head>
@@ -34,7 +34,7 @@
         <h1>Notify<span class="accent">Hub</span></h1>
         <p class="tagline">Send notifications from AI. Or from code.</p>
         <p class="subtitle">Use Claude, Cursor or any AI assistant to send notifications with zero code.<br>
-            Or integrate our Java API into your app — <strong>17 channels</strong>, one fluent interface.</p>
+            Or integrate our Java API into your app — <strong>20 channels</strong>, one fluent interface.</p>
         <div class="badges">
             <a href="https://central.sonatype.com/namespace/io.github.gabrielbbaldez"><img src="https://img.shields.io/maven-central/v/io.github.gabrielbbaldez/notify-spring-boot-starter?style=flat-square&color=f97316" alt="Maven Central"></a>
             <a href="https://github.com/GabrielBBaldez/notify-hub/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/GabrielBBaldez/notify-hub/ci.yml?style=flat-square&label=CI" alt="CI"></a>
@@ -66,7 +66,7 @@
             <div class="what-card">
                 <div class="what-icon">&#129302;</div>
                 <h3>AI Ready</h3>
-                <p>MCP Server with 27 tools. Let Claude, Cursor, or any AI assistant send notifications on your behalf.</p>
+                <p>MCP Server with 33 tools. Let Claude, Cursor, or any AI assistant send notifications on your behalf.</p>
             </div>
         </div>
     </section>
@@ -114,7 +114,7 @@
 
     <!-- CHANNELS -->
     <section class="channels-section" id="channels">
-        <h2>17 Channels. Zero Friction.</h2>
+        <h2>20 Channels. Zero Friction.</h2>
         <p class="section-lead">Every channel uses the same API. Most use <strong>zero external SDKs</strong> — just the JDK HttpClient. Add only the channels you need.</p>
         <div class="channels-grid">
             <div class="ch-card">
@@ -130,7 +130,7 @@
             <div class="ch-card">
                 <div class="ch-icon"><img src="https://cdn.simpleicons.org/whatsapp" alt="WhatsApp" width="28" height="28"></div>
                 <h4>WhatsApp</h4>
-                <p>Twilio. Same setup as SMS, different channel.</p>
+                <p>Twilio or WhatsApp Cloud API. Media attachments supported.</p>
             </div>
             <div class="ch-card">
                 <div class="ch-icon"><img src="https://cdn.simpleicons.org/slack" alt="Slack" width="28" height="28"></div>
@@ -202,6 +202,21 @@
                 <h4>Instagram</h4>
                 <p>Meta Graph API. DMs and feed posts. No SDK needed.</p>
             </div>
+            <div class="ch-card">
+                <div class="ch-icon"><img src="https://cdn.simpleicons.org/sendgrid" alt="SendGrid" width="28" height="28"></div>
+                <h4>SendGrid</h4>
+                <p>Email delivery tracking — opened, clicked, bounced, spam complaints.</p>
+            </div>
+            <div class="ch-card">
+                <div class="ch-icon"><img src="https://cdn.simpleicons.org/tiktok" alt="TikTok Shop" width="28" height="28"></div>
+                <h4>TikTok Shop</h4>
+                <p>Shop notifications with HMAC-SHA256 authentication.</p>
+            </div>
+            <div class="ch-card">
+                <div class="ch-icon"><img src="https://cdn.simpleicons.org/facebook" alt="Facebook" width="28" height="28"></div>
+                <h4>Facebook</h4>
+                <p>Page posts &amp; Messenger DMs via Graph API.</p>
+            </div>
             <div class="ch-card ch-custom">
                 <div class="ch-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="#f97316"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></div>
                 <h4>Custom</h4>
@@ -233,7 +248,7 @@
             </div>
             <div class="feat-card">
                 <h4>&#9203; Scheduling</h4>
-                <p><code>.schedule(Duration.ofHours(24))</code> — send later. Cancel, check status, view remaining delay.</p>
+                <p>Schedule, list, and cancel notifications. Use relative delays or absolute timestamps with timezone support.</p>
             </div>
             <div class="feat-card">
                 <h4>&#128257; Retry &amp; DLQ</h4>
@@ -245,7 +260,7 @@
             </div>
             <div class="feat-card">
                 <h4>&#128269; Delivery Tracking</h4>
-                <p>Every send returns a <code>DeliveryReceipt</code> with ID, status, timestamp. In-memory or JPA persistence.</p>
+                <p>Every send returns a <code>DeliveryReceipt</code>. Email tracking via SendGrid: opened, clicked, bounced, spam complaints.</p>
             </div>
             <div class="feat-card">
                 <h4>&#128274; Deduplication</h4>
@@ -273,7 +288,7 @@
     <!-- FOR DEVELOPERS -->
     <section class="dev-section" id="developer">
         <h2>For Developers</h2>
-        <p class="section-lead">One fluent Java API. 17 channels. 3 lines of code. Spring Boot auto-configured.</p>
+        <p class="section-lead">One fluent Java API. 20 channels. 3 lines of code. Spring Boot auto-configured.</p>
         <div class="code-block">
             <div class="code-header">Java — That's it. Really.</div>
 <pre><code>notify.to("user@email.com")
@@ -467,7 +482,7 @@ open http://localhost:8080/swagger-ui.html</code></pre>
                     <span class="docker-badge mcp-badge">MCP Server</span>
                     <code class="docker-image">gabrielbbal10/notifyhub-mcp</code>
                 </div>
-                <p>Model Context Protocol server with <strong>27 tools</strong> for AI assistants. Connect to Claude Desktop, Claude Code, or Cursor.</p>
+                <p>Model Context Protocol server with <strong>33 tools</strong> for AI assistants. Connect to Claude Desktop, Claude Code, or Cursor.</p>
                 <div class="docker-links">
                     <a href="https://hub.docker.com/r/gabrielbbal10/notifyhub-mcp">Docker Hub</a>
                     <a href="https://github.com/GabrielBBaldez/notify-hub#mcp-server">Docs</a>
@@ -547,10 +562,10 @@ open http://localhost:8080/swagger-ui.html</code></pre>
     <!-- MCP / AI -->
     <section class="mcp-section" id="mcp">
         <h2>Built for AI</h2>
-        <p class="section-lead">NotifyHub includes an <strong>MCP Server</strong> (Model Context Protocol) that exposes 27 tools. Connect it to Claude Desktop, Claude Code, Cursor, or any MCP-compatible AI client.</p>
+        <p class="section-lead">NotifyHub includes an <strong>MCP Server</strong> (Model Context Protocol) that exposes 33 tools. Connect it to Claude Desktop, Claude Code, Cursor, or any MCP-compatible AI client.</p>
         <div class="mcp-grid">
             <div class="mcp-tools">
-                <h4>27 MCP Tools</h4>
+                <h4>33 MCP Tools</h4>
                 <div class="tool-list">
                     <span class="tool">send_email</span>
                     <span class="tool">send_sms</span>
@@ -567,6 +582,8 @@ open http://localhost:8080/swagger-ui.html</code></pre>
                     <span class="tool">send_twitch</span>
                     <span class="tool">send_youtube</span>
                     <span class="tool">send_instagram</span>
+                    <span class="tool">send_tiktok_shop</span>
+                    <span class="tool">send_facebook</span>
                     <span class="tool">send_notification</span>
                     <span class="tool">send_multi_channel</span>
                     <span class="tool">send_batch</span>
@@ -579,6 +596,10 @@ open http://localhost:8080/swagger-ui.html</code></pre>
                     <span class="tool">list_delivery_receipts</span>
                     <span class="tool">list_dead_letters</span>
                     <span class="tool">get_analytics</span>
+                    <span class="tool">check_email_status</span>
+                    <span class="tool">schedule_notification</span>
+                    <span class="tool">list_scheduled_notifications</span>
+                    <span class="tool">cancel_scheduled_notification</span>
                 </div>
             </div>
             <div class="mcp-example">
@@ -589,7 +610,8 @@ open http://localhost:8080/swagger-ui.html</code></pre>
                     <div class="ai-prompt">"Send an SMS to +5548999999999 with the verification code"</div>
                     <div class="ai-prompt">"Notify the team on Slack and Telegram that the build passed"</div>
                     <div class="ai-prompt">"Show me the delivery analytics — how many sent vs failed?"</div>
-                    <div class="ai-prompt">"List all dead letters and show me what failed"</div>
+                    <div class="ai-prompt">"Schedule an email reminder for tomorrow at 9am"</div>
+                    <div class="ai-prompt">"Check if the last email was opened or bounced"</div>
                 </div>
             </div>
         </div>
@@ -612,7 +634,7 @@ open http://localhost:8080/swagger-ui.html</code></pre>
                     <span class="skill-icon">&#128218;</span>
                     <div>
                         <strong>Full API Reference</strong>
-                        <span>17 channels, fluent builder, all execution methods, Priority, DeliveryReceipt</span>
+                        <span>20 channels, fluent builder, all execution methods, Priority, DeliveryReceipt</span>
                     </div>
                 </div>
                 <div class="skill-feature">
@@ -625,8 +647,8 @@ open http://localhost:8080/swagger-ui.html</code></pre>
                 <div class="skill-feature">
                     <span class="skill-icon">&#129302;</span>
                     <div>
-                        <strong>27 MCP Tools Documented</strong>
-                        <span>Send, batch, audience, contacts, analytics, DLQ — all tool signatures</span>
+                        <strong>33 MCP Tools Documented</strong>
+                        <span>Send, batch, audience, contacts, analytics, scheduling, email tracking, DLQ — all tool signatures</span>
                     </div>
                 </div>
                 <div class="skill-feature">
@@ -723,7 +745,7 @@ cp SKILL.md ~/.claude/plugins/notifyhub/skills/notifyhub/</code></pre>
 
     <!-- MODULES -->
     <section class="modules-section" id="modules">
-        <h2>25 Modules. Pick What You Need.</h2>
+        <h2>28 Modules. Pick What You Need.</h2>
         <p class="section-lead">NotifyHub is modular. The core has zero Spring dependency. Add only the channels and features you use.</p>
         <div class="modules-table">
             <table>
@@ -734,7 +756,7 @@ cp SKILL.md ~/.claude/plugins/notifyhub/skills/notifyhub/</code></pre>
                     <tr><td><code>notify-core</code></td><td>Fluent API, templates, retry, DLQ, rate limiting, tracking. Zero Spring dependency.</td></tr>
                     <tr><td><code>notify-spring-boot-starter</code></td><td>Auto-configures everything for Spring Boot. The main entry point.</td></tr>
                     <tr><td><code>notify-email</code></td><td>SMTP email with Jakarta Mail. HTML, attachments, TLS/SSL.</td></tr>
-                    <tr><td><code>notify-sms</code></td><td>SMS + WhatsApp via Twilio.</td></tr>
+                    <tr><td><code>notify-sms</code></td><td>SMS + WhatsApp via Twilio or WhatsApp Cloud API.</td></tr>
                     <tr><td><code>notify-slack</code></td><td>Slack via Incoming Webhooks. No SDK.</td></tr>
                     <tr><td><code>notify-telegram</code></td><td>Telegram via Bot API. No SDK.</td></tr>
                     <tr><td><code>notify-discord</code></td><td>Discord via Webhooks. No SDK.</td></tr>
@@ -749,9 +771,13 @@ cp SKILL.md ~/.claude/plugins/notifyhub/skills/notifyhub/</code></pre>
                     <tr><td><code>notify-twitch</code></td><td>Twitch via Helix API. Chat messages + polls.</td></tr>
                     <tr><td><code>notify-youtube</code></td><td>YouTube via Data API v3. Live chat messages.</td></tr>
                     <tr><td><code>notify-instagram</code></td><td>Instagram via Meta Graph API. DMs and feed posts.</td></tr>
+                    <tr><td><code>notify-sendgrid</code></td><td>SendGrid email with delivery tracking (opened, clicked, bounced, spam).</td></tr>
+                    <tr><td><code>notify-tiktok-shop</code></td><td>TikTok Shop API with HMAC-SHA256 authentication.</td></tr>
+                    <tr><td><code>notify-facebook</code></td><td>Facebook Graph API. Page posts and Messenger DMs.</td></tr>
                     <tr><td><code>notify-tracker-jpa</code></td><td>JPA-backed delivery tracking. Persist receipts to any database.</td></tr>
+                    <tr><td><code>notify-audit-jpa</code></td><td>JPA-backed audit logging. Persist events to any database.</td></tr>
                     <tr><td><code>notify-admin</code></td><td>Web dashboard for monitoring and DLQ management.</td></tr>
-                    <tr><td><code>notify-mcp</code></td><td>MCP Server for AI assistants (27 tools).</td></tr>
+                    <tr><td><code>notify-mcp</code></td><td>MCP Server for AI assistants (33 tools).</td></tr>
                     <tr><td><code>notify-queue-rabbitmq</code></td><td>RabbitMQ producer/consumer for async notifications.</td></tr>
                     <tr><td><code>notify-queue-kafka</code></td><td>Apache Kafka producer/consumer for async notifications.</td></tr>
                 </tbody>

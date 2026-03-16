@@ -33,7 +33,7 @@ mvn test -pl notify-mcp -Dtest="SendEmailToolTest"
 - **Java**: 17+ (source & target)
 - **Spring Boot**: 3.2.5 (optional — core works standalone)
 - **License**: MIT
-- **Build**: Maven multi-module (27 modules)
+- **Build**: Maven multi-module (29 modules)
 - **Repo**: https://github.com/GabrielBBaldez/notify-hub
 
 ## Module Map
@@ -68,7 +68,7 @@ notify-hub/
 ├── notify-queue-rabbitmq/          # RabbitMQ integration (optional)
 ├── notify-queue-kafka/             # Kafka integration (optional)
 ├── notify-demo/                    # Demo Spring Boot app
-├── notify-mcp/                     # MCP Server for AI agents (30 tools)
+├── notify-mcp/                     # MCP Server for AI agents (33 tools)
 └── docs/                           # Static landing page (GitHub Pages)
 ```
 
@@ -250,7 +250,7 @@ mvn test -pl notify-mcp -Dtest="SendEmailToolTest"  # Single class
 
 ## MCP Server (notify-mcp)
 
-- 30 tools for AI agent integration
+- 33 tools for AI agent integration
 - STDIO transport (JSON-RPC)
 - Built as fat JAR: `java -jar notify-mcp-0.9.0.jar`
 - Each tool is a class in `io.notifyhub.mcp.tools/`

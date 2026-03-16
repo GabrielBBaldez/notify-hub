@@ -41,6 +41,10 @@ public class SendWhatsAppTool {
                       "type": "object",
                       "description": "Template parameters as key-value pairs",
                       "additionalProperties": true
+                    },
+                    "media_url": {
+                      "type": "string",
+                      "description": "Public URL of media to attach (image, video, PDF). Twilio fetches this URL to send with the message."
                     }
                   },
                   "required": ["phone"]
@@ -49,7 +53,7 @@ public class SendWhatsAppTool {
 
         Tool tool = Tool.builder()
                 .name("send_whatsapp")
-                .description("Send a WhatsApp message via Twilio.")
+                .description("Send a WhatsApp message via Twilio or WhatsApp Cloud API.")
                 .inputSchema(jsonMapper, schema)
                 .build();
 
@@ -68,6 +72,7 @@ public class SendWhatsAppTool {
         String body = (String) args.get("body");
         String template = (String) args.get("template");
         Map<String, Object> params = (Map<String, Object>) args.get("params");
+        String mediaUrl = (String) args.get("media_url");
 
         if (body == null && template == null) {
             return ToolResultHelper.error("Either 'body' or 'template' must be provided");
@@ -80,6 +85,10 @@ public class SendWhatsAppTool {
             if (params != null) builder.params(params);
         } else {
             builder.content(body);
+        }
+
+        if (mediaUrl != null && !mediaUrl.isEmpty()) {
+            builder.param("mediaUrl", mediaUrl);
         }
 
         DeliveryReceipt receipt = builder.sendTracked();

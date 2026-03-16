@@ -37,7 +37,7 @@ public class NotifySmsAutoConfiguration {
 
     @Bean
     @ConditionalOnProperty(prefix = "notify.channels.whatsapp", name = "account-sid")
-    @ConditionalOnMissingBean(TwilioWhatsAppChannel.class)
+    @ConditionalOnMissingBean(name = {"twilioWhatsAppChannel", "whatsAppCloudChannel"})
     public TwilioWhatsAppChannel twilioWhatsAppChannel(NotifyProperties properties) {
         NotifyProperties.WhatsApp wa = properties.getChannels().getWhatsapp();
         TwilioConfig config = TwilioConfig.builder()

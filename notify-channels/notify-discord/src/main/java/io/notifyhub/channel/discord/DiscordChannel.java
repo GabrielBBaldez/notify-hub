@@ -52,14 +52,18 @@ public class DiscordChannel implements NotificationChannel {
         String content = notification.getRenderedContent();
 
         try {
+            // Per-notification override via params, fallback to config
+            String username = resolveParam(notification, "senderName", config.getUsername());
+            String avatarUrl = resolveParam(notification, "senderAvatar", config.getAvatarUrl());
+
             StringBuilder payload = new StringBuilder();
             payload.append("{\"content\": \"").append(escapeJson(content)).append("\"");
 
-            if (config.getUsername() != null && !config.getUsername().isBlank()) {
-                payload.append(", \"username\": \"").append(escapeJson(config.getUsername())).append("\"");
+            if (username != null && !username.isBlank()) {
+                payload.append(", \"username\": \"").append(escapeJson(username)).append("\"");
             }
-            if (config.getAvatarUrl() != null && !config.getAvatarUrl().isBlank()) {
-                payload.append(", \"avatar_url\": \"").append(escapeJson(config.getAvatarUrl())).append("\"");
+            if (avatarUrl != null && !avatarUrl.isBlank()) {
+                payload.append(", \"avatar_url\": \"").append(escapeJson(avatarUrl)).append("\"");
             }
 
             payload.append("}");
@@ -107,6 +111,14 @@ public class DiscordChannel implements NotificationChannel {
             return recipient;
         }
         return config.getWebhookUrl();
+    }
+
+    private String resolveParam(Notification notification, String paramName, String configDefault) {
+        Object value = notification.getParams().get(paramName);
+        if (value != null && !value.toString().isEmpty()) {
+            return value.toString();
+        }
+        return configDefault;
     }
 
     private String escapeJson(String text) {

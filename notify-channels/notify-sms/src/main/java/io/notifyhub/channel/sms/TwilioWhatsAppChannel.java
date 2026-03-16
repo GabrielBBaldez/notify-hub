@@ -2,12 +2,16 @@ package io.notifyhub.channel.sms;
 
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.rest.api.v2010.account.MessageCreator;
 import com.twilio.type.PhoneNumber;
 import io.notifyhub.core.Notification;
 import io.notifyhub.core.channel.NotificationChannel;
 import io.notifyhub.core.channel.NotificationSendException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.URI;
+import java.util.List;
 
 /**
  * WhatsApp notification channel using Twilio API.
@@ -57,11 +61,20 @@ public class TwilioWhatsAppChannel implements NotificationChannel {
             String toNumber = "whatsapp:" + notification.getRecipient();
             String fromNumber = "whatsapp:" + config.getFromNumber();
 
-            Message message = Message.creator(
+            MessageCreator creator = Message.creator(
                     new PhoneNumber(toNumber),
                     new PhoneNumber(fromNumber),
                     content
-            ).create();
+            );
+
+            // Support media via URL (Twilio fetches the image/video from the URL)
+            Object mediaUrl = notification.getParams().get("mediaUrl");
+            if (mediaUrl != null && !mediaUrl.toString().isEmpty()) {
+                creator.setMediaUrl(List.of(URI.create(mediaUrl.toString())));
+                log.debug("WhatsApp media attached: {}", mediaUrl);
+            }
+
+            Message message = creator.create();
 
             log.debug("WhatsApp sent to '{}', SID: {}", notification.getRecipient(), message.getSid());
 

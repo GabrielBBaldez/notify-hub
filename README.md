@@ -884,6 +884,9 @@ Both modules support: templates, priority, deduplication keys, delivery tracking
 | <img src="https://cdn.simpleicons.org/twitch" width="18"> | **Twitch** | Helix API (OAuth 2.0 auto-refresh) | `notify-twitch` |
 | <img src="https://cdn.simpleicons.org/youtube" width="18"> | **YouTube** | Data API v3 (OAuth auto-refresh) | `notify-youtube` |
 | <img src="https://cdn.simpleicons.org/instagram" width="18"> | **Instagram** | Meta Graph API | `notify-instagram` |
+| 📧 | **SendGrid** | SendGrid API (delivery tracking) | `notify-sendgrid` |
+| <img src="https://cdn.simpleicons.org/tiktok/EE1D52" width="18"> | **TikTok Shop** | TikTok Shop API (HMAC-SHA256) | `notify-tiktok-shop` |
+| <img src="https://cdn.simpleicons.org/facebook" width="18"> | **Facebook** | Graph API (Page + Messenger) | `notify-facebook` |
 | ➕ | **Custom** | Any — implement one interface | `notify-core` |
 
 ---
@@ -1319,6 +1322,12 @@ mvn clean package -pl notify-mcp -am -DskipTests
 | `create_audience` | Create audience with tag filters | `name`, `tags[]` |
 | `list_audiences` | List audiences with contact counts | _(none)_ |
 | `get_analytics` | Delivery stats by channel/status | _(none)_ |
+| `send_tiktok_shop` | Send TikTok Shop notification | `recipient`, `body` or `template` |
+| `send_facebook` | Send Facebook page post or Messenger DM | `recipient`, `body` or `template` |
+| `check_email_status` | Check SendGrid email delivery status | `message_id` |
+| `schedule_notification` | Schedule a notification for later delivery | `channel`, `recipient`, `body`, `send_at` |
+| `list_scheduled_notifications` | List all scheduled notifications | _(none)_ |
+| `cancel_scheduled_notification` | Cancel a pending scheduled notification | `notification_id` |
 
 All send tools optionally accept: `subject`, `template`, `params`, `priority`.
 

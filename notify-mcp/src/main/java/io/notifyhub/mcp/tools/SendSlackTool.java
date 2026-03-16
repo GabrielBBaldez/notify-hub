@@ -42,10 +42,6 @@ public class SendSlackTool {
                       "description": "Template parameters as key-value pairs",
                       "additionalProperties": true
                     },
-                    "imageUrl": {
-                      "type": "string",
-                      "description": "Optional image URL to embed in the notification"
-                    },
                     "sender_name": {
                       "type": "string",
                       "description": "Override bot display name for this message"
@@ -80,7 +76,6 @@ public class SendSlackTool {
         String body = (String) args.get("body");
         String template = (String) args.get("template");
         Map<String, Object> params = (Map<String, Object>) args.get("params");
-        String imageUrl = (String) args.get("imageUrl");
         String senderName = (String) args.get("sender_name");
         String senderAvatar = (String) args.get("sender_avatar");
 
@@ -96,7 +91,6 @@ public class SendSlackTool {
         } else {
             builder.content(body);
         }
-        if (imageUrl != null) builder.image(imageUrl);
 
         if (senderName != null && !senderName.isEmpty()) {
             builder.param("senderName", senderName);

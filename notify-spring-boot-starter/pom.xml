@@ -22,6 +22,7 @@
         <dependency>
             <groupId>io.github.gabrielbbaldez</groupId>
             <artifactId>notify-email</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>io.github.gabrielbbaldez</groupId>

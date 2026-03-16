@@ -42,10 +42,6 @@ public class SendWhatsAppTool {
                       "description": "Template parameters as key-value pairs",
                       "additionalProperties": true
                     },
-                    "imageUrl": {
-                      "type": "string",
-                      "description": "Optional image URL to embed in the notification"
-                    },
                     "media_url": {
                       "type": "string",
                       "description": "Public URL of media to attach (image, video, PDF). Twilio fetches this URL to send with the message."
@@ -76,7 +72,6 @@ public class SendWhatsAppTool {
         String body = (String) args.get("body");
         String template = (String) args.get("template");
         Map<String, Object> params = (Map<String, Object>) args.get("params");
-        String imageUrl = (String) args.get("imageUrl");
         String mediaUrl = (String) args.get("media_url");
 
         if (body == null && template == null) {
@@ -91,7 +86,6 @@ public class SendWhatsAppTool {
         } else {
             builder.content(body);
         }
-        if (imageUrl != null) builder.image(imageUrl);
 
         if (mediaUrl != null && !mediaUrl.isEmpty()) {
             builder.param("mediaUrl", mediaUrl);

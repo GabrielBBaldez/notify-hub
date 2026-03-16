@@ -29,11 +29,11 @@ mvn test -pl notify-mcp -Dtest="SendEmailToolTest"
 ## Project Identity
 
 - **Group ID**: `io.github.gabrielbbaldez`
-- **Version**: `1.0.0`
+- **Version**: `0.9.0`
 - **Java**: 17+ (source & target)
 - **Spring Boot**: 3.2.5 (optional — core works standalone)
 - **License**: MIT
-- **Build**: Maven multi-module (28 modules)
+- **Build**: Maven multi-module (29 modules)
 - **Repo**: https://github.com/GabrielBBaldez/notify-hub
 
 ## Module Map
@@ -41,7 +41,7 @@ mvn test -pl notify-mcp -Dtest="SendEmailToolTest"
 ```
 notify-hub/
 ├── notify-core/                    # Core API — zero Spring dependency
-├── notify-channels/                # One module per channel (20 total)
+├── notify-channels/                # One module per channel (19 total)
 │   ├── notify-email/               #   SMTP (Jakarta Mail)
 │   ├── notify-sms/                 #   Twilio SMS
 │   ├── notify-slack/               #   Slack webhooks
@@ -60,8 +60,7 @@ notify-hub/
 │   ├── notify-instagram/           #   Instagram Graph API
 │   ├── notify-sendgrid/            #   SendGrid Email (with delivery tracking)
 │   ├── notify-tiktok-shop/         #   TikTok Shop API (HMAC-SHA256)
-│   ├── notify-facebook/            #   Facebook Graph API (Page + Messenger)
-│   └── notify-whatsapp/            #   WhatsApp Cloud API (Meta Graph API)
+│   └── notify-facebook/            #   Facebook Graph API (Page + Messenger)
 ├── notify-spring-boot-starter/     # Auto-configuration + properties
 ├── notify-tracker-jpa/             # JPA delivery tracking (optional)
 ├── notify-audit-jpa/               # JPA audit logging (optional)
@@ -245,15 +244,15 @@ mvn test -pl notify-mcp -Dtest="SendEmailToolTest"  # Single class
 ### Release Process
 
 1. Update version in all `pom.xml` files
-2. Commit and tag: `git tag v1.0.0`
-3. Push tag: `git push origin v1.0.0`
+2. Commit and tag: `git tag v0.9.0`
+3. Push tag: `git push origin v0.9.0`
 4. GitHub Actions builds, signs, publishes to Maven Central
 
 ## MCP Server (notify-mcp)
 
 - 33 tools for AI agent integration
 - STDIO transport (JSON-RPC)
-- Built as fat JAR: `java -jar notify-mcp-1.0.0.jar`
+- Built as fat JAR: `java -jar notify-mcp-0.9.0.jar`
 - Each tool is a class in `io.notifyhub.mcp.tools/`
 - Config via environment variables (see `.mcp.json`)
 
@@ -284,9 +283,3 @@ Defined in `.claude/launch.json`:
 - When mocking `NotificationChannel` in MCP tests, add `when(channel.sendWithResult(any())).thenCallRealMethod()` in setUp()
 - `mvn spring-boot:run -pl notify-demo` uses JARs from local Maven repo — run `mvn install -DskipTests` first after changing dependency modules
 - Setup wizard supports 11 editors: Claude Code, Cursor, Windsurf, VS Code, Zed, IDEA, Neovim, Emacs, Roo Code, PearAI, LM Studio
-- **MCP env vars — THREE config sources, priority matters:**
-  - Claude Desktop reads from `%APPDATA%/Claude/claude_desktop_config.json` (Windows) / `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
-  - Claude Code reads from `.mcp.json` (project root) and `~/.claude/.mcp.json` (user-level)
-  - If a channel's env var is missing from the RIGHT config file, the channel won't register — even if it's in the other files
-  - When adding a new channel, update ALL config files where the MCP server is defined
-- **Do NOT add `notify.channels.*` entries with empty defaults in MCP `application.yml`** — `${ENV_VAR:}` resolves to `""` when unset, which tricks `@ConditionalOnProperty` into creating a bean that crashes on validation. Spring Boot's relaxed binding auto-maps env vars (e.g., `NOTIFY_CHANNELS_TELEGRAM_BOTTOKEN` → `notify.channels.telegram.bot-token`) without needing YAML entries

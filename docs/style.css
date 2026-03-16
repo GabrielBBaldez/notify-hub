@@ -264,8 +264,8 @@ pre code { color: var(--text); }
 
 /* --- SKILL --- */
 .skill-block {
-    margin-top: 48px; background: var(--bg2); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 32px; max-width: 1100px; margin-left: auto; margin-right: auto;
+    margin: 48px auto 0; background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 32px; max-width: 1100px;
 }
 .skill-header { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
 .skill-header h3 { font-size: 1.2rem; color: var(--text); margin: 0; }

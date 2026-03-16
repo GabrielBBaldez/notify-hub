@@ -85,7 +85,7 @@ public class NotifyAutoConfiguration {
     // ===================== SCHEDULING =====================
 
     @Bean
-    @ConditionalOnMissingBean(ScheduledExecutorService.class)
+    @ConditionalOnMissingBean(name = "notifyScheduler")
     @ConditionalOnProperty(prefix = "notify.scheduling", name = "enabled", matchIfMissing = true)
     public ScheduledExecutorService notifyScheduler(NotifyProperties properties) {
         int poolSize = properties.getScheduling().getPoolSize();

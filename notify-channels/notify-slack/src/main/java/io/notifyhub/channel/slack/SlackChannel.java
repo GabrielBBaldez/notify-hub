@@ -51,8 +51,6 @@ public class SlackChannel implements NotificationChannel {
         String content = notification.getRenderedContent();
         String recipient = notification.getRecipient();
 
-        String imageUrl = notification.getImageUrl();
-
         try {
             // Per-notification override via params, fallback to config
             String username = resolveParam(notification, "senderName", config.getUsername());
@@ -67,12 +65,6 @@ public class SlackChannel implements NotificationChannel {
             }
             if (iconUrl != null && !iconUrl.isBlank()) {
                 payload.append(", \"icon_url\": \"").append(escapeJson(iconUrl)).append("\"");
-            }
-
-            if (imageUrl != null && !imageUrl.isBlank()) {
-                payload.append(", \"attachments\": [{\"image_url\": \"")
-                  .append(escapeJson(imageUrl))
-                  .append("\", \"text\": \"\"}]");
             }
 
             payload.append("}");

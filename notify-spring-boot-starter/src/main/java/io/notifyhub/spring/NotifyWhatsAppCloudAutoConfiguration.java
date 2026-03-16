@@ -17,8 +17,8 @@ public class NotifyWhatsAppCloudAutoConfiguration {
     private static final Logger log = LoggerFactory.getLogger(NotifyWhatsAppCloudAutoConfiguration.class);
 
     @Bean
-    @ConditionalOnProperty(prefix = "notify.channels.whatsapp", name = "access-token")
-    @ConditionalOnMissingBean(WhatsAppCloudChannel.class)
+    @ConditionalOnProperty(prefix = "notify.channels.whatsapp", name = {"access-token", "phone-number-id"})
+    @ConditionalOnMissingBean(name = {"twilioWhatsAppChannel", "whatsAppCloudChannel"})
     public WhatsAppCloudChannel whatsAppCloudChannel(NotifyProperties properties) {
         NotifyProperties.WhatsApp wa = properties.getChannels().getWhatsapp();
         WhatsAppCloudConfig.Builder builder = WhatsAppCloudConfig.builder()

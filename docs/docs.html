@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Documentation — NotifyHub</title>
-    <meta name="description" content="Complete documentation for NotifyHub — unified notification library for Java 17+ and Spring Boot 3.x. All 20 channels, fluent API, configs, templates, and more.">
+    <meta name="description" content="Complete documentation for NotifyHub — unified notification library for Java 17+ and Spring Boot 3.x. All 23 channels, fluent API, configs, templates, and more.">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="docs.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
@@ -64,7 +64,7 @@
         <div class="sidebar-section">
             <span class="sidebar-label">Channels</span>
             <details open>
-                <summary>All 20 Channels</summary>
+                <summary>All 23 Channels</summary>
                 <div class="sub-links">
                     <a href="#ch-email">Email (SMTP)</a>
                     <a href="#ch-sms">SMS (Twilio)</a>
@@ -86,6 +86,9 @@
                     <a href="#ch-sendgrid">SendGrid</a>
                     <a href="#ch-tiktok-shop">TikTok Shop</a>
                     <a href="#ch-facebook">Facebook</a>
+                    <a href="#ch-aws-sns">AWS SNS</a>
+                    <a href="#ch-mailgun">Mailgun</a>
+                    <a href="#ch-pagerduty">PagerDuty</a>
                 </div>
             </details>
             <a href="#custom-channels">Custom Channels</a>
@@ -1426,6 +1429,164 @@ notify.to("1234567890123456")
             <div class="callout callout-info"><strong>Recipient types:</strong> Use <code>"feed"</code> as the recipient to publish a post on your Page's feed. Use a Page-Scoped ID (PSID) to send a Messenger DM to a specific user.</div>
         </section>
 
+        <section id="ch-aws-sns">
+            <div class="ch-doc-header">
+                <img src="https://cdn.simpleicons.org/amazonaws" width="24" height="24" alt="AWS SNS">
+                <h3>AWS SNS</h3>
+            </div>
+            <p>Publish notifications to Amazon SNS topics, endpoints (push), or phone numbers (SMS) via the AWS SDK v2.</p>
+            <p><strong>Module:</strong> <code>notify-aws-sns</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    aws-sns:
+      region: us-east-1
+      access-key-id: ${AWS_ACCESS_KEY_ID}
+      secret-access-key: ${AWS_SECRET_ACCESS_KEY}
+      topic-arn: arn:aws:sns:us-east-1:123456789:my-topic  # optional</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Java (Standalone)</div>
+<pre><code>AwsSnsConfig config = AwsSnsConfig.builder()
+    .region("us-east-1")
+    .accessKeyId("AKIA...")
+    .secretAccessKey("secret...")
+    .topicArn("arn:aws:sns:us-east-1:123456789:my-topic")
+    .build();</code></pre>
+            </div>
+            <h4>Getting Credentials</h4>
+            <ol>
+                <li>Sign in to the <a href="https://console.aws.amazon.com/sns" target="_blank">AWS SNS Console</a></li>
+                <li>Create a <strong>Topic</strong> (Standard or FIFO) and copy the <strong>Topic ARN</strong></li>
+                <li>Go to <a href="https://console.aws.amazon.com/iam" target="_blank">IAM Console</a> and create a user with <code>AmazonSNSFullAccess</code> policy</li>
+                <li>Generate an <strong>Access Key ID</strong> and <strong>Secret Access Key</strong> for the IAM user</li>
+                <li>Set the <strong>Region</strong> to match your topic's region (e.g., <code>us-east-1</code>)</li>
+            </ol>
+            <div class="callout callout-tip"><strong>Tip:</strong> For production, use IAM roles instead of static credentials. The AWS SDK auto-discovers credentials from environment variables, instance profiles, or the default credential chain.</div>
+            <h4>Usage</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>// Publish to a topic (all subscribers receive it)
+notify.to("all-users")
+    .via(Channel.AWS_SNS)
+    .subject("Deployment Complete")
+    .body("Version 2.0 deployed successfully.")
+    .send();
+
+// Send SMS directly via SNS (recipient = phone number)
+notify.to("+5511999887766")
+    .via(Channel.AWS_SNS)
+    .body("Your verification code is 123456")
+    .send();
+
+// Publish to a specific endpoint ARN
+notify.to("arn:aws:sns:us-east-1:123:endpoint/GCM/myapp/abc123")
+    .via(Channel.AWS_SNS)
+    .body("Push notification via SNS")
+    .send();</code></pre>
+            </div>
+            <div class="callout callout-info"><strong>Recipient types:</strong> Use a <strong>Topic ARN</strong> or <strong>Endpoint ARN</strong> as recipient for targeted delivery, a <strong>phone number</strong> (e.g., <code>+5511...</code>) for direct SMS, or any string when a default <code>topic-arn</code> is configured.</div>
+        </section>
+
+        <section id="ch-mailgun">
+            <div class="ch-doc-header">
+                <img src="https://cdn.simpleicons.org/mailgun" width="24" height="24" alt="Mailgun">
+                <h3>Mailgun</h3>
+            </div>
+            <p>Send transactional and marketing emails via the Mailgun REST API with US and EU region support.</p>
+            <p><strong>Module:</strong> <code>notify-mailgun</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    mailgun:
+      api-key: ${MAILGUN_API_KEY}
+      domain: mg.myapp.com
+      from: noreply@myapp.com
+      region: US  # US (default) or EU</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Java (Standalone)</div>
+<pre><code>MailgunConfig config = MailgunConfig.builder()
+    .apiKey("key-abc123...")
+    .domain("mg.myapp.com")
+    .from("noreply@myapp.com")
+    .region("EU")  // optional, defaults to "US"
+    .build();</code></pre>
+            </div>
+            <h4>Getting Credentials</h4>
+            <ol>
+                <li>Sign up at <a href="https://app.mailgun.com/" target="_blank">Mailgun</a> and verify your account</li>
+                <li>Go to <strong>Sending &gt; Domains</strong> and add your domain (e.g., <code>mg.myapp.com</code>)</li>
+                <li>Follow the DNS verification steps (add TXT, MX, and CNAME records)</li>
+                <li>Go to <strong>API Security</strong> and copy your <strong>API Key</strong> (starts with <code>key-</code>)</li>
+                <li>Set the <strong>From</strong> address to an email on your verified domain</li>
+            </ol>
+            <div class="callout callout-tip"><strong>Tip:</strong> If your data must stay in the EU, set <code>region: EU</code> to use Mailgun's EU endpoint (<code>api.eu.mailgun.net</code>). The sandbox domain (<code>sandboxXXX.mailgun.org</code>) works for testing without DNS setup.</div>
+            <h4>Usage</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.to("user@example.com")
+    .via(Channel.MAILGUN)
+    .subject("Welcome to MyApp!")
+    .body("Thanks for signing up. Get started at https://myapp.com/start")
+    .send();</code></pre>
+            </div>
+        </section>
+
+        <section id="ch-pagerduty">
+            <div class="ch-doc-header">
+                <img src="https://cdn.simpleicons.org/pagerduty" width="24" height="24" alt="PagerDuty">
+                <h3>PagerDuty</h3>
+            </div>
+            <p>Trigger incidents on PagerDuty via the Events API v2. Supports severity levels and automatic summary truncation.</p>
+            <p><strong>Module:</strong> <code>notify-pagerduty</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    pagerduty:
+      routing-key: ${PAGERDUTY_ROUTING_KEY}
+      severity: warning  # critical, error, warning (default), info</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Java (Standalone)</div>
+<pre><code>PagerDutyConfig config = PagerDutyConfig.builder()
+    .routingKey("R0KEY...")
+    .severity("critical")  // optional, defaults to "warning"
+    .build();</code></pre>
+            </div>
+            <h4>Getting Credentials</h4>
+            <ol>
+                <li>Sign in to <a href="https://app.pagerduty.com/" target="_blank">PagerDuty</a></li>
+                <li>Go to <strong>Services &gt; Service Directory</strong> and create a new service (or select an existing one)</li>
+                <li>In the service's <strong>Integrations</strong> tab, click <strong>"Add Integration"</strong></li>
+                <li>Select <strong>"Events API v2"</strong> as the integration type</li>
+                <li>Copy the <strong>Integration Key</strong> (this is the <code>routing-key</code>)</li>
+            </ol>
+            <div class="callout callout-tip"><strong>Tip:</strong> Each service has its own routing key. Use different keys for different environments (staging vs production) or different severity levels.</div>
+            <h4>Usage</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>// Trigger an incident
+notify.to("ops-team")
+    .via(Channel.PAGERDUTY)
+    .subject("Database connection pool exhausted")
+    .body("Pool usage at 100% for 5 minutes. Auto-scaling failed.")
+    .send();
+
+// With template
+notify.to("sre-team")
+    .via(Channel.PAGERDUTY)
+    .template("infra-alert")
+    .param("service", "api-gateway")
+    .param("metric", "p99 latency > 2s")
+    .send();</code></pre>
+            </div>
+            <div class="callout callout-info"><strong>Note:</strong> The <code>recipient</code> field is informational for PagerDuty — routing is determined by the <code>routing-key</code> which maps to a specific PagerDuty service.</div>
+        </section>
+
         <!-- ============================================ -->
         <!-- SECTION: CUSTOM CHANNELS                     -->
         <!-- ============================================ -->
@@ -1434,9 +1595,9 @@ notify.to("1234567890123456")
             <p>Implement the <code>NotificationChannel</code> interface to create your own channel:</p>
             <div class="code-block">
                 <div class="code-header">Java</div>
-<pre><code>public class PagerDutyChannel implements NotificationChannel {
+<pre><code>public class MyCustomChannel implements NotificationChannel {
 
-    public String getName() { return "pagerduty"; }
+    public String getName() { return "my-custom"; }
 
     public boolean isAvailable() { return apiKey != null; }
 
@@ -1449,11 +1610,11 @@ notify.to("1234567890123456")
             <div class="code-block">
                 <div class="code-header">Java</div>
 <pre><code>// Programmatically
-hub.registerChannel(new PagerDutyChannel(config));
+hub.registerChannel(new MyCustomChannel(config));
 
 // Or as a Spring Bean
 @Bean
-public PagerDutyChannel pagerDutyChannel() {
+public MyCustomChannel myCustomChannel() {
     return new PagerDutyChannel(config);
 }</code></pre>
             </div>
@@ -1881,12 +2042,21 @@ public class MyService {
       page-access-token: ${FACEBOOK_PAGE_ACCESS_TOKEN}
       page-id: ${FACEBOOK_PAGE_ID}
 
-    webhooks:
-      - name: pagerduty
-        url: "https://events.pagerduty.com/v2/enqueue"
-        method: POST
-        headers:
-          Authorization: "Token token=${PAGERDUTY_TOKEN}"
+    aws-sns:
+      region: us-east-1
+      access-key-id: ${AWS_ACCESS_KEY_ID}
+      secret-access-key: ${AWS_SECRET_ACCESS_KEY}
+      topic-arn: ${AWS_SNS_TOPIC_ARN}
+
+    mailgun:
+      api-key: ${MAILGUN_API_KEY}
+      domain: mg.myapp.com
+      from: noreply@myapp.com
+      region: US
+
+    pagerduty:
+      routing-key: ${PAGERDUTY_ROUTING_KEY}
+      severity: warning
 
   retry:
     max-attempts: 3

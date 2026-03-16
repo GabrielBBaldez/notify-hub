@@ -56,6 +56,9 @@
         <module>notify-channels/notify-tiktok-shop</module>
         <module>notify-channels/notify-facebook</module>
         <module>notify-channels/notify-whatsapp</module>
+        <module>notify-channels/notify-aws-sns</module>
+        <module>notify-channels/notify-mailgun</module>
+        <module>notify-channels/notify-pagerduty</module>
         <module>notify-tracker-jpa</module>
         <module>notify-audit-jpa</module>
         <module>notify-spring-boot-starter</module>
@@ -191,6 +194,21 @@
             </dependency>
             <dependency>
                 <groupId>io.github.gabrielbbaldez</groupId>
+                <artifactId>notify-aws-sns</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.gabrielbbaldez</groupId>
+                <artifactId>notify-mailgun</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.gabrielbbaldez</groupId>
+                <artifactId>notify-pagerduty</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.gabrielbbaldez</groupId>
                 <artifactId>notify-tracker-jpa</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -210,6 +228,15 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- AWS SDK v2 BOM -->
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>2.25.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

@@ -95,6 +95,16 @@ public final class RateLimitConfig {
         return new RateLimitConfig(60, Duration.ofMinutes(1));
     }
 
+    /** PagerDuty Events API v2 — 120 events per minute. */
+    public static RateLimitConfig pagerduty() {
+        return new RateLimitConfig(120, Duration.ofMinutes(1));
+    }
+
+    /** Mailgun API — 100 messages per minute. */
+    public static RateLimitConfig mailgun() {
+        return new RateLimitConfig(100, Duration.ofMinutes(1));
+    }
+
     /**
      * Returns the default rate limit config for a well-known channel, or null if unknown.
      *
@@ -112,7 +122,9 @@ public final class RateLimitConfig {
             case "discord" -> discord();
             case "linkedin" -> linkedin();
             case "instagram" -> instagram();
-            case "google-chat" -> googleChat();
+            case "google_chat" -> googleChat();
+            case "pagerduty" -> pagerduty();
+            case "mailgun" -> mailgun();
             default -> null;
         };
     }
@@ -131,7 +143,9 @@ public final class RateLimitConfig {
         defaults.put("discord", discord());
         defaults.put("linkedin", linkedin());
         defaults.put("instagram", instagram());
-        defaults.put("google-chat", googleChat());
+        defaults.put("google_chat", googleChat());
+        defaults.put("pagerduty", pagerduty());
+        defaults.put("mailgun", mailgun());
         return defaults;
     }
 

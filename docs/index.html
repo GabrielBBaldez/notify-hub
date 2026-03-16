@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NotifyHub — One API. Every Channel.</title>
-    <meta name="description" content="Unified notification library for Java and Spring Boot. Send via Email, SMS, Slack, Discord, Telegram, Teams, WhatsApp, Google Chat, Push, WebSocket, Twitter/X, LinkedIn, Notion, Twitch, YouTube, Instagram, SendGrid, TikTok Shop, Facebook with one fluent API.">
+    <meta name="description" content="Unified notification library for Java and Spring Boot. Send via Email, SMS, Slack, Discord, Telegram, Teams, WhatsApp, Google Chat, Push, WebSocket, Twitter/X, LinkedIn, Notion, Twitch, YouTube, Instagram, SendGrid, TikTok Shop, Facebook, AWS SNS, Mailgun, PagerDuty with one fluent API.">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="logo.png" type="image/png">
     <meta property="og:title" content="NotifyHub — One API. Every Channel.">
@@ -43,7 +43,7 @@
         <h1>Notify<span class="accent">Hub</span></h1>
         <p class="tagline">Send notifications from AI. Or from code.</p>
         <p class="subtitle">Use Claude, Cursor or any AI assistant to send notifications with zero code.<br>
-            Or integrate our Java API into your app — <strong>20 channels</strong>, one fluent interface.</p>
+            Or integrate our Java API into your app — <strong>23 channels</strong>, one fluent interface.</p>
         <div class="badges">
             <a href="https://central.sonatype.com/namespace/io.github.gabrielbbaldez"><img src="https://img.shields.io/maven-central/v/io.github.gabrielbbaldez/notify-spring-boot-starter?style=flat-square&color=f97316" alt="Maven Central"></a>
             <a href="https://github.com/GabrielBBaldez/notify-hub/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/GabrielBBaldez/notify-hub/ci.yml?style=flat-square&label=CI" alt="CI"></a>
@@ -123,114 +123,129 @@
 
     <!-- CHANNELS -->
     <section class="channels-section" id="channels">
-        <h2>20 Channels. Zero Friction.</h2>
+        <h2>23 Channels. Zero Friction.</h2>
         <p class="section-lead">Every channel uses the same API. Most use <strong>zero external SDKs</strong> — just the JDK HttpClient. Add only the channels you need.</p>
         <div class="channels-grid">
-            <div class="ch-card">
+            <a href="docs.html#ch-email" target="_blank" class="ch-card">
                 <div class="ch-icon"><img src="https://cdn.simpleicons.org/gmail" alt="Email" width="28" height="28"></div>
                 <h4>Email</h4>
                 <p>SMTP (Gmail, SES, Outlook, any). HTML templates, attachments, TLS.</p>
-            </div>
-            <div class="ch-card">
+            </a>
+            <a href="docs.html#ch-sms" target="_blank" class="ch-card">
                 <div class="ch-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="#F22F46"><path d="M12 0C5.381 0 0 5.381 0 12s5.381 12 12 12 12-5.381 12-12S18.619 0 12 0zm0 20.8c-1.16 0-2.26-.228-3.268-.64l.672-2.756A6.46 6.46 0 0012 18c3.312 0 6-2.688 6-6s-2.688-6-6-6-6 2.688-6 6c0 1.088.292 2.108.8 2.988l-2.756.672A8.729 8.729 0 013.2 12c0-4.856 3.944-8.8 8.8-8.8s8.8 3.944 8.8 8.8-3.944 8.8-8.8 8.8z"/></svg></div>
                 <h4>SMS</h4>
                 <p>Twilio. Send text messages worldwide with delivery status.</p>
-            </div>
-            <div class="ch-card">
+            </a>
+            <a href="docs.html#ch-whatsapp" target="_blank" class="ch-card">
                 <div class="ch-icon"><img src="https://cdn.simpleicons.org/whatsapp" alt="WhatsApp" width="28" height="28"></div>
                 <h4>WhatsApp</h4>
                 <p>Twilio or WhatsApp Cloud API. Media attachments supported.</p>
-            </div>
-            <div class="ch-card">
+            </a>
+            <a href="docs.html#ch-slack" target="_blank" class="ch-card">
                 <div class="ch-icon"><img src="https://cdn.simpleicons.org/slack" alt="Slack" width="28" height="28"></div>
                 <h4>Slack</h4>
                 <p>Incoming Webhooks. Named channels, no SDK needed.</p>
-            </div>
-            <div class="ch-card">
+            </a>
+            <a href="docs.html#ch-telegram" target="_blank" class="ch-card">
                 <div class="ch-icon"><img src="https://cdn.simpleicons.org/telegram" alt="Telegram" width="28" height="28"></div>
                 <h4>Telegram</h4>
                 <p>Bot API. Send to any chat ID or named alias.</p>
-            </div>
-            <div class="ch-card">
+            </a>
+            <a href="docs.html#ch-discord" target="_blank" class="ch-card">
                 <div class="ch-icon"><img src="https://cdn.simpleicons.org/discord" alt="Discord" width="28" height="28"></div>
                 <h4>Discord</h4>
                 <p>Webhooks. Custom username, avatar, named servers.</p>
-            </div>
-            <div class="ch-card">
+            </a>
+            <a href="docs.html#ch-teams" target="_blank" class="ch-card">
                 <div class="ch-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="#6264A7"><path d="M19.24 6.003a2.496 2.496 0 01-.003 4.993h-.074a2.496 2.496 0 01.077-4.993zm1.26 6.003h-3.42c.16.36.25.76.25 1.17v6.75c0 .17-.02.33-.05.49h2.22c.83 0 1.5-.67 1.5-1.5v-5.91c0-.55-.22-1.05-.5-1zM16.75 7.503a1.998 1.998 0 11-3.997 0 1.998 1.998 0 013.997 0zm1 5.67c0-.64-.31-1.17-.75-1.17h-4.5c-.44 0-.75.53-.75 1.17v6.75c0 .41.34.75.75.75h4.5c.41 0 .75-.34.75-.75v-6.75zM10 7.003a3 3 0 11-6 0 3 3 0 016 0zm2.25 6c0-.83-.67-1.5-1.5-1.5h-7.5c-.83 0-1.5.67-1.5 1.5v6c0 .83.67 1.5 1.5 1.5h7.5c.83 0 1.5-.67 1.5-1.5v-6z"/></svg></div>
                 <h4>Microsoft Teams</h4>
                 <p>Incoming Webhooks. MessageCard format.</p>
-            </div>
-            <div class="ch-card">
+            </a>
+            <a href="docs.html#ch-google-chat" target="_blank" class="ch-card">
                 <div class="ch-icon"><img src="https://cdn.simpleicons.org/googlechat" alt="Google Chat" width="28" height="28"></div>
                 <h4>Google Chat</h4>
                 <p>Webhooks. Send to any Google Chat space.</p>
-            </div>
-            <div class="ch-card">
+            </a>
+            <a href="docs.html#ch-push" target="_blank" class="ch-card">
                 <div class="ch-icon"><img src="https://cdn.simpleicons.org/firebase" alt="Firebase" width="28" height="28"></div>
                 <h4>Firebase Push</h4>
                 <p>FCM. Mobile push notifications with title and body.</p>
-            </div>
-            <div class="ch-card">
+            </a>
+            <a href="docs.html#ch-websocket" target="_blank" class="ch-card">
                 <div class="ch-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="#94a3b8"><path d="M3.5 6.5A1.5 1.5 0 0 1 5 5h14a1.5 1.5 0 0 1 1.5 1.5v1.25l-8.5 5-8.5-5V6.5zm0 3.06 8.15 4.79a.75.75 0 0 0 .7 0L20.5 9.56V17.5A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5V9.56z"/></svg></div>
                 <h4>WebSocket</h4>
                 <p>JDK WebSocket with auto-reconnect. Real-time.</p>
-            </div>
-            <div class="ch-card">
+            </a>
+            <a href="docs.html#ch-webhook" target="_blank" class="ch-card">
                 <div class="ch-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="#94a3b8"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z"/></svg></div>
                 <h4>Generic Webhook</h4>
                 <p>Any HTTP endpoint. PagerDuty, Datadog, custom APIs.</p>
-            </div>
-            <div class="ch-card">
+            </a>
+            <a href="docs.html#ch-twitter" target="_blank" class="ch-card">
                 <div class="ch-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="#ffffff"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg></div>
                 <h4>Twitter / X</h4>
                 <p>API v2. Post tweets with OAuth 1.0a. No SDK needed.</p>
-            </div>
-            <div class="ch-card">
+            </a>
+            <a href="docs.html#ch-linkedin" target="_blank" class="ch-card">
                 <div class="ch-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></div>
                 <h4>LinkedIn</h4>
                 <p>REST API. Publish posts with OAuth 2.0 Bearer token.</p>
-            </div>
-            <div class="ch-card">
+            </a>
+            <a href="docs.html#ch-notion" target="_blank" class="ch-card">
                 <div class="ch-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="#ffffff"><path d="M4.459 4.208c.746.606 1.026.56 2.428.466l13.215-.793c.28 0 .047-.28-.046-.326L18.08 2.09c-.42-.326-.98-.7-2.055-.607L3.01 2.54c-.466.046-.56.28-.374.466zm.793 3.08v13.904c0 .747.373 1.027 1.214.98l14.523-.84c.841-.046.935-.56.935-1.166V6.354c0-.606-.233-.933-.748-.886l-15.177.887c-.56.046-.747.326-.747.933zm14.337.745c.093.42 0 .84-.42.888l-.7.14v10.264c-.608.327-1.168.514-1.635.514-.748 0-.935-.234-1.495-.933l-4.577-7.186v6.952l1.448.327s0 .84-1.168.84l-3.222.186c-.093-.186 0-.653.327-.746l.84-.233V8.755L7.63 8.569c-.094-.42.14-1.026.793-1.073l3.456-.233 4.764 7.279v-6.44l-1.215-.14c-.093-.514.28-.886.747-.933zM1.936 1.035l13.31-.98c1.634-.14 2.055-.047 3.082.7l4.249 2.986c.7.513.933.653.933 1.213v16.378c0 1.026-.373 1.634-1.68 1.726l-15.458.934c-.98.046-1.448-.093-1.962-.747L.982 19.39c-.56-.747-.793-1.306-.793-1.96V2.667c0-.839.374-1.54 1.747-1.632z"/></svg></div>
                 <h4>Notion</h4>
                 <p>API. Create pages in any database. Integration Token.</p>
-            </div>
-            <div class="ch-card">
+            </a>
+            <a href="docs.html#ch-twitch" target="_blank" class="ch-card">
                 <div class="ch-icon"><img src="https://cdn.simpleicons.org/twitch" alt="Twitch" width="28" height="28"></div>
                 <h4>Twitch</h4>
                 <p>Helix API. Chat messages + polls. OAuth auto-refresh.</p>
-            </div>
-            <div class="ch-card">
+            </a>
+            <a href="docs.html#ch-youtube" target="_blank" class="ch-card">
                 <div class="ch-icon"><img src="https://cdn.simpleicons.org/youtube" alt="YouTube" width="28" height="28"></div>
                 <h4>YouTube</h4>
                 <p>Data API v3. Live chat messages. OAuth auto-refresh.</p>
-            </div>
-            <div class="ch-card">
+            </a>
+            <a href="docs.html#ch-instagram" target="_blank" class="ch-card">
                 <div class="ch-icon"><img src="https://cdn.simpleicons.org/instagram" alt="Instagram" width="28" height="28"></div>
                 <h4>Instagram</h4>
                 <p>Meta Graph API. DMs and feed posts. No SDK needed.</p>
-            </div>
-            <div class="ch-card">
+            </a>
+            <a href="docs.html#ch-sendgrid" target="_blank" class="ch-card">
                 <div class="ch-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="#51A9E3"><path d="M0 8h8V0H2.67A2.67 2.67 0 000 2.67V8zm0 2.67V16h5.33V8H0v2.67zM8 24h5.33v-5.33H8V24zm-5.33 0H8v-8H0v5.33A2.67 2.67 0 002.67 24zM21.33 0H16v5.33h5.33V8H24V2.67A2.67 2.67 0 0021.33 0zM16 13.33h8V8h-5.33v5.33H16zm0 10.67h5.33A2.67 2.67 0 0024 21.33V16h-8v8zM8 16h8V8H8v8z"/></svg></div>
                 <h4>SendGrid</h4>
                 <p>Email delivery tracking — opened, clicked, bounced, spam complaints.</p>
-            </div>
-            <div class="ch-card">
+            </a>
+            <a href="docs.html#ch-tiktok-shop" target="_blank" class="ch-card">
                 <div class="ch-icon"><img src="https://cdn.simpleicons.org/tiktok/EE1D52" alt="TikTok Shop" width="28" height="28"></div>
                 <h4>TikTok Shop</h4>
                 <p>Shop notifications with HMAC-SHA256 authentication.</p>
-            </div>
-            <div class="ch-card">
+            </a>
+            <a href="docs.html#ch-facebook" target="_blank" class="ch-card">
                 <div class="ch-icon"><img src="https://cdn.simpleicons.org/facebook" alt="Facebook" width="28" height="28"></div>
                 <h4>Facebook</h4>
                 <p>Page posts &amp; Messenger DMs via Graph API.</p>
-            </div>
-            <div class="ch-card ch-custom">
+            </a>
+            <a href="docs.html#ch-aws-sns" target="_blank" class="ch-card">
+                <div class="ch-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="#FF9900"><path d="M6.763 10.036c0 .296.032.535.088.71.064.176.144.368.256.576.04.063.056.127.056.183 0 .08-.048.16-.152.24l-.503.335a.383.383 0 0 1-.208.072c-.08 0-.16-.04-.239-.112a2.47 2.47 0 0 1-.287-.374 6.18 6.18 0 0 1-.248-.467c-.622.733-1.405 1.1-2.347 1.1-.672 0-1.205-.192-1.596-.575-.391-.384-.59-.894-.59-1.534 0-.678.239-1.23.726-1.644.487-.415 1.133-.623 1.955-.623.272 0 .551.024.846.064.296.04.6.104.918.176v-.583c0-.607-.127-1.03-.375-1.277-.255-.248-.686-.367-1.3-.367-.28 0-.568.032-.863.104-.296.072-.583.16-.862.272a2.287 2.287 0 0 1-.28.104.488.488 0 0 1-.127.024c-.112 0-.168-.08-.168-.247v-.391c0-.128.016-.224.056-.28a.597.597 0 0 1 .224-.167c.279-.144.614-.264 1.005-.36a4.84 4.84 0 0 1 1.246-.152c.95 0 1.644.216 2.091.647.44.43.662 1.085.662 1.963v2.586zm-3.24 1.214c.263 0 .534-.048.822-.144.287-.096.543-.271.758-.51.128-.152.224-.32.272-.512.047-.191.08-.423.08-.694v-.335a6.66 6.66 0 0 0-.735-.136 6.02 6.02 0 0 0-.75-.048c-.535 0-.926.104-1.19.32-.263.215-.39.518-.39.917 0 .375.095.655.295.846.191.2.47.296.838.296zm6.41.862c-.144 0-.24-.024-.304-.08-.064-.048-.12-.16-.168-.311L7.586 5.55a1.398 1.398 0 0 1-.072-.32c0-.128.064-.2.191-.2h.783c.151 0 .255.025.31.08.065.048.113.16.16.312l1.342 5.284 1.245-5.284c.04-.16.088-.264.151-.312a.549.549 0 0 1 .32-.08h.638c.152 0 .256.025.32.08.063.048.12.16.151.312l1.261 5.348 1.381-5.348c.048-.16.104-.264.16-.312a.52.52 0 0 1 .311-.08h.743c.127 0 .2.065.2.2 0 .04-.009.08-.017.128a1.137 1.137 0 0 1-.056.2l-1.923 6.17c-.048.16-.104.264-.168.312a.549.549 0 0 1-.32.08h-.687c-.152 0-.256-.024-.32-.08-.063-.056-.119-.16-.15-.32l-1.238-5.148-1.23 5.14c-.04.16-.087.264-.15.32-.065.056-.177.08-.32.08zm10.256.215c-.415 0-.83-.048-1.229-.143-.399-.096-.71-.2-.918-.32-.128-.071-.216-.151-.248-.223a.504.504 0 0 1-.048-.224v-.407c0-.167.064-.247.183-.247.048 0 .096.008.144.024.048.016.12.048.2.08.271.12.566.215.878.279.319.064.63.096.95.096.502 0 .894-.088 1.165-.264a.86.86 0 0 0 .415-.758.777.777 0 0 0-.215-.559c-.144-.151-.415-.287-.806-.415l-1.157-.36c-.583-.183-1.014-.454-1.277-.813a1.902 1.902 0 0 1-.4-1.158c0-.335.073-.63.216-.886.144-.255.335-.479.575-.654.24-.184.51-.32.83-.415.32-.096.655-.136 1.006-.136.176 0 .359.008.535.032.183.024.35.056.518.088.16.04.312.08.455.127.144.048.256.096.336.144a.69.69 0 0 1 .24.2.43.43 0 0 1 .071.263v.375c0 .168-.064.256-.184.256a.83.83 0 0 1-.303-.096 3.652 3.652 0 0 0-1.532-.311c-.455 0-.815.071-1.062.223-.248.152-.375.383-.375.71 0 .224.08.416.24.567.16.152.454.304.878.44l1.134.358c.574.184.99.44 1.237.767.247.327.367.702.367 1.117 0 .343-.072.655-.207.926-.144.272-.336.511-.583.703-.248.2-.543.343-.886.447-.36.111-.734.167-1.142.167z"/><path d="M21.698 16.095c-2.405 1.777-5.893 2.722-8.898 2.722-4.21 0-8.003-1.558-10.872-4.149-.224-.2-.024-.479.248-.32 3.094 1.8 6.926 2.882 10.88 2.882 2.668 0 5.603-.553 8.3-1.693.407-.176.75.263.342.558z"/><path d="M22.673 14.963c-.31-.399-2.044-.191-2.826-.096-.24.024-.271-.176-.056-.327 1.381-.967 3.65-.687 3.916-.36.263.327-.072 2.603-1.365 3.691-.2.168-.39.08-.303-.144.295-.727.942-2.364.634-2.764z"/></svg></div>
+                <h4>AWS SNS</h4>
+                <p>Topics, push endpoints, and SMS via Amazon SNS.</p>
+            </a>
+            <a href="docs.html#ch-mailgun" target="_blank" class="ch-card">
+                <div class="ch-icon"><img src="https://cdn.simpleicons.org/mailgun" alt="Mailgun" width="28" height="28"></div>
+                <h4>Mailgun</h4>
+                <p>Transactional email via Mailgun REST API.</p>
+            </a>
+            <a href="docs.html#ch-pagerduty" target="_blank" class="ch-card">
+                <div class="ch-icon"><img src="https://cdn.simpleicons.org/pagerduty" alt="PagerDuty" width="28" height="28"></div>
+                <h4>PagerDuty</h4>
+                <p>Trigger incidents via Events API v2.</p>
+            </a>
+            <a href="docs.html#custom-channels" target="_blank" class="ch-card ch-custom">
                 <div class="ch-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="#f97316"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></div>
                 <h4>Custom</h4>
                 <p>Implement one interface. Your channel, your rules.</p>
-            </div>
+            </a>
         </div>
     </section>
 
@@ -297,7 +312,7 @@
     <!-- FOR DEVELOPERS -->
     <section class="dev-section" id="developer">
         <h2>For Developers</h2>
-        <p class="section-lead">One fluent Java API. 20 channels. 3 lines of code. Spring Boot auto-configured.</p>
+        <p class="section-lead">One fluent Java API. 23 channels. 3 lines of code. Spring Boot auto-configured.</p>
         <div class="code-block">
             <div class="code-header">Java — That's it. Really.</div>
 <pre><code>notify.to("user@email.com")
@@ -574,7 +589,7 @@ open http://localhost:8080/swagger-ui.html</code></pre>
         <p class="section-lead">NotifyHub includes an <strong>MCP Server</strong> (Model Context Protocol) that exposes 33 tools. Connect it to Claude Desktop, Claude Code, Cursor, or any MCP-compatible AI client.</p>
         <div class="mcp-grid">
             <div class="mcp-tools">
-                <h4>33 MCP Tools</h4>
+                <h4>36 MCP Tools</h4>
                 <div class="tool-list">
                     <span class="tool">send_email</span>
                     <span class="tool">send_sms</span>
@@ -593,6 +608,9 @@ open http://localhost:8080/swagger-ui.html</code></pre>
                     <span class="tool">send_instagram</span>
                     <span class="tool">send_tiktok_shop</span>
                     <span class="tool">send_facebook</span>
+                    <span class="tool">send_aws_sns</span>
+                    <span class="tool">send_mailgun</span>
+                    <span class="tool">send_pagerduty</span>
                     <span class="tool">send_notification</span>
                     <span class="tool">send_multi_channel</span>
                     <span class="tool">send_batch</span>
@@ -643,7 +661,7 @@ open http://localhost:8080/swagger-ui.html</code></pre>
                     <span class="skill-icon">&#128218;</span>
                     <div>
                         <strong>Full API Reference</strong>
-                        <span>20 channels, fluent builder, all execution methods, Priority, DeliveryReceipt</span>
+                        <span>23 channels, fluent builder, all execution methods, Priority, DeliveryReceipt</span>
                     </div>
                 </div>
                 <div class="skill-feature">
@@ -783,10 +801,13 @@ cp SKILL.md ~/.claude/plugins/notifyhub/skills/notifyhub/</code></pre>
                     <tr><td><code>notify-sendgrid</code></td><td>SendGrid email with delivery tracking (opened, clicked, bounced, spam).</td></tr>
                     <tr><td><code>notify-tiktok-shop</code></td><td>TikTok Shop API with HMAC-SHA256 authentication.</td></tr>
                     <tr><td><code>notify-facebook</code></td><td>Facebook Graph API. Page posts and Messenger DMs.</td></tr>
+                    <tr><td><code>notify-aws-sns</code></td><td>Amazon SNS. Topics, push endpoints, and direct SMS.</td></tr>
+                    <tr><td><code>notify-mailgun</code></td><td>Mailgun REST API. Transactional email with US/EU regions.</td></tr>
+                    <tr><td><code>notify-pagerduty</code></td><td>PagerDuty Events API v2. Incident triggering with severity.</td></tr>
                     <tr><td><code>notify-tracker-jpa</code></td><td>JPA-backed delivery tracking. Persist receipts to any database.</td></tr>
                     <tr><td><code>notify-audit-jpa</code></td><td>JPA-backed audit logging. Persist events to any database.</td></tr>
                     <tr><td><code>notify-admin</code></td><td>Web dashboard for monitoring and DLQ management.</td></tr>
-                    <tr><td><code>notify-mcp</code></td><td>MCP Server for AI assistants (33 tools).</td></tr>
+                    <tr><td><code>notify-mcp</code></td><td>MCP Server for AI assistants (36 tools).</td></tr>
                     <tr><td><code>notify-queue-rabbitmq</code></td><td>RabbitMQ producer/consumer for async notifications.</td></tr>
                     <tr><td><code>notify-queue-kafka</code></td><td>Apache Kafka producer/consumer for async notifications.</td></tr>
                 </tbody>

@@ -7,9 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ## [0.9.0] - 2026-03-16
 
 ### Added
-- 20 notification channels: Email (SMTP), SMS (Twilio), WhatsApp (Cloud API + Twilio), Slack, Telegram, Discord, Microsoft Teams, Firebase Push (FCM v1), Webhook, WebSocket, Google Chat, Twitter/X, LinkedIn, Notion, Twitch, YouTube, Instagram, SendGrid, TikTok Shop, Facebook
+- 23 notification channels: Email (SMTP), SMS (Twilio), WhatsApp (Cloud API + Twilio), Slack, Telegram, Discord, Microsoft Teams, Firebase Push (FCM v1), Webhook, WebSocket, Google Chat, Twitter/X, LinkedIn, Notion, Twitch, YouTube, Instagram, SendGrid, TikTok Shop, Facebook, AWS SNS, Mailgun, PagerDuty
 - Fluent API: `.to().via().content().send()` with builder pattern
-- MCP Server with 33 tools for AI agent integration (STDIO transport)
+- MCP Server with 36 tools for AI agent integration (STDIO transport)
 - Spring Boot 3.x auto-configuration with per-channel activation via `@ConditionalOnProperty`
 - Retry policies: none, fixed, exponential backoff
 - Token bucket rate limiting with per-channel presets
@@ -28,6 +28,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Micrometer metrics and OpenTelemetry tracing (optional)
 - Actuator health indicator and info contributor
 - Demo application with 34 REST endpoints
+- JaCoCo code coverage reporting
+- Dependabot for Maven and GitHub Actions dependency updates
+- CodeQL security analysis workflow
+- Codecov coverage upload and badge
+- CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md
+- GitHub issue templates (bug report, feature request, new channel) and PR template
+- Rate limit presets for PagerDuty (120/min) and Mailgun (100/min)
 
 ### Security
 - HMAC-SHA256 webhook signature verification

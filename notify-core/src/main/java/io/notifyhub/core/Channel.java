@@ -23,7 +23,10 @@ public enum Channel {
     YOUTUBE,
     INSTAGRAM,
     TIKTOK_SHOP,
-    FACEBOOK;
+    FACEBOOK,
+    AWS_SNS,
+    MAILGUN,
+    PAGERDUTY;
 
     /**
      * Creates a reference to a custom channel by name.

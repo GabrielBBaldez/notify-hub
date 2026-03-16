@@ -82,6 +82,9 @@ public class McpServerRunner implements CommandLineRunner {
         server.addTool(new SendInstagramTool(notifyHub).specification(jsonMapper));
         server.addTool(new SendTikTokShopTool(notifyHub).specification(jsonMapper));
         server.addTool(new SendFacebookTool(notifyHub).specification(jsonMapper));
+        server.addTool(new SendAwsSnsTool(notifyHub).specification(jsonMapper));
+        server.addTool(new SendMailgunTool(notifyHub).specification(jsonMapper));
+        server.addTool(new SendPagerDutyTool(notifyHub).specification(jsonMapper));
         server.addTool(new SendMultiChannelTool(notifyHub).specification(jsonMapper));
         server.addTool(new ListChannelsTool(notifyHub).specification(jsonMapper));
         server.addTool(new ListDeliveryReceiptsTool(notifyHub).specification(jsonMapper));
@@ -107,7 +110,7 @@ public class McpServerRunner implements CommandLineRunner {
         server.addTool(new ListScheduledNotificationsTool(schedulingRegistry).specification(jsonMapper));
         server.addTool(new CancelScheduledNotificationTool(schedulingRegistry).specification(jsonMapper));
 
-        log.info("NotifyHub MCP Server ready — 33 tools registered");
+        log.info("NotifyHub MCP Server ready — 36 tools registered");
 
         // Check for updates in background (non-blocking, max once per day)
         Thread.ofVirtual().name("update-checker").start(this::checkForUpdatesQuietly);

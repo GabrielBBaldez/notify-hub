@@ -67,7 +67,10 @@ import java.util.concurrent.ScheduledExecutorService;
     NotifySendGridAutoConfiguration.class,
     NotifyTikTokShopAutoConfiguration.class,
     NotifyFacebookAutoConfiguration.class,
-    NotifyWhatsAppCloudAutoConfiguration.class
+    NotifyWhatsAppCloudAutoConfiguration.class,
+    NotifyAwsSnsAutoConfiguration.class,
+    NotifyMailgunAutoConfiguration.class,
+    NotifyPagerDutyAutoConfiguration.class
 })
 public class NotifyAutoConfiguration {
 

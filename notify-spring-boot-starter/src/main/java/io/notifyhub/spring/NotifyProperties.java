@@ -63,6 +63,9 @@ public class NotifyProperties {
         private SendGrid sendgrid;
         private TikTokShop tiktokShop;
         private Facebook facebook;
+        private AwsSns awsSns;
+        private Mailgun mailgun;
+        private PagerDuty pagerduty;
 
         public Email getEmail() { return email; }
         public void setEmail(Email email) { this.email = email; }
@@ -104,6 +107,12 @@ public class NotifyProperties {
         public void setTiktokShop(TikTokShop tiktokShop) { this.tiktokShop = tiktokShop; }
         public Facebook getFacebook() { return facebook; }
         public void setFacebook(Facebook facebook) { this.facebook = facebook; }
+        public AwsSns getAwsSns() { return awsSns; }
+        public void setAwsSns(AwsSns awsSns) { this.awsSns = awsSns; }
+        public Mailgun getMailgun() { return mailgun; }
+        public void setMailgun(Mailgun mailgun) { this.mailgun = mailgun; }
+        public PagerDuty getPagerduty() { return pagerduty; }
+        public void setPagerduty(PagerDuty pagerduty) { this.pagerduty = pagerduty; }
     }
 
     public static class Email {
@@ -536,5 +545,44 @@ public class NotifyProperties {
         public void setPageId(String pageId) { this.pageId = pageId; }
         public Map<String, String> getRecipients() { return recipients; }
         public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
+    }
+
+    public static class AwsSns {
+        private String region;
+        private String accessKeyId;
+        private String secretAccessKey;
+        private String topicArn;
+        public String getRegion() { return region; }
+        public void setRegion(String region) { this.region = region; }
+        public String getAccessKeyId() { return accessKeyId; }
+        public void setAccessKeyId(String accessKeyId) { this.accessKeyId = accessKeyId; }
+        public String getSecretAccessKey() { return secretAccessKey; }
+        public void setSecretAccessKey(String secretAccessKey) { this.secretAccessKey = secretAccessKey; }
+        public String getTopicArn() { return topicArn; }
+        public void setTopicArn(String topicArn) { this.topicArn = topicArn; }
+    }
+
+    public static class Mailgun {
+        private String apiKey;
+        private String domain;
+        private String from;
+        private String region = "US";
+        public String getApiKey() { return apiKey; }
+        public void setApiKey(String apiKey) { this.apiKey = apiKey; }
+        public String getDomain() { return domain; }
+        public void setDomain(String domain) { this.domain = domain; }
+        public String getFrom() { return from; }
+        public void setFrom(String from) { this.from = from; }
+        public String getRegion() { return region; }
+        public void setRegion(String region) { this.region = region; }
+    }
+
+    public static class PagerDuty {
+        private String routingKey;
+        private String severity;
+        public String getRoutingKey() { return routingKey; }
+        public void setRoutingKey(String routingKey) { this.routingKey = routingKey; }
+        public String getSeverity() { return severity; }
+        public void setSeverity(String severity) { this.severity = severity; }
     }
 }

@@ -110,6 +110,18 @@
             <groupId>io.github.gabrielbbaldez</groupId>
             <artifactId>notify-whatsapp</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.github.gabrielbbaldez</groupId>
+            <artifactId>notify-aws-sns</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.gabrielbbaldez</groupId>
+            <artifactId>notify-mailgun</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.gabrielbbaldez</groupId>
+            <artifactId>notify-pagerduty</artifactId>
+        </dependency>
 
         <!-- MCP Java SDK (core — STDIO transport) -->
         <dependency>

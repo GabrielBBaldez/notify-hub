@@ -92,7 +92,7 @@ class RateLimitConfigTest {
     @Test
     void allDefaults_containsAllKnownChannels() {
         Map<String, RateLimitConfig> defaults = RateLimitConfig.allDefaults();
-        assertEquals(9, defaults.size());
+        assertEquals(11, defaults.size());
         assertTrue(defaults.containsKey("youtube"));
         assertTrue(defaults.containsKey("twitch"));
         assertTrue(defaults.containsKey("twitter"));
@@ -102,5 +102,7 @@ class RateLimitConfigTest {
         assertTrue(defaults.containsKey("linkedin"));
         assertTrue(defaults.containsKey("instagram"));
         assertTrue(defaults.containsKey("google_chat"));
+        assertTrue(defaults.containsKey("pagerduty"));
+        assertTrue(defaults.containsKey("mailgun"));
     }
 }

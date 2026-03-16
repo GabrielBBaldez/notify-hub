@@ -4,11 +4,11 @@ import io.notifyhub.channel.sendgrid.SendGridConfig;
 import io.notifyhub.channel.sendgrid.SendGridEmailChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * Auto-configuration for the SendGrid email channel.
@@ -28,7 +28,7 @@ import org.springframework.context.annotation.Bean;
  *       track-clicks: true
  * </pre>
  */
-@AutoConfiguration
+@Configuration
 @ConditionalOnClass(name = "io.notifyhub.channel.sendgrid.SendGridEmailChannel")
 public class NotifySendGridAutoConfiguration {
 

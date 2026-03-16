@@ -70,7 +70,7 @@ public class TikTokShopChannel implements NotificationChannel {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() != 200) {
-                throw new NotificationSendException("tiktok_shop",
+                throw new NotificationSendException("tiktok-shop",
                         "TikTok Shop API returned " + response.statusCode() + ": " + response.body());
             }
 
@@ -79,7 +79,7 @@ public class TikTokShopChannel implements NotificationChannel {
         } catch (NotificationSendException e) {
             throw e;
         } catch (Exception e) {
-            throw new NotificationSendException("tiktok_shop",
+            throw new NotificationSendException("tiktok-shop",
                     "Failed to send TikTok Shop message: " + e.getMessage(), e);
         }
     }

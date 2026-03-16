@@ -107,7 +107,7 @@ public class McpServerRunner implements CommandLineRunner {
         server.addTool(new ListScheduledNotificationsTool(schedulingRegistry).specification(jsonMapper));
         server.addTool(new CancelScheduledNotificationTool(schedulingRegistry).specification(jsonMapper));
 
-        log.info("NotifyHub MCP Server ready — 33 tools registered");
+        log.info("NotifyHub MCP Server ready");
 
         // Check for updates in background (non-blocking, max once per day)
         Thread updateThread = new Thread(this::checkForUpdatesQuietly, "update-checker");

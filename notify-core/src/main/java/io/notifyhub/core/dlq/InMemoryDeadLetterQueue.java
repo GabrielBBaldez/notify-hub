@@ -42,7 +42,7 @@ public class InMemoryDeadLetterQueue implements DeadLetterQueue {
     }
 
     @Override
-    public Optional<DeadLetter> dequeue() {
+    public synchronized Optional<DeadLetter> dequeue() {
         if (deadLetters.isEmpty()) {
             return Optional.empty();
         }

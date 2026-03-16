@@ -48,7 +48,7 @@ public class BatchNotificationBuilder {
     /** Set the primary channel(s) to send through. */
     public BatchNotificationBuilder via(Channel... channels) {
         for (Channel ch : channels) {
-            this.channels.add(ch.name().toLowerCase());
+            this.channels.add(ch.name().toLowerCase().replace('_', '-'));
         }
         return this;
     }

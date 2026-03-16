@@ -224,9 +224,12 @@ public class NotifyProperties {
     }
 
     public static class Push {
-        private String serverKey;
-        public String getServerKey() { return serverKey; }
-        public void setServerKey(String serverKey) { this.serverKey = serverKey; }
+        private String projectId;
+        private String serviceAccountJson;
+        public String getProjectId() { return projectId; }
+        public void setProjectId(String projectId) { this.projectId = projectId; }
+        public String getServiceAccountJson() { return serviceAccountJson; }
+        public void setServiceAccountJson(String serviceAccountJson) { this.serviceAccountJson = serviceAccountJson; }
     }
 
     public static class WebSocket {

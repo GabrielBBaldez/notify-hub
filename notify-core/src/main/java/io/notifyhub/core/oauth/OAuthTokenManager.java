@@ -93,14 +93,28 @@ public class OAuthTokenManager {
             lock.readLock().unlock();
         }
 
-        // Slow path: write lock to refresh
+        // Slow path: refresh outside lock, then assign under write lock
+        // Double-check first under write lock
         lock.writeLock().lock();
         try {
-            // Double-check after acquiring write lock (another thread may have refreshed)
             if (currentAccessToken != null && !isExpiredOrNearExpiry()) {
                 return currentAccessToken;
             }
-            refresh();
+        } finally {
+            lock.writeLock().unlock();
+        }
+
+        // Perform HTTP call outside lock to avoid blocking readers
+        String[] result = fetchNewToken();
+
+        lock.writeLock().lock();
+        try {
+            // Another thread may have refreshed while we were fetching
+            if (currentAccessToken != null && !isExpiredOrNearExpiry()) {
+                return currentAccessToken;
+            }
+            this.currentAccessToken = result[0];
+            this.expiresAt = Instant.now().plusSeconds(Long.parseLong(result[1]));
             return currentAccessToken;
         } finally {
             lock.writeLock().unlock();
@@ -131,7 +145,11 @@ public class OAuthTokenManager {
         return Instant.now().plusSeconds(refreshBufferSeconds).isAfter(expiresAt);
     }
 
-    private void refresh() {
+    /**
+     * Fetches a new token via HTTP. Returns [token, expiresInSeconds].
+     * Called outside locks to avoid blocking readers during HTTP calls.
+     */
+    private String[] fetchNewToken() {
         log.debug("Refreshing OAuth token via {}", tokenEndpoint);
 
         try {
@@ -161,17 +179,21 @@ public class OAuthTokenManager {
             }
 
             long expiresIn = extractJsonLong(responseBody, "expires_in", 3600);
-
-            this.currentAccessToken = newToken;
-            this.expiresAt = Instant.now().plusSeconds(expiresIn);
-
             log.info("OAuth token refreshed successfully (expires in {}s)", expiresIn);
+
+            return new String[]{newToken, String.valueOf(expiresIn)};
 
         } catch (OAuthTokenRefreshException e) {
             throw e;
         } catch (Exception e) {
             throw new OAuthTokenRefreshException("Failed to refresh OAuth token: " + e.getMessage(), e);
         }
+    }
+
+    private void refresh() {
+        String[] result = fetchNewToken();
+        this.currentAccessToken = result[0];
+        this.expiresAt = Instant.now().plusSeconds(Long.parseLong(result[1]));
     }
 
     private static String encode(String value) {

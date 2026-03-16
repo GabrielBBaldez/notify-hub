@@ -11,6 +11,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,8 @@ public class YouTubeChannel implements NotificationChannel {
     private final HttpClient httpClient;
 
     private volatile String cachedLiveChatId;
+    private volatile Instant cacheTimestamp;
+    private static final Duration CACHE_TTL = Duration.ofMinutes(5);
 
     public YouTubeChannel(YouTubeConfig config) {
         this.config = config;
@@ -200,7 +203,8 @@ public class YouTubeChannel implements NotificationChannel {
     }
 
     private synchronized String fetchActiveLiveChatId() {
-        if (cachedLiveChatId != null) {
+        if (cachedLiveChatId != null && cacheTimestamp != null
+                && Instant.now().isBefore(cacheTimestamp.plus(CACHE_TTL))) {
             return cachedLiveChatId;
         }
 
@@ -227,6 +231,7 @@ public class YouTubeChannel implements NotificationChannel {
             }
 
             cachedLiveChatId = chatId;
+            cacheTimestamp = Instant.now();
             log.debug("Fetched YouTube liveChatId: {}", chatId);
             return chatId;
 
@@ -241,6 +246,7 @@ public class YouTubeChannel implements NotificationChannel {
     /** Clears cached liveChatId so next send fetches a fresh one. */
     public void clearCachedLiveChatId() {
         cachedLiveChatId = null;
+        cacheTimestamp = null;
     }
 
     private String extractJsonString(String json, String key) {

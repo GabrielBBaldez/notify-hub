@@ -34,7 +34,7 @@ public class TwilioWhatsAppChannel implements NotificationChannel {
     private static final Logger log = LoggerFactory.getLogger(TwilioWhatsAppChannel.class);
 
     private final TwilioConfig config;
-    private boolean initialized = false;
+    private volatile boolean initialized = false;
 
     public TwilioWhatsAppChannel(TwilioConfig config) {
         this.config = config;

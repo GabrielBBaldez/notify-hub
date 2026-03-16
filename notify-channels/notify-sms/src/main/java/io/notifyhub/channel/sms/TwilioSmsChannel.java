@@ -27,7 +27,7 @@ public class TwilioSmsChannel implements NotificationChannel {
     private static final Logger log = LoggerFactory.getLogger(TwilioSmsChannel.class);
 
     private final TwilioConfig config;
-    private boolean initialized = false;
+    private volatile boolean initialized = false;
 
     public TwilioSmsChannel(TwilioConfig config) {
         this.config = config;

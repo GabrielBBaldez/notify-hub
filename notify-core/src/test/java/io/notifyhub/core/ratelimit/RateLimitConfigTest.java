@@ -101,6 +101,6 @@ class RateLimitConfigTest {
         assertTrue(defaults.containsKey("discord"));
         assertTrue(defaults.containsKey("linkedin"));
         assertTrue(defaults.containsKey("instagram"));
-        assertTrue(defaults.containsKey("google_chat"));
+        assertTrue(defaults.containsKey("google-chat"));
     }
 }

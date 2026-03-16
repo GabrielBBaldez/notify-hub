@@ -106,7 +106,13 @@ public class ScheduleNotificationTool {
     @SuppressWarnings("unchecked")
     private CallToolResult execute(Map<String, Object> args) {
         String channelName = (String) args.get("channel");
+        if (channelName == null || channelName.isBlank()) {
+            return ToolResultHelper.error("'channel' must be provided");
+        }
         String recipient = (String) args.get("recipient");
+        if (recipient == null || recipient.isBlank()) {
+            return ToolResultHelper.error("'recipient' must be provided");
+        }
         String subject = (String) args.get("subject");
         String body = (String) args.get("body");
         String template = (String) args.get("template");

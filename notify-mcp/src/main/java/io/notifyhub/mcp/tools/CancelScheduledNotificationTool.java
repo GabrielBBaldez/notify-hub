@@ -53,6 +53,9 @@ public class CancelScheduledNotificationTool {
 
     private CallToolResult execute(Map<String, Object> args) {
         String id = (String) args.get("id");
+        if (id == null || id.isBlank()) {
+            return ToolResultHelper.error("'id' must be provided");
+        }
 
         Optional<ScheduledNotification> opt = registry.findById(id);
         if (opt.isEmpty()) {

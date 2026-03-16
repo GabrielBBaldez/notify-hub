@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,6 +19,7 @@ public class ScheduledNotificationRegistry {
     private static final Duration COMPLETED_RETENTION = Duration.ofHours(1);
 
     private final ConcurrentHashMap<String, ScheduledNotification> entries = new ConcurrentHashMap<>();
+    private final Map<String, Instant> completionTimes = new ConcurrentHashMap<>();
 
     /** Register a scheduled notification for tracking. */
     public void register(ScheduledNotification notification) {
@@ -36,14 +38,21 @@ public class ScheduledNotificationRegistry {
 
     /**
      * Remove completed/cancelled entries older than the retention period.
-     * Called lazily before listing to avoid unbounded memory growth.
+     * Uses the time when the entry was first observed as completed, not the scheduled time.
      */
     public void evictStale() {
         Instant cutoff = Instant.now().minus(COMPLETED_RETENTION);
         entries.entrySet().removeIf(e -> {
             ScheduledNotification sn = e.getValue();
-            return (sn.isDone() || sn.isCancelled())
-                    && sn.getScheduledTime().isBefore(cutoff);
+            if (sn.isDone() || sn.isCancelled()) {
+                completionTimes.putIfAbsent(e.getKey(), Instant.now());
+                Instant completedAt = completionTimes.get(e.getKey());
+                if (completedAt != null && completedAt.isBefore(cutoff)) {
+                    completionTimes.remove(e.getKey());
+                    return true;
+                }
+            }
+            return false;
         });
     }
 

@@ -23,7 +23,12 @@ public class DiscordConfig {
     private final int timeoutMs;
 
     private DiscordConfig(Builder builder) {
-        this.webhookUrl = requireNonBlank(builder.webhookUrl, "Discord webhook URL");
+        if ((builder.webhookUrl == null || builder.webhookUrl.isBlank())
+                && (builder.recipients == null || builder.recipients.isEmpty())) {
+            throw new IllegalArgumentException(
+                    "Discord: at least one of webhookUrl or recipients must be provided");
+        }
+        this.webhookUrl = builder.webhookUrl;
         this.username = builder.username;
         this.avatarUrl = builder.avatarUrl;
         this.recipients = builder.recipients != null ? Collections.unmodifiableMap(new LinkedHashMap<>(builder.recipients)) : Collections.emptyMap();

@@ -94,12 +94,12 @@ public class FacebookChannel implements NotificationChannel {
                 );
             }
 
-            String url = GRAPH_API + "/" + config.getPageId() + "/messages"
-                    + "?access_token=" + config.getPageAccessToken();
+            String url = GRAPH_API + "/" + config.getPageId() + "/messages";
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + config.getPageAccessToken())
                     .POST(HttpRequest.BodyPublishers.ofString(payload))
                     .build();
 
@@ -136,12 +136,12 @@ public class FacebookChannel implements NotificationChannel {
                 );
             }
 
-            String url = GRAPH_API + "/" + config.getPageId() + "/feed"
-                    + "?access_token=" + config.getPageAccessToken();
+            String url = GRAPH_API + "/" + config.getPageId() + "/feed";
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + config.getPageAccessToken())
                     .POST(HttpRequest.BodyPublishers.ofString(payload))
                     .build();
 

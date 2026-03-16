@@ -59,40 +59,39 @@ class ScheduledNotificationRegistryTest {
     }
 
     @Test
-    @DisplayName("Should evict stale completed entries older than 1 hour")
-    void evictStaleRemovesOldCompletedEntries() {
-        // Old completed entry (2 hours ago)
-        registry.register(mockScheduled("old-done", true, false,
+    @DisplayName("Should not evict recently completed entries on first observation")
+    void evictStaleKeepsRecentlyCompletedEntries() {
+        // Completed entry — first observed now, so should NOT be evicted yet
+        registry.register(mockScheduled("done", true, false,
                 Instant.now().minus(Duration.ofHours(2))));
-        // Recent completed entry (5 minutes ago)
-        registry.register(mockScheduled("recent-done", true, false,
-                Instant.now().minus(Duration.ofMinutes(5))));
         // Pending entry
         registry.register(mockScheduled("pending", false, false,
                 Instant.now().plus(Duration.ofMinutes(30))));
 
-        assertEquals(3, registry.size());
+        assertEquals(2, registry.size());
 
+        // First evictStale records completion time as now
         registry.evictStale();
 
+        // Both should still be present (completion observed < 1h ago)
         assertEquals(2, registry.size());
-        assertTrue(registry.findById("old-done").isEmpty());
-        assertTrue(registry.findById("recent-done").isPresent());
+        assertTrue(registry.findById("done").isPresent());
         assertTrue(registry.findById("pending").isPresent());
     }
 
     @Test
-    @DisplayName("Should evict stale cancelled entries older than 1 hour")
-    void evictStaleRemovesOldCancelledEntries() {
-        registry.register(mockScheduled("old-cancelled", false, true,
+    @DisplayName("Should not evict cancelled entries on first observation")
+    void evictStaleKeepsRecentlyCancelledEntries() {
+        registry.register(mockScheduled("cancelled", false, true,
                 Instant.now().minus(Duration.ofHours(2))));
         registry.register(mockScheduled("pending", false, false,
                 Instant.now().plus(Duration.ofMinutes(30))));
 
+        // First evictStale records completion time — should not evict yet
         registry.evictStale();
 
-        assertEquals(1, registry.size());
-        assertTrue(registry.findById("old-cancelled").isEmpty());
+        assertEquals(2, registry.size());
+        assertTrue(registry.findById("cancelled").isPresent());
     }
 
     @Test

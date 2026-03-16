@@ -21,12 +21,13 @@ public class NotifyFirebasePushAutoConfiguration {
     private static final Logger log = LoggerFactory.getLogger(NotifyFirebasePushAutoConfiguration.class);
 
     @Bean
-    @ConditionalOnProperty(prefix = "notify.channels.push", name = "server-key")
+    @ConditionalOnProperty(prefix = "notify.channels.push", name = "project-id")
     @ConditionalOnMissingBean(FirebasePushChannel.class)
     public FirebasePushChannel firebasePushChannel(NotifyProperties properties) {
         NotifyProperties.Push push = properties.getChannels().getPush();
         FirebasePushConfig config = FirebasePushConfig.builder()
-                .serverKey(push.getServerKey())
+                .projectId(push.getProjectId())
+                .serviceAccountJson(push.getServiceAccountJson())
                 .build();
         log.info("NotifyHub: Firebase Push channel configured");
         return new FirebasePushChannel(config);

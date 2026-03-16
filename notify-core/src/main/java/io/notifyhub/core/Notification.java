@@ -37,6 +37,14 @@ public final class Notification {
     public Notification(String recipient, String channelName, String subject,
                  String templateName, String rawContent, Map<String, Object> params,
                  List<Attachment> attachments, Priority priority, String imageUrl) {
+        this(recipient, channelName, subject, templateName, rawContent, params,
+                attachments, priority, imageUrl, null);
+    }
+
+    Notification(String recipient, String channelName, String subject,
+                 String templateName, String rawContent, Map<String, Object> params,
+                 List<Attachment> attachments, Priority priority, String imageUrl,
+                 String renderedContent) {
         this.recipient = recipient;
         this.channelName = channelName;
         this.subject = subject;
@@ -50,6 +58,7 @@ public final class Notification {
                 : Collections.emptyList();
         this.priority = priority != null ? priority : Priority.NORMAL;
         this.imageUrl = imageUrl;
+        this.renderedContent = renderedContent;
     }
 
     /** The recipient address (email, phone, push token, etc.) */
@@ -97,14 +106,16 @@ public final class Notification {
         return imageUrl;
     }
 
-    /**
-     * Returns the rendered content — either from template or raw content.
-     * The template is rendered by the NotifyHub before passing to the channel.
-     */
-    private String renderedContent;
+    private final String renderedContent;
 
-    void setRenderedContent(String renderedContent) {
-        this.renderedContent = renderedContent;
+    /**
+     * Returns a copy of this notification with the rendered content set.
+     * Used by NotifyHub after template rendering.
+     */
+    Notification withRenderedContent(String renderedContent) {
+        return new Notification(this.recipient, this.channelName, this.subject,
+                this.templateName, this.rawContent, this.params,
+                this.attachments, this.priority, this.imageUrl, renderedContent);
     }
 
     /** Returns the final rendered content ready to send. */

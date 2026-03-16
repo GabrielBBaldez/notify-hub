@@ -112,7 +112,7 @@ public final class RateLimitConfig {
             case "discord" -> discord();
             case "linkedin" -> linkedin();
             case "instagram" -> instagram();
-            case "google_chat" -> googleChat();
+            case "google-chat" -> googleChat();
             default -> null;
         };
     }
@@ -131,7 +131,7 @@ public final class RateLimitConfig {
         defaults.put("discord", discord());
         defaults.put("linkedin", linkedin());
         defaults.put("instagram", instagram());
-        defaults.put("google_chat", googleChat());
+        defaults.put("google-chat", googleChat());
         return defaults;
     }
 

@@ -22,7 +22,12 @@ public class SlackConfig {
     private final String iconUrl;
 
     private SlackConfig(Builder builder) {
-        this.webhookUrl = requireNonBlank(builder.webhookUrl, "Slack webhook URL");
+        if ((builder.webhookUrl == null || builder.webhookUrl.isBlank())
+                && (builder.recipients == null || builder.recipients.isEmpty())) {
+            throw new IllegalArgumentException(
+                    "Slack: at least one of webhookUrl or recipients must be provided");
+        }
+        this.webhookUrl = builder.webhookUrl;
         this.recipients = builder.recipients != null ? Collections.unmodifiableMap(new LinkedHashMap<>(builder.recipients)) : Collections.emptyMap();
         this.timeoutMs = builder.timeoutMs;
         this.username = builder.username;

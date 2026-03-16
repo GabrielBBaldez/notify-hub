@@ -67,6 +67,7 @@ public class NotifyHub {
     private final NotificationTracker tracker;
     private final RateLimiter rateLimiter;
     private final DeadLetterQueue deadLetterQueue;
+    private volatile ScheduledExecutorService defaultScheduler;
     private final NotificationRouter router;
     private final DeduplicationStore deduplicationStore;
     private final AuditLog auditLog;
@@ -370,7 +371,10 @@ public class NotifyHub {
             tracker.record(failedReceipt);
         }
 
-        throw lastException;
+        if (lastException != null) {
+            throw lastException;
+        }
+        throw new NotificationSendException("unknown", "All channels failed to send notification");
     }
 
     /**
@@ -530,12 +534,18 @@ public class NotifyHub {
         if (scheduler != null) {
             return scheduler;
         }
-        // Default: create a single-threaded scheduler
-        return Executors.newSingleThreadScheduledExecutor(r -> {
-            Thread t = new Thread(r, "notifyhub-scheduler");
-            t.setDaemon(true);
-            return t;
-        });
+        if (defaultScheduler == null) {
+            synchronized (this) {
+                if (defaultScheduler == null) {
+                    defaultScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+                        Thread t = new Thread(r, "notifyhub-scheduler");
+                        t.setDaemon(true);
+                        return t;
+                    });
+                }
+            }
+        }
+        return defaultScheduler;
     }
 
     private SendResult sendToChannel(String channelName, NotificationBuilder builder) {
@@ -591,7 +601,7 @@ public class NotifyHub {
                 builder.getPriority(), builder.getImageUrl()
         );
         if (renderedContent != null) {
-            notification.setRenderedContent(renderedContent);
+            notification = notification.withRenderedContent(renderedContent);
         }
 
         // Send with retry
@@ -658,7 +668,10 @@ public class NotifyHub {
                     attempts, channel.getName());
         }
 
-        throw lastException;
+        if (lastException != null) {
+            throw lastException;
+        }
+        throw new NotificationSendException(channel.getName(), "All retry attempts failed");
     }
 
     // ===================== LISTENERS =====================

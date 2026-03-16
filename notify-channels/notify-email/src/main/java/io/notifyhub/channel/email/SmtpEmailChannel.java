@@ -122,14 +122,7 @@ public class SmtpEmailChannel implements NotificationChannel {
 
     @Override
     public boolean isAvailable() {
-        try (Transport transport = session.getTransport("smtp")) {
-            transport.connect(config.getHost(), config.getPort(),
-                    config.getUsername(), config.getPassword());
-            return true;
-        } catch (Exception e) {
-            log.warn("SMTP health check failed: {}", e.getMessage());
-            return false;
-        }
+        return config.getHost() != null && !config.getHost().isBlank();
     }
 
     private Session createSession() {

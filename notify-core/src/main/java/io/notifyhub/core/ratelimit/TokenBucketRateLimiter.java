@@ -89,7 +89,7 @@ public class TokenBucketRateLimiter implements RateLimiter {
             return false;
         }
 
-        void refill() {
+        synchronized void refill() {
             long now = System.nanoTime();
             long elapsed = now - lastRefillNanos;
             long windowNanos = config.getWindow().toNanos();

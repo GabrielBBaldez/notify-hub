@@ -1,6 +1,6 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.gabrielbbaldez/notify-hub",
+  "name": "io.github.GabrielBBaldez/notify-hub",
   "title": "NotifyHub — Unified Notification MCP Server",
   "description": "Send notifications across 23 channels with 36 AI-ready tools. One API, zero boilerplate.",
   "repository": {

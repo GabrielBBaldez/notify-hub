@@ -17,7 +17,7 @@ COPY . .
 RUN mvn clean package -pl notify-mcp -am -DskipTests -B -q
 
 # Stage 2: Runtime
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre-jammy
 
 LABEL org.opencontainers.image.title="NotifyHub MCP Server" \
       org.opencontainers.image.description="Unified notification MCP server — 36 tools, 23 channels, one API" \
@@ -26,7 +26,7 @@ LABEL org.opencontainers.image.title="NotifyHub MCP Server" \
       org.opencontainers.image.licenses="MIT" \
       io.modelcontextprotocol.server.name="io.github.gabrielbbaldez/notify-hub"
 
-RUN addgroup -S notifyhub && adduser -S notifyhub -G notifyhub
+RUN groupadd -r notifyhub && useradd -r -g notifyhub notifyhub
 RUN mkdir -p /home/notifyhub/.notifyhub && chown notifyhub:notifyhub /home/notifyhub/.notifyhub
 USER notifyhub
 WORKDIR /app

@@ -1,6 +1,8 @@
 package io.notifyhub.core;
 
+import io.notifyhub.core.abtest.AbTestBuilder;
 import io.notifyhub.core.attachment.Attachment;
+import io.notifyhub.core.orchestration.OrchestrationBuilder;
 import io.notifyhub.core.retry.RetryPolicy;
 
 import java.io.File;
@@ -267,6 +269,24 @@ public class NotificationBuilder {
         return this;
     }
 
+    // ===================== A/B TESTING =====================
+
+    /**
+     * Start building an A/B test for this notification.
+     *
+     * <pre>{@code
+     * notify.to(user).via(EMAIL)
+     *     .abTest("welcome-experiment")
+     *         .variant("A", b -> b.template("welcome-v1"))
+     *         .variant("B", b -> b.template("welcome-v2"))
+     *         .split(50, 50)
+     *     .send();
+     * }</pre>
+     */
+    public AbTestBuilder abTest(String experimentName) {
+        return new AbTestBuilder(this, experimentName, recipientEmail);
+    }
+
     // ===================== i18n =====================
 
     /** Set the locale for template resolution. */
@@ -283,6 +303,23 @@ public class NotificationBuilder {
      */
     public NotificationBuilder route() {
         return this;
+    }
+
+    // ===================== ORCHESTRATION =====================
+
+    /**
+     * Start building a multi-channel orchestration for this recipient.
+     *
+     * <pre>{@code
+     * notify.to(user).orchestrate()
+     *     .first(Channel.EMAIL).template("promo")
+     *     .ifNoOpen(Duration.ofHours(24))
+     *     .then(Channel.PUSH).content("Check your email!")
+     *     .execute();
+     * }</pre>
+     */
+    public OrchestrationBuilder orchestrate() {
+        return new OrchestrationBuilder(recipientEmail, recipientPhone, recipientPushToken);
     }
 
     // ===================== SEND =====================
@@ -423,6 +460,30 @@ public class NotificationBuilder {
                     "Cannot schedule in the past. Provided: " + dateTime + " (zone: " + zoneId + ")");
         }
 
+        return hub.executeScheduled(this, delay);
+    }
+
+    // ===================== CRON SCHEDULING =====================
+
+    /**
+     * Schedule the notification to fire on a cron schedule.
+     * The first fire time is computed from now.
+     *
+     * <pre>{@code
+     * notify.to("team@company.com").via(EMAIL)
+     *     .template("daily-report")
+     *     .cron("0 9 * * MON-FRI")
+     *     .send();
+     * }</pre>
+     *
+     * @param cronExpression standard 5-field cron (minute hour day-of-month month day-of-week)
+     * @return a {@link ScheduledNotification} handle to inspect or cancel
+     */
+    public ScheduledNotification cron(String cronExpression) {
+        validate();
+        io.notifyhub.core.schedule.CronExpression cron = io.notifyhub.core.schedule.CronExpression.parse(cronExpression);
+        java.time.Instant nextFire = cron.nextFireTime(java.time.Instant.now(), java.time.ZoneId.systemDefault());
+        java.time.Duration delay = java.time.Duration.between(java.time.Instant.now(), nextFire);
         return hub.executeScheduled(this, delay);
     }
 

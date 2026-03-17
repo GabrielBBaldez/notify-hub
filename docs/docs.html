@@ -102,6 +102,10 @@
             <a href="#audience">Audience &amp; Contacts</a>
             <a href="#scheduling">Scheduling</a>
             <a href="#event-listeners">Event Listeners</a>
+            <a href="#circuit-breaker">Circuit Breaker</a>
+            <a href="#orchestration">Orchestration</a>
+            <a href="#ab-testing">A/B Testing</a>
+            <a href="#quiet-hours">Quiet Hours</a>
         </div>
         <div class="sidebar-section">
             <span class="sidebar-label">Integration</span>
@@ -116,6 +120,7 @@
         <div class="sidebar-section">
             <span class="sidebar-label">More</span>
             <a href="#testing">Testing</a>
+            <a href="#test-utilities">Test Utilities</a>
         </div>
     </aside>
 
@@ -1922,6 +1927,149 @@ hub.cancelScheduledNotification(notificationId);</code></pre>
   events:
     enabled: true    # Enables Spring event publishing</code></pre>
             </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- CIRCUIT BREAKER                               -->
+        <!-- ============================================ -->
+        <section id="circuit-breaker">
+            <h2>Circuit Breaker</h2>
+            <p>Per-channel circuit breaker prevents cascading failures. When a channel fails repeatedly, the circuit opens and short-circuits further attempts until a recovery period elapses.</p>
+            <div class="code-block">
+                <div class="code-header">Java — Without Spring Boot</div>
+<pre><code>NotifyHub notify = NotifyHub.builder()
+    .channel(emailChannel)
+    .circuitBreaker(CircuitBreakerConfig.defaults()) // 5 failures → open for 30s
+    .build();
+
+// Custom thresholds
+NotifyHub notify = NotifyHub.builder()
+    .channel(emailChannel)
+    .circuitBreaker(CircuitBreakerConfig.custom()
+        .failureThreshold(3)
+        .openDuration(Duration.ofMinutes(1))
+        .windowSize(Duration.ofSeconds(30))
+        .build())
+    .build();</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">application.yml — Spring Boot</div>
+<pre><code>notify:
+  circuit-breaker:
+    enabled: true
+    failure-threshold: 5
+    open-duration: 30s
+    window-size: 60s</code></pre>
+            </div>
+            <p>States: <strong>CLOSED</strong> (normal) → <strong>OPEN</strong> (rejecting all sends) → <strong>HALF_OPEN</strong> (testing recovery with one attempt). The Actuator health endpoint includes circuit breaker state per channel.</p>
+            <p>You can also add <strong>bulkhead isolation</strong> to limit concurrent sends per channel:</p>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>NotifyHub notify = NotifyHub.builder()
+    .channel(emailChannel)
+    .bulkhead(BulkheadConfig.defaults())       // 10 concurrent per channel
+    .bulkhead(BulkheadConfig.perChannel(5))    // or custom limit
+    .build();</code></pre>
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- ORCHESTRATION                                 -->
+        <!-- ============================================ -->
+        <section id="orchestration">
+            <h2>Multi-Channel Orchestration</h2>
+            <p>Build escalation workflows that promote through channels if the user doesn't engage:</p>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.to(user)
+    .orchestrate()
+    .first(Channel.EMAIL)
+        .template("order-update")
+    .ifNoOpen(Duration.ofHours(24))
+    .then(Channel.PUSH)
+        .content("You have an unread order update")
+    .ifNoOpen(Duration.ofHours(48))
+    .then(Channel.SMS)
+        .content("Order update waiting — check your email")
+    .execute();</code></pre>
+            </div>
+            <p>Each step waits for the specified duration before escalating to the next channel. Combine with delivery tracking to check open/click status.</p>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- A/B TESTING                                   -->
+        <!-- ============================================ -->
+        <section id="ab-testing">
+            <h2>A/B Testing</h2>
+            <p>Built-in deterministic A/B testing for notifications. Variant assignment uses SHA-256 hashing — the same recipient always gets the same variant:</p>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>notify.to(user)
+    .via(Channel.EMAIL)
+    .subject("Welcome!")
+    .abTest("welcome-experiment")
+        .variant("control", b -> b.template("welcome-v1"))
+        .variant("new-design", b -> b.template("welcome-v2"))
+        .split(50, 50);</code></pre>
+            </div>
+            <p>Supports any number of variants with weighted splits. Deterministic hashing ensures consistent experiences across sends — no external A/B testing service needed.</p>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- QUIET HOURS                                   -->
+        <!-- ============================================ -->
+        <section id="quiet-hours">
+            <h2>Quiet Hours</h2>
+            <p>Respect user preferences for notification timing. Implement on your <code>Notifiable</code>:</p>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>public class User implements Notifiable {
+    @Override
+    public QuietHours getQuietHours() {
+        return QuietHours.between(
+            LocalTime.of(22, 0),  // 10 PM
+            LocalTime.of(8, 0),   // 8 AM
+            ZoneId.of("America/Sao_Paulo")
+        );
+    }
+
+    @Override
+    public Set&lt;Channel&gt; getOptedOutChannels() {
+        return Set.of(Channel.SMS); // User opted out of SMS
+    }
+}</code></pre>
+            </div>
+            <p>Notifications sent during quiet hours are delayed to the next allowed window. Opted-out channels are silently skipped.</p>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- TEST UTILITIES                                -->
+        <!-- ============================================ -->
+        <section id="test-utilities">
+            <h2>Test Utilities</h2>
+            <p><code>TestNotifyHub</code> provides a test-friendly wrapper with capturing channels for all built-in channel types. No mocking needed:</p>
+            <div class="code-block">
+                <div class="code-header">Java — JUnit 5</div>
+<pre><code>@Test
+void shouldSendWelcomeEmail() {
+    TestNotifyHub test = TestNotifyHub.create();
+
+    test.to("user@test.com")
+        .via(Channel.EMAIL)
+        .subject("Welcome")
+        .content("Hello!")
+        .send();
+
+    assertThat(test.sent()).hasSize(1);
+    assertThat(test.sent("email").get(0).subject()).isEqualTo("Welcome");
+}
+
+@AfterEach
+void cleanup() {
+    test.reset(); // Clear captured notifications between tests
+}</code></pre>
+            </div>
+            <p><code>TestNotifyHub</code> registers capturing channels for every <code>Channel</code> enum value. Query with <code>sent()</code> (all) or <code>sent("email")</code> (by channel).</p>
         </section>
 
         <!-- ============================================ -->

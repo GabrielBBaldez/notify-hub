@@ -86,6 +86,10 @@ notify.to(user)
 | Monitoring | Wire Micrometer yourself | Auto-configured counters |
 | Health checks | Write an Actuator indicator | Auto-configured |
 | Admin UI | Build your own dashboard | Built-in `/notify-admin` |
+| Circuit breaker | Implement yourself per channel | Built-in per-channel circuit breaker |
+| Orchestration | Manual escalation logic | `.orchestrate().first(EMAIL).ifNoOpen(24h).then(PUSH)` |
+| A/B testing | External service + glue code | Built-in `.abTest("exp").variant(...).split(50,50)` |
+| Testing | Mock everything | `TestNotifyHub` captures all sends |
 | New channel | Build from scratch | Implement one interface |
 
 ---
@@ -115,6 +119,13 @@ notify.to(user)
   - [Event Listeners + Spring Events](#event-listeners--spring-events)
   - [Named Recipients](#named-recipients)
   - [Message Queue (RabbitMQ / Kafka)](#message-queue-rabbitmq--kafka)
+  - [Circuit Breaker](#circuit-breaker)
+  - [Bulkhead (Concurrency Isolation)](#bulkhead-concurrency-isolation)
+  - [Multi-Channel Orchestration](#multi-channel-orchestration)
+  - [A/B Testing](#ab-testing)
+  - [Cron Scheduling](#cron-scheduling)
+  - [Quiet Hours](#quiet-hours)
+  - [Testing Utilities](#testing-utilities)
 - [Supported Channels](#supported-channels)
 - [Admin Dashboard](#admin-dashboard)
 - [Spring Boot Integration](#spring-boot-integration)
@@ -868,6 +879,147 @@ producer.enqueue(QueuedNotification.builder()
 
 Both modules support: templates, priority, deduplication keys, delivery tracking, and phone number routing for SMS/WhatsApp.
 
+### Circuit Breaker
+
+Per-channel circuit breaker prevents cascading failures. If a channel fails repeatedly, the circuit opens and short-circuits further attempts:
+
+```java
+// Without Spring Boot
+NotifyHub notify = NotifyHub.builder()
+    .channel(emailChannel)
+    .circuitBreaker(CircuitBreakerConfig.defaults()) // 5 failures → open for 30s
+    .build();
+
+// Custom thresholds
+NotifyHub notify = NotifyHub.builder()
+    .channel(emailChannel)
+    .circuitBreaker(CircuitBreakerConfig.custom()
+        .failureThreshold(3)
+        .openDuration(Duration.ofMinutes(1))
+        .windowSize(Duration.ofSeconds(30))
+        .build())
+    .build();
+```
+
+```yaml
+# Spring Boot
+notify:
+  circuit-breaker:
+    enabled: true
+    failure-threshold: 5
+    open-duration: 30s
+    window-size: 60s
+```
+
+States: **CLOSED** (normal) → **OPEN** (rejecting) → **HALF_OPEN** (testing recovery). The health endpoint includes circuit breaker status per channel.
+
+### Bulkhead (Concurrency Isolation)
+
+Limit concurrent sends per channel to prevent resource exhaustion:
+
+```java
+NotifyHub notify = NotifyHub.builder()
+    .channel(emailChannel)
+    .bulkhead(BulkheadConfig.defaults())       // 10 concurrent per channel
+    .bulkhead(BulkheadConfig.perChannel(5))    // or custom limit
+    .build();
+```
+
+### Multi-Channel Orchestration
+
+Build escalation workflows that promote through channels if the user doesn't engage:
+
+```java
+notify.to(user)
+    .orchestrate()
+    .first(Channel.EMAIL)
+        .template("order-update")
+    .ifNoOpen(Duration.ofHours(24))
+    .then(Channel.PUSH)
+        .content("You have an unread order update")
+    .ifNoOpen(Duration.ofHours(48))
+    .then(Channel.SMS)
+        .content("Order update waiting — check your email")
+    .execute();
+```
+
+Each step waits for the specified duration before escalating to the next channel.
+
+### A/B Testing
+
+Built-in deterministic A/B testing for notifications. Variant assignment is hash-based (SHA-256) — the same recipient always gets the same variant:
+
+```java
+notify.to(user)
+    .via(Channel.EMAIL)
+    .subject("Welcome!")
+    .abTest("welcome-experiment")
+        .variant("control", b -> b.template("welcome-v1"))
+        .variant("new-design", b -> b.template("welcome-v2"))
+        .split(50, 50);
+```
+
+Supports any number of variants with weighted splits. Deterministic hashing ensures consistent experiences across sends.
+
+### Cron Scheduling
+
+Schedule recurring notifications with cron expressions:
+
+```java
+ScheduledNotification job = notify.to(user)
+    .via(Channel.EMAIL)
+    .template("weekly-digest")
+    .cron("0 9 * * MON"); // Every Monday at 9 AM
+```
+
+Supports standard 5-field cron syntax: minute, hour, day-of-month, month, day-of-week. Includes ranges, lists, steps, and named days/months.
+
+### Quiet Hours
+
+Respect user preferences for notification timing:
+
+```java
+public class User implements Notifiable {
+    @Override
+    public QuietHours getQuietHours() {
+        return QuietHours.between(
+            LocalTime.of(22, 0),  // 10 PM
+            LocalTime.of(8, 0),   // 8 AM
+            ZoneId.of("America/Sao_Paulo")
+        );
+    }
+
+    @Override
+    public Set<Channel> getOptedOutChannels() {
+        return Set.of(Channel.SMS); // User opted out of SMS
+    }
+}
+```
+
+Notifications sent during quiet hours are delayed to the next allowed window. Opted-out channels are silently skipped.
+
+### Testing Utilities
+
+`TestNotifyHub` provides a test-friendly wrapper with capturing channels for all built-in channel types:
+
+```java
+@Test
+void shouldSendWelcomeEmail() {
+    TestNotifyHub test = TestNotifyHub.create();
+
+    test.to("user@test.com")
+        .via(Channel.EMAIL)
+        .subject("Welcome")
+        .content("Hello!")
+        .send();
+
+    assertThat(test.sent()).hasSize(1);
+    assertThat(test.sent("email").get(0).subject()).isEqualTo("Welcome");
+}
+```
+
+No mocking needed — `TestNotifyHub` captures all notifications in memory for assertions. Call `test.reset()` between tests.
+
 ---
 
 ## Supported Channels
@@ -948,10 +1100,15 @@ Auto-configured when Micrometer is on the classpath:
 </dependency>
 ```
 
-Exposes counters:
-- `notifyhub.notifications.sent` (tags: channel, template)
-- `notifyhub.notifications.failed` (tags: channel, template)
-- `notifyhub.notifications.scheduled` (tags: channel)
+Exposes counters and gauges via the unified EventBus:
+- `notifyhub.notifications.sent` (tags: channel)
+- `notifyhub.notifications.failed` (tags: channel)
+- `notifyhub.notifications.retried` (tags: channel)
+- `notifyhub.notifications.rate_limited` (tags: channel)
+- `notifyhub.notifications.deduped` (tags: channel)
+- `notifyhub.notifications.circuit_opened` (tags: channel)
+- `notifyhub.notifications.circuit_closed` (tags: channel)
+- `notifyhub.notifications.send_duration` (timer, tags: channel)
 
 ### Actuator Health Check
 
@@ -965,15 +1122,15 @@ GET /actuator/health/notifyhub
 {
   "status": "UP",
   "details": {
-    "email": "UP",
-    "slack": "UP",
+    "email": { "status": "UP", "circuitBreaker": "CLOSED" },
+    "slack": { "status": "UP", "circuitBreaker": "CLOSED" },
     "totalChannels": 2,
     "availableChannels": 2
   }
 }
 ```
 
-Status: **UP** (all channels available), **DEGRADED** (some down), **DOWN** (all down).
+Status: **UP** (all channels available), **DEGRADED** (some down), **DOWN** (all down). When circuit breaker is configured, each channel also reports its circuit state.
 
 ### Actuator Info
 
@@ -1211,6 +1368,8 @@ NotifyHub notify = NotifyHub.builder()
         RateLimitConfig.perMinute(100)))
     .deadLetterQueue(new InMemoryDeadLetterQueue())
     .tracker(new InMemoryNotificationTracker())
+    .circuitBreaker(CircuitBreakerConfig.defaults())
+    .bulkhead(BulkheadConfig.defaults())
     .build();
 
 // Sync
@@ -1524,22 +1683,52 @@ Then open:
 ```
 notify-hub/
 ├── notify-core/                          # Zero Spring dependency
-│   ├── NotifyHub                         # Entry point + fluent API
+│   ├── NotifyHub                         # Thin facade — delegates to executor/scheduler/eventbus
+│   ├── NotificationExecutor              # Channel resolution, send logic, fallback chains
+│   ├── NotificationScheduler             # Scheduling with delay/cancel/list
 │   ├── NotificationBuilder               # Fluent builder (send/async/tracked/scheduled)
 │   ├── BatchNotificationBuilder          # Batch send to multiple recipients
 │   ├── Notification                      # Immutable notification object
 │   ├── Channel / ChannelRef              # Built-in + custom channel refs
 │   ├── Priority                          # URGENT, HIGH, NORMAL, LOW
-│   ├── Attachment                        # Email file attachments
-│   ├── Notifiable                        # Recipient interface (i18n + routing)
+│   ├── Notifiable                        # Recipient interface (i18n + routing + quiet hours)
 │   ├── NotificationChannel               # Channel SPI (implement this!)
-│   ├── NotificationListener              # Event listener interface
-│   ├── NotificationTracker               # Delivery tracking interface
-│   ├── DeadLetterQueue                   # DLQ interface
+│   ├── QuietHours                        # Per-recipient quiet time windows
+│   ├── pipeline/                         # Resilience handler chain
+│   │   ├── SendPipeline                  # Assembles: Dedup → RateLimit → CircuitBreaker → Template → Retry
+│   │   ├── SendHandler                   # Handler chain interface
+│   │   ├── SendContext                   # Per-send state (channel, builder, notification)
+│   │   ├── DeduplicationHandler          # Skip duplicates
+│   │   ├── RateLimitHandler              # Enforce per-channel limits
+│   │   ├── CircuitBreakerHandler         # Short-circuit failing channels
+│   │   ├── TemplateHandler               # Build + render notification
+│   │   └── RetrySendHandler              # Terminal: retry with backoff → DLQ
+│   ├── resilience/                       # Resilience primitives
+│   │   ├── ChannelCircuitBreaker         # Per-channel circuit breaker (sliding window)
+│   │   ├── CircuitBreakerConfig          # Thresholds + durations
+│   │   ├── CircuitState                  # CLOSED, OPEN, HALF_OPEN
+│   │   └── BulkheadConfig               # Per-channel concurrency limits
+│   ├── event/                            # Unified event system
+│   │   ├── NotificationEventBus          # Publish events to listeners
+│   │   ├── NotificationEvent             # Immutable event record
+│   │   ├── EventType                     # SENT, FAILED, RETRIED, RATE_LIMITED, DEDUPED, CIRCUIT_*
+│   │   ├── NotificationEventListener     # Listener interface
+│   │   └── LegacyListenerAdapter         # Bridge: old NotificationListener → EventBus
+│   ├── orchestration/                    # Multi-step notification workflows
+│   │   ├── OrchestrationBuilder          # first(EMAIL).ifNoOpen(24h).then(PUSH)
+│   │   └── OrchestrationStep            # Individual step record
+│   ├── abtest/                           # A/B testing
+│   │   └── AbTestBuilder                # Deterministic SHA-256 variant selection
+│   ├── schedule/                         # Cron support
+│   │   └── CronExpression               # Lightweight 5-field cron parser
+│   ├── attachment/                       # File attachments
+│   │   └── Attachment                    # Email file attachments
+│   ├── testing/                          # Test utilities
+│   │   ├── TestNotifyHub                 # Test wrapper with capturing channels
+│   │   └── SentNotification             # Captured notification record
 │   ├── RateLimiter / TokenBucket         # Rate limiting
 │   ├── NotificationRouter / RoutingRule  # Conditional routing
 │   ├── MustacheTemplateEngine            # Template engine (i18n-aware + versioning)
-│   ├── VersionedTemplateEngine           # Template versioning interface (A/B testing)
 │   ├── DeduplicationStore                # Dedup interface (in-memory impl)
 │   └── RetryPolicy                       # Retry + backoff strategies
 │
@@ -1563,15 +1752,17 @@ notify-hub/
 │   ├── notify-whatsapp/                # WhatsApp Cloud API (Meta Graph API, no Twilio)
 │   ├── notify-aws-sns/                 # AWS SNS (AWS SDK v2)
 │   ├── notify-mailgun/                 # Mailgun transactional email (JDK HttpClient)
-│   └── notify-pagerduty/              # PagerDuty Events API v2 (JDK HttpClient)
+│   ├── notify-pagerduty/              # PagerDuty Events API v2 (JDK HttpClient)
+│   └── notify-channel-template/       # Template/archetype for creating new channels
 │
 ├── notify-tracker-jpa/                   # JPA-backed delivery tracker
+├── notify-audit-jpa/                     # JPA-backed audit logging
 │
 ├── notify-spring-boot-starter/           # Auto-config for Spring Boot
-│   ├── NotifyAutoConfiguration           # Auto-discovers all channels
-│   ├── MicrometerNotificationListener    # Metrics (counters per channel)
+│   ├── NotifyAutoConfiguration           # Auto-discovers all channels + event listeners
+│   ├── MetricsEventListener              # Micrometer metrics via EventBus
 │   ├── TracingNotificationListener       # OpenTelemetry tracing (Observation API)
-│   ├── NotifyHubHealthIndicator          # Actuator health check
+│   ├── NotifyHubHealthIndicator          # Actuator health (+ circuit breaker status)
 │   ├── NotifyHubInfoContributor          # Actuator info endpoint
 │   ├── SpringEventNotificationListener   # Spring ApplicationEvents
 │   └── NotifyProperties                  # application.yml binding
@@ -1582,10 +1773,23 @@ notify-hub/
 ├── notify-mcp/                           # MCP Server for AI agents
 │   ├── NotifyMcpServer                   # Spring Boot headless main
 │   ├── McpServerRunner                   # STDIO MCP server bootstrap
-│   └── tools/                            # 27 MCP tools (send, batch, audiences, DLQ, analytics)
+│   └── tools/                            # 36 MCP tools (send, batch, audiences, DLQ, analytics)
+│
+├── notify-queue-rabbitmq/                # RabbitMQ integration
+├── notify-queue-kafka/                   # Kafka integration
 │
 └── notify-demo/                          # Demo app (run it!)
 ```
+
+### Resilience Pipeline
+
+Every notification passes through a handler chain before hitting the channel:
+
+```
+Deduplication → Rate Limit → Circuit Breaker → Template Rendering → Retry + Send → DLQ
+```
+
+Each handler can short-circuit (e.g., dedup skips duplicates, circuit breaker rejects when open). The pipeline is fully optional — handlers are skipped when their dependency is `null`.
 
 ### Design Principles
 
@@ -1596,6 +1800,7 @@ notify-hub/
 - **Spring Boot starter auto-configures everything** — just add the dependency
 - **Async support** — `sendAsync()` and `sendAllAsync()` with `CompletableFuture`
 - **Conditional auto-config** — channel beans only load when their module is on classpath
+- **Unified event system** — `NotificationEventBus` replaces scattered listener calls, backward-compatible via `LegacyListenerAdapter`
 
 ---
 
@@ -2092,6 +2297,7 @@ Below is every module, what it does, when you need it, and how to add it.
 - [x] **v0.9.0** — MCP advanced tools: audiences, contacts, batch send, DLQ, analytics (16 channels, 26 MCP tools)
 - [x] **v0.10.0** — Instagram channel: DMs and feed posts via Meta Graph API (17 channels, 27 MCP tools, 25 modules)
 - [x] **v1.0.0** — SendGrid, TikTok Shop, Facebook, WhatsApp Cloud API, AWS SNS, Mailgun, PagerDuty channels, scheduled notifications MCP tools, JaCoCo coverage (24 channels, 36 MCP tools, 27 modules)
+- [x] **v1.1.0** — Architecture improvements: resilience pipeline (circuit breaker, bulkhead, handler chain), unified event system (NotificationEventBus, EventType, MetricsEventListener), god object refactoring (NotificationExecutor, NotificationScheduler extracted from NotifyHub), multi-channel orchestration, built-in A/B testing, cron scheduling, quiet hours, TestNotifyHub test utility, channel template module, Levenshtein error suggestions, enhanced health indicator with circuit breaker status
 
 ---
 

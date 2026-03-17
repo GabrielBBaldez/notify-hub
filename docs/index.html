@@ -306,6 +306,22 @@
                 <h4>&#128065; OpenTelemetry</h4>
                 <p>Auto-configured tracing via Micrometer Observation API. Export spans to Jaeger, Tempo, or any OTLP collector.</p>
             </div>
+            <div class="feat-card">
+                <h4>&#128737; Circuit Breaker</h4>
+                <p>Per-channel circuit breaker with sliding failure window. Prevents cascading failures with CLOSED → OPEN → HALF_OPEN states.</p>
+            </div>
+            <div class="feat-card">
+                <h4>&#128203; Orchestration</h4>
+                <p>Multi-step escalation: <code>first(EMAIL).ifNoOpen(24h).then(PUSH)</code>. Promote through channels if users don't engage.</p>
+            </div>
+            <div class="feat-card">
+                <h4>&#128300; A/B Testing</h4>
+                <p>Built-in deterministic variant selection via SHA-256 hashing. Split traffic across template variants with weighted percentages.</p>
+            </div>
+            <div class="feat-card">
+                <h4>&#128295; TestNotifyHub</h4>
+                <p>Test utility with capturing channels. Assert on sent notifications without mocking. Zero test infrastructure needed.</p>
+            </div>
         </div>
     </section>
 

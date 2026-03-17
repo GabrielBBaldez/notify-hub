@@ -1,5 +1,8 @@
 <p align="center">
-  <img src="docs/logo.png" alt="NotifyHub" width="180"/>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-white.png"/>
+    <img src="docs/logo.png" alt="NotifyHub" width="180"/>
+  </picture>
 </p>
 
 <h1 align="center">NotifyHub</h1>

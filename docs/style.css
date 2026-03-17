@@ -48,6 +48,7 @@ nav {
     font-weight: 700; font-size: 1.1rem; color: var(--text);
     transition: color 0.2s;
 }
+.nav-brand img { filter: invert(1); }
 .nav-brand:hover { color: var(--accent); }
 
 .nav-links { display: flex; gap: 8px; align-items: center; }
@@ -97,7 +98,7 @@ nav {
 
 .hero-logo {
     margin-bottom: 16px;
-    filter: drop-shadow(0 0 40px rgba(249,115,22,0.25));
+    filter: invert(1) drop-shadow(0 0 40px rgba(249,115,22,0.25));
     position: relative;
 }
 

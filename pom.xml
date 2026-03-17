@@ -399,8 +399,6 @@
                             <publishingServerId>central</publishingServerId>
                             <autoPublish>true</autoPublish>
                             <waitUntil>published</waitUntil>
-                            <deploymentName>v1.1.0</deploymentName>
-                            <skipPublishing>false</skipPublishing>
                         </configuration>
                     </plugin>
                 </plugins>

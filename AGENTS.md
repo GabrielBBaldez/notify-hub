@@ -75,4 +75,8 @@ Before completing any code modification task, verify:
 - Check freshness: `npx gitnexus status`
 - Generate docs: `npx gitnexus wiki`
 
+<<<<<<< HEAD
 <!-- gitnexus:end -->
+=======
+<!-- gitnexus:end -->
+>>>>>>> origin/master

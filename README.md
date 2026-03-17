@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/logo.png" alt="NotifyHub Mascot" width="180"/>
+  <img src="docs/logo.png" alt="NotifyHub" width="180"/>
 </p>
 
 <h1 align="center">NotifyHub</h1>

@@ -1,10 +1,13 @@
 package io.notifyhub.spring.actuator;
 
 import io.notifyhub.core.channel.NotificationChannel;
+import io.notifyhub.core.resilience.ChannelCircuitBreaker;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Spring Boot Actuator {@link HealthIndicator} for NotifyHub channels.
@@ -16,14 +19,23 @@ import java.util.List;
  *   <li>{@code DOWN} — all channels are unavailable</li>
  * </ul>
  *
+ * <p>When a {@link ChannelCircuitBreaker} is provided, each channel detail also
+ * includes the current circuit state (CLOSED, OPEN, or HALF_OPEN).</p>
+ *
  * <p>Accessible at {@code /actuator/health/notifyhub}.</p>
  */
 public class NotifyHubHealthIndicator implements HealthIndicator {
 
     private final List<NotificationChannel> channels;
+    private final ChannelCircuitBreaker circuitBreaker;
 
     public NotifyHubHealthIndicator(List<NotificationChannel> channels) {
+        this(channels, null);
+    }
+
+    public NotifyHubHealthIndicator(List<NotificationChannel> channels, ChannelCircuitBreaker circuitBreaker) {
         this.channels = channels;
+        this.circuitBreaker = circuitBreaker;
     }
 
     @Override
@@ -46,7 +58,15 @@ public class NotifyHubHealthIndicator implements HealthIndicator {
                 available = false;
             }
 
-            builder.withDetail(channel.getName(), available ? "UP" : "DOWN");
+            if (circuitBreaker != null) {
+                Map<String, String> channelDetails = new LinkedHashMap<>();
+                channelDetails.put("status", available ? "UP" : "DOWN");
+                channelDetails.put("circuitBreaker", circuitBreaker.getState(channel.getName()).name());
+                builder.withDetail(channel.getName(), channelDetails);
+            } else {
+                builder.withDetail(channel.getName(), available ? "UP" : "DOWN");
+            }
+
             if (available) {
                 availableCount++;
             }

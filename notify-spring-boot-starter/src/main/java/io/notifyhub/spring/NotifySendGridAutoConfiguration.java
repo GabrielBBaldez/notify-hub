@@ -2,6 +2,7 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.sendgrid.SendGridConfig;
 import io.notifyhub.channel.sendgrid.SendGridEmailChannel;
+import io.notifyhub.spring.properties.SendGridProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -38,7 +39,7 @@ public class NotifySendGridAutoConfiguration {
     @ConditionalOnProperty(prefix = "notify.channels.sendgrid", name = "api-key")
     @ConditionalOnMissingBean(SendGridEmailChannel.class)
     public SendGridEmailChannel sendGridEmailChannel(NotifyProperties properties) {
-        NotifyProperties.SendGrid sg = properties.getChannels().getSendgrid();
+        SendGridProperties sg = properties.getChannels().getSendgrid();
         SendGridConfig config = SendGridConfig.builder()
                 .apiKey(sg.getApiKey())
                 .from(sg.getFrom())

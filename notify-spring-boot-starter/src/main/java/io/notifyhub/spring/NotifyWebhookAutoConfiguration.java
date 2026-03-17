@@ -2,6 +2,7 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.webhook.WebhookChannel;
 import io.notifyhub.channel.webhook.WebhookConfig;
+import io.notifyhub.spring.properties.WebhookEntryProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -39,14 +40,14 @@ public class NotifyWebhookAutoConfiguration {
 
     @Bean
     public List<WebhookChannel> webhookChannels(NotifyProperties properties) {
-        List<NotifyProperties.WebhookEntry> entries = properties.getChannels().getWebhooks();
+        List<WebhookEntryProperties> entries = properties.getChannels().getWebhooks();
         List<WebhookChannel> channels = new ArrayList<>();
 
         if (entries == null || entries.isEmpty()) {
             return channels;
         }
 
-        for (NotifyProperties.WebhookEntry entry : entries) {
+        for (WebhookEntryProperties entry : entries) {
             if (entry.getUrl() == null || entry.getUrl().isBlank()) {
                 log.warn("NotifyHub: Skipping webhook '{}' — no URL configured", entry.getName());
                 continue;

@@ -3,6 +3,8 @@ package io.notifyhub.spring;
 import io.notifyhub.channel.sms.TwilioConfig;
 import io.notifyhub.channel.sms.TwilioSmsChannel;
 import io.notifyhub.channel.sms.TwilioWhatsAppChannel;
+import io.notifyhub.spring.properties.SmsProperties;
+import io.notifyhub.spring.properties.WhatsAppProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -25,7 +27,7 @@ public class NotifySmsAutoConfiguration {
     @ConditionalOnProperty(prefix = "notify.channels.sms", name = "account-sid")
     @ConditionalOnMissingBean(TwilioSmsChannel.class)
     public TwilioSmsChannel twilioSmsChannel(NotifyProperties properties) {
-        NotifyProperties.Sms sms = properties.getChannels().getSms();
+        SmsProperties sms = properties.getChannels().getSms();
         TwilioConfig config = TwilioConfig.builder()
                 .accountSid(sms.getAccountSid())
                 .authToken(sms.getAuthToken())
@@ -39,7 +41,7 @@ public class NotifySmsAutoConfiguration {
     @ConditionalOnProperty(prefix = "notify.channels.whatsapp", name = "account-sid")
     @ConditionalOnMissingBean(name = {"twilioWhatsAppChannel", "whatsAppCloudChannel"})
     public TwilioWhatsAppChannel twilioWhatsAppChannel(NotifyProperties properties) {
-        NotifyProperties.WhatsApp wa = properties.getChannels().getWhatsapp();
+        WhatsAppProperties wa = properties.getChannels().getWhatsapp();
         TwilioConfig config = TwilioConfig.builder()
                 .accountSid(wa.getAccountSid())
                 .authToken(wa.getAuthToken())

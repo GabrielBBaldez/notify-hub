@@ -2,6 +2,7 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.tiktokshop.TikTokShopChannel;
 import io.notifyhub.channel.tiktokshop.TikTokShopConfig;
+import io.notifyhub.spring.properties.TikTokShopProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -20,7 +21,7 @@ public class NotifyTikTokShopAutoConfiguration {
     @ConditionalOnProperty(prefix = "notify.channels.tiktok-shop", name = "app-key")
     @ConditionalOnMissingBean(TikTokShopChannel.class)
     public TikTokShopChannel tikTokShopChannel(NotifyProperties properties) {
-        NotifyProperties.TikTokShop tt = properties.getChannels().getTiktokShop();
+        TikTokShopProperties tt = properties.getChannels().getTiktokShop();
         TikTokShopConfig config = TikTokShopConfig.builder()
                 .appKey(tt.getAppKey())
                 .appSecret(tt.getAppSecret())

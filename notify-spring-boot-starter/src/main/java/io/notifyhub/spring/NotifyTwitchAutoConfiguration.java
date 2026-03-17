@@ -2,6 +2,7 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.twitch.TwitchChannel;
 import io.notifyhub.channel.twitch.TwitchConfig;
+import io.notifyhub.spring.properties.TwitchProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -20,7 +21,7 @@ public class NotifyTwitchAutoConfiguration {
     @ConditionalOnProperty(prefix = "notify.channels.twitch", name = "client-id")
     @ConditionalOnMissingBean(TwitchChannel.class)
     public TwitchChannel twitchChannel(NotifyProperties properties) {
-        NotifyProperties.Twitch tw = properties.getChannels().getTwitch();
+        TwitchProperties tw = properties.getChannels().getTwitch();
         TwitchConfig.Builder builder = TwitchConfig.builder()
                 .clientId(tw.getClientId())
                 .accessToken(tw.getAccessToken())

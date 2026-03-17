@@ -2,6 +2,7 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.googlechat.GoogleChatChannel;
 import io.notifyhub.channel.googlechat.GoogleChatConfig;
+import io.notifyhub.spring.properties.GoogleChatProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -24,7 +25,7 @@ public class NotifyGoogleChatAutoConfiguration {
     @ConditionalOnProperty(prefix = "notify.channels.google-chat", name = "webhook-url")
     @ConditionalOnMissingBean(GoogleChatChannel.class)
     public GoogleChatChannel googleChatChannel(NotifyProperties properties) {
-        NotifyProperties.GoogleChat gc = properties.getChannels().getGoogleChat();
+        GoogleChatProperties gc = properties.getChannels().getGoogleChat();
         GoogleChatConfig config = GoogleChatConfig.builder()
                 .webhookUrl(gc.getWebhookUrl())
                 .timeoutMs(gc.getTimeoutMs())

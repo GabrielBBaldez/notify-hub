@@ -1,5 +1,6 @@
 package io.notifyhub.spring;
 
+import io.notifyhub.spring.properties.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.ArrayList;
@@ -43,359 +44,79 @@ public class NotifyProperties {
     public void setAudience(Audience audience) { this.audience = audience; }
 
     public static class Channels {
-        private Email email;
-        private Sms sms;
-        private WhatsApp whatsapp;
-        private Slack slack;
-        private Telegram telegram;
-        private Discord discord;
-        private Teams teams;
-        private Push push;
-        private List<WebhookEntry> webhooks = new ArrayList<>();
-        private WebSocket websocket;
-        private GoogleChat googleChat;
-        private Twitter twitter;
-        private LinkedIn linkedin;
-        private Notion notion;
-        private Twitch twitch;
-        private YouTube youtube;
-        private Instagram instagram;
-        private SendGrid sendgrid;
-        private TikTokShop tiktokShop;
-        private Facebook facebook;
-        private AwsSns awsSns;
-        private Mailgun mailgun;
-        private PagerDuty pagerduty;
+        private EmailProperties email;
+        private SmsProperties sms;
+        private WhatsAppProperties whatsapp;
+        private SlackProperties slack;
+        private TelegramProperties telegram;
+        private DiscordProperties discord;
+        private TeamsProperties teams;
+        private PushProperties push;
+        private List<WebhookEntryProperties> webhooks = new ArrayList<>();
+        private WebSocketProperties websocket;
+        private GoogleChatProperties googleChat;
+        private TwitterProperties twitter;
+        private LinkedInProperties linkedin;
+        private NotionProperties notion;
+        private TwitchProperties twitch;
+        private YouTubeProperties youtube;
+        private InstagramProperties instagram;
+        private SendGridProperties sendgrid;
+        private TikTokShopProperties tiktokShop;
+        private FacebookProperties facebook;
+        private AwsSnsProperties awsSns;
+        private MailgunProperties mailgun;
+        private PagerDutyProperties pagerduty;
 
-        public Email getEmail() { return email; }
-        public void setEmail(Email email) { this.email = email; }
-        public Sms getSms() { return sms; }
-        public void setSms(Sms sms) { this.sms = sms; }
-        public WhatsApp getWhatsapp() { return whatsapp; }
-        public void setWhatsapp(WhatsApp whatsapp) { this.whatsapp = whatsapp; }
-        public Slack getSlack() { return slack; }
-        public void setSlack(Slack slack) { this.slack = slack; }
-        public Telegram getTelegram() { return telegram; }
-        public void setTelegram(Telegram telegram) { this.telegram = telegram; }
-        public Discord getDiscord() { return discord; }
-        public void setDiscord(Discord discord) { this.discord = discord; }
-        public Teams getTeams() { return teams; }
-        public void setTeams(Teams teams) { this.teams = teams; }
-        public Push getPush() { return push; }
-        public void setPush(Push push) { this.push = push; }
-        public List<WebhookEntry> getWebhooks() { return webhooks; }
-        public void setWebhooks(List<WebhookEntry> webhooks) { this.webhooks = webhooks; }
-        public WebSocket getWebsocket() { return websocket; }
-        public void setWebsocket(WebSocket websocket) { this.websocket = websocket; }
-        public GoogleChat getGoogleChat() { return googleChat; }
-        public void setGoogleChat(GoogleChat googleChat) { this.googleChat = googleChat; }
-        public Twitter getTwitter() { return twitter; }
-        public void setTwitter(Twitter twitter) { this.twitter = twitter; }
-        public LinkedIn getLinkedin() { return linkedin; }
-        public void setLinkedin(LinkedIn linkedin) { this.linkedin = linkedin; }
-        public Notion getNotion() { return notion; }
-        public void setNotion(Notion notion) { this.notion = notion; }
-        public Twitch getTwitch() { return twitch; }
-        public void setTwitch(Twitch twitch) { this.twitch = twitch; }
-        public YouTube getYoutube() { return youtube; }
-        public void setYoutube(YouTube youtube) { this.youtube = youtube; }
-        public Instagram getInstagram() { return instagram; }
-        public void setInstagram(Instagram instagram) { this.instagram = instagram; }
-        public SendGrid getSendgrid() { return sendgrid; }
-        public void setSendgrid(SendGrid sendgrid) { this.sendgrid = sendgrid; }
-        public TikTokShop getTiktokShop() { return tiktokShop; }
-        public void setTiktokShop(TikTokShop tiktokShop) { this.tiktokShop = tiktokShop; }
-        public Facebook getFacebook() { return facebook; }
-        public void setFacebook(Facebook facebook) { this.facebook = facebook; }
-        public AwsSns getAwsSns() { return awsSns; }
-        public void setAwsSns(AwsSns awsSns) { this.awsSns = awsSns; }
-        public Mailgun getMailgun() { return mailgun; }
-        public void setMailgun(Mailgun mailgun) { this.mailgun = mailgun; }
-        public PagerDuty getPagerduty() { return pagerduty; }
-        public void setPagerduty(PagerDuty pagerduty) { this.pagerduty = pagerduty; }
+        public EmailProperties getEmail() { return email; }
+        public void setEmail(EmailProperties email) { this.email = email; }
+        public SmsProperties getSms() { return sms; }
+        public void setSms(SmsProperties sms) { this.sms = sms; }
+        public WhatsAppProperties getWhatsapp() { return whatsapp; }
+        public void setWhatsapp(WhatsAppProperties whatsapp) { this.whatsapp = whatsapp; }
+        public SlackProperties getSlack() { return slack; }
+        public void setSlack(SlackProperties slack) { this.slack = slack; }
+        public TelegramProperties getTelegram() { return telegram; }
+        public void setTelegram(TelegramProperties telegram) { this.telegram = telegram; }
+        public DiscordProperties getDiscord() { return discord; }
+        public void setDiscord(DiscordProperties discord) { this.discord = discord; }
+        public TeamsProperties getTeams() { return teams; }
+        public void setTeams(TeamsProperties teams) { this.teams = teams; }
+        public PushProperties getPush() { return push; }
+        public void setPush(PushProperties push) { this.push = push; }
+        public List<WebhookEntryProperties> getWebhooks() { return webhooks; }
+        public void setWebhooks(List<WebhookEntryProperties> webhooks) { this.webhooks = webhooks; }
+        public WebSocketProperties getWebsocket() { return websocket; }
+        public void setWebsocket(WebSocketProperties websocket) { this.websocket = websocket; }
+        public GoogleChatProperties getGoogleChat() { return googleChat; }
+        public void setGoogleChat(GoogleChatProperties googleChat) { this.googleChat = googleChat; }
+        public TwitterProperties getTwitter() { return twitter; }
+        public void setTwitter(TwitterProperties twitter) { this.twitter = twitter; }
+        public LinkedInProperties getLinkedin() { return linkedin; }
+        public void setLinkedin(LinkedInProperties linkedin) { this.linkedin = linkedin; }
+        public NotionProperties getNotion() { return notion; }
+        public void setNotion(NotionProperties notion) { this.notion = notion; }
+        public TwitchProperties getTwitch() { return twitch; }
+        public void setTwitch(TwitchProperties twitch) { this.twitch = twitch; }
+        public YouTubeProperties getYoutube() { return youtube; }
+        public void setYoutube(YouTubeProperties youtube) { this.youtube = youtube; }
+        public InstagramProperties getInstagram() { return instagram; }
+        public void setInstagram(InstagramProperties instagram) { this.instagram = instagram; }
+        public SendGridProperties getSendgrid() { return sendgrid; }
+        public void setSendgrid(SendGridProperties sendgrid) { this.sendgrid = sendgrid; }
+        public TikTokShopProperties getTiktokShop() { return tiktokShop; }
+        public void setTiktokShop(TikTokShopProperties tiktokShop) { this.tiktokShop = tiktokShop; }
+        public FacebookProperties getFacebook() { return facebook; }
+        public void setFacebook(FacebookProperties facebook) { this.facebook = facebook; }
+        public AwsSnsProperties getAwsSns() { return awsSns; }
+        public void setAwsSns(AwsSnsProperties awsSns) { this.awsSns = awsSns; }
+        public MailgunProperties getMailgun() { return mailgun; }
+        public void setMailgun(MailgunProperties mailgun) { this.mailgun = mailgun; }
+        public PagerDutyProperties getPagerduty() { return pagerduty; }
+        public void setPagerduty(PagerDutyProperties pagerduty) { this.pagerduty = pagerduty; }
     }
 
-    public static class Email {
-        private String host;
-        private int port = 587;
-        private String username;
-        private String password;
-        private String from;
-        private String fromName;
-        private boolean tls = true;
-        private boolean ssl = false;
-        public String getHost() { return host; }
-        public void setHost(String host) { this.host = host; }
-        public int getPort() { return port; }
-        public void setPort(int port) { this.port = port; }
-        public String getUsername() { return username; }
-        public void setUsername(String username) { this.username = username; }
-        public String getPassword() { return password; }
-        public void setPassword(String password) { this.password = password; }
-        public String getFrom() { return from; }
-        public void setFrom(String from) { this.from = from; }
-        public String getFromName() { return fromName; }
-        public void setFromName(String fromName) { this.fromName = fromName; }
-        public boolean isTls() { return tls; }
-        public void setTls(boolean tls) { this.tls = tls; }
-        public boolean isSsl() { return ssl; }
-        public void setSsl(boolean ssl) { this.ssl = ssl; }
-    }
-
-    public static class Sms {
-        private String accountSid;
-        private String authToken;
-        private String fromNumber;
-        public String getAccountSid() { return accountSid; }
-        public void setAccountSid(String accountSid) { this.accountSid = accountSid; }
-        public String getAuthToken() { return authToken; }
-        public void setAuthToken(String authToken) { this.authToken = authToken; }
-        public String getFromNumber() { return fromNumber; }
-        public void setFromNumber(String fromNumber) { this.fromNumber = fromNumber; }
-    }
-
-    public static class WhatsApp {
-        // Twilio backend
-        private String accountSid;
-        private String authToken;
-        private String fromNumber;
-        // Cloud API backend (Meta Graph API)
-        private String accessToken;
-        private String phoneNumberId;
-        private String apiVersion;
-        private Map<String, String> recipients = new LinkedHashMap<>();
-
-        public String getAccountSid() { return accountSid; }
-        public void setAccountSid(String accountSid) { this.accountSid = accountSid; }
-        public String getAuthToken() { return authToken; }
-        public void setAuthToken(String authToken) { this.authToken = authToken; }
-        public String getFromNumber() { return fromNumber; }
-        public void setFromNumber(String fromNumber) { this.fromNumber = fromNumber; }
-        public String getAccessToken() { return accessToken; }
-        public void setAccessToken(String accessToken) { this.accessToken = accessToken; }
-        public String getPhoneNumberId() { return phoneNumberId; }
-        public void setPhoneNumberId(String phoneNumberId) { this.phoneNumberId = phoneNumberId; }
-        public String getApiVersion() { return apiVersion; }
-        public void setApiVersion(String apiVersion) { this.apiVersion = apiVersion; }
-        public Map<String, String> getRecipients() { return recipients; }
-        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
-    }
-
-    public static class Slack {
-        private String webhookUrl;
-        private Map<String, String> recipients = new LinkedHashMap<>();
-        private String username;
-        private String iconUrl;
-        public String getWebhookUrl() { return webhookUrl; }
-        public void setWebhookUrl(String webhookUrl) { this.webhookUrl = webhookUrl; }
-        public Map<String, String> getRecipients() { return recipients; }
-        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
-        public String getUsername() { return username; }
-        public void setUsername(String username) { this.username = username; }
-        public String getIconUrl() { return iconUrl; }
-        public void setIconUrl(String iconUrl) { this.iconUrl = iconUrl; }
-    }
-
-    public static class Telegram {
-        private String botToken;
-        private String chatId;
-        private Map<String, String> recipients = new LinkedHashMap<>();
-        public String getBotToken() { return botToken; }
-        public void setBotToken(String botToken) { this.botToken = botToken; }
-        public String getChatId() { return chatId; }
-        public void setChatId(String chatId) { this.chatId = chatId; }
-        public Map<String, String> getRecipients() { return recipients; }
-        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
-    }
-
-    public static class Discord {
-        private String webhookUrl;
-        private String username;
-        private String avatarUrl;
-        private Map<String, String> recipients = new LinkedHashMap<>();
-        public String getWebhookUrl() { return webhookUrl; }
-        public void setWebhookUrl(String webhookUrl) { this.webhookUrl = webhookUrl; }
-        public String getUsername() { return username; }
-        public void setUsername(String username) { this.username = username; }
-        public String getAvatarUrl() { return avatarUrl; }
-        public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
-        public Map<String, String> getRecipients() { return recipients; }
-        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
-    }
-
-    public static class Teams {
-        private String webhookUrl;
-        private Map<String, String> recipients = new LinkedHashMap<>();
-        public String getWebhookUrl() { return webhookUrl; }
-        public void setWebhookUrl(String webhookUrl) { this.webhookUrl = webhookUrl; }
-        public Map<String, String> getRecipients() { return recipients; }
-        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
-    }
-
-    public static class Push {
-        private String projectId;
-        private String serviceAccountJson;
-        public String getProjectId() { return projectId; }
-        public void setProjectId(String projectId) { this.projectId = projectId; }
-        public String getServiceAccountJson() { return serviceAccountJson; }
-        public void setServiceAccountJson(String serviceAccountJson) { this.serviceAccountJson = serviceAccountJson; }
-    }
-
-    public static class WebSocket {
-        private String uri;
-        private int timeoutMs = 10_000;
-        private boolean reconnectEnabled = true;
-        private long reconnectDelayMs = 5_000;
-        private int maxReconnectAttempts = 3;
-        private Map<String, String> headers = new LinkedHashMap<>();
-        private String messageFormat = "{{content}}";
-        public String getUri() { return uri; }
-        public void setUri(String uri) { this.uri = uri; }
-        public int getTimeoutMs() { return timeoutMs; }
-        public void setTimeoutMs(int timeoutMs) { this.timeoutMs = timeoutMs; }
-        public boolean isReconnectEnabled() { return reconnectEnabled; }
-        public void setReconnectEnabled(boolean reconnectEnabled) { this.reconnectEnabled = reconnectEnabled; }
-        public long getReconnectDelayMs() { return reconnectDelayMs; }
-        public void setReconnectDelayMs(long reconnectDelayMs) { this.reconnectDelayMs = reconnectDelayMs; }
-        public int getMaxReconnectAttempts() { return maxReconnectAttempts; }
-        public void setMaxReconnectAttempts(int maxReconnectAttempts) { this.maxReconnectAttempts = maxReconnectAttempts; }
-        public Map<String, String> getHeaders() { return headers; }
-        public void setHeaders(Map<String, String> headers) { this.headers = headers; }
-        public String getMessageFormat() { return messageFormat; }
-        public void setMessageFormat(String messageFormat) { this.messageFormat = messageFormat; }
-    }
-
-    public static class GoogleChat {
-        private String webhookUrl;
-        private int timeoutMs = 10_000;
-        private Map<String, String> recipients = new LinkedHashMap<>();
-        public String getWebhookUrl() { return webhookUrl; }
-        public void setWebhookUrl(String webhookUrl) { this.webhookUrl = webhookUrl; }
-        public int getTimeoutMs() { return timeoutMs; }
-        public void setTimeoutMs(int timeoutMs) { this.timeoutMs = timeoutMs; }
-        public Map<String, String> getRecipients() { return recipients; }
-        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
-    }
-
-    public static class Twitter {
-        private String apiKey;
-        private String apiSecret;
-        private String accessToken;
-        private String accessTokenSecret;
-        private Map<String, String> recipients = new LinkedHashMap<>();
-        public String getApiKey() { return apiKey; }
-        public void setApiKey(String apiKey) { this.apiKey = apiKey; }
-        public String getApiSecret() { return apiSecret; }
-        public void setApiSecret(String apiSecret) { this.apiSecret = apiSecret; }
-        public String getAccessToken() { return accessToken; }
-        public void setAccessToken(String accessToken) { this.accessToken = accessToken; }
-        public String getAccessTokenSecret() { return accessTokenSecret; }
-        public void setAccessTokenSecret(String accessTokenSecret) { this.accessTokenSecret = accessTokenSecret; }
-        public Map<String, String> getRecipients() { return recipients; }
-        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
-    }
-
-    public static class LinkedIn {
-        private String accessToken;
-        private String authorId;
-        private Map<String, String> recipients = new LinkedHashMap<>();
-        public String getAccessToken() { return accessToken; }
-        public void setAccessToken(String accessToken) { this.accessToken = accessToken; }
-        public String getAuthorId() { return authorId; }
-        public void setAuthorId(String authorId) { this.authorId = authorId; }
-        public Map<String, String> getRecipients() { return recipients; }
-        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
-    }
-
-    public static class Notion {
-        private String apiKey;
-        private String databaseId;
-        private Map<String, String> recipients = new LinkedHashMap<>();
-        public String getApiKey() { return apiKey; }
-        public void setApiKey(String apiKey) { this.apiKey = apiKey; }
-        public String getDatabaseId() { return databaseId; }
-        public void setDatabaseId(String databaseId) { this.databaseId = databaseId; }
-        public Map<String, String> getRecipients() { return recipients; }
-        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
-    }
-
-    public static class Twitch {
-        private String clientId;
-        private String accessToken;
-        private String refreshToken;
-        private String clientSecret;
-        private String broadcasterId;
-        private String senderId;
-        private Map<String, String> recipients = new LinkedHashMap<>();
-        public String getClientId() { return clientId; }
-        public void setClientId(String clientId) { this.clientId = clientId; }
-        public String getAccessToken() { return accessToken; }
-        public void setAccessToken(String accessToken) { this.accessToken = accessToken; }
-        public String getRefreshToken() { return refreshToken; }
-        public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
-        public String getClientSecret() { return clientSecret; }
-        public void setClientSecret(String clientSecret) { this.clientSecret = clientSecret; }
-        public String getBroadcasterId() { return broadcasterId; }
-        public void setBroadcasterId(String broadcasterId) { this.broadcasterId = broadcasterId; }
-        public String getSenderId() { return senderId; }
-        public void setSenderId(String senderId) { this.senderId = senderId; }
-        public Map<String, String> getRecipients() { return recipients; }
-        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
-    }
-
-    public static class YouTube {
-        private String accessToken;
-        private String refreshToken;
-        private String clientId;
-        private String clientSecret;
-        private String channelId;
-        private String liveChatId;
-        private Map<String, String> recipients = new LinkedHashMap<>();
-        public String getAccessToken() { return accessToken; }
-        public void setAccessToken(String accessToken) { this.accessToken = accessToken; }
-        public String getRefreshToken() { return refreshToken; }
-        public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
-        public String getClientId() { return clientId; }
-        public void setClientId(String clientId) { this.clientId = clientId; }
-        public String getClientSecret() { return clientSecret; }
-        public void setClientSecret(String clientSecret) { this.clientSecret = clientSecret; }
-        public String getChannelId() { return channelId; }
-        public void setChannelId(String channelId) { this.channelId = channelId; }
-        public String getLiveChatId() { return liveChatId; }
-        public void setLiveChatId(String liveChatId) { this.liveChatId = liveChatId; }
-        public Map<String, String> getRecipients() { return recipients; }
-        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
-    }
-
-    public static class Instagram {
-        private String accessToken;
-        private String igUserId;
-        private Map<String, String> recipients = new LinkedHashMap<>();
-        public String getAccessToken() { return accessToken; }
-        public void setAccessToken(String accessToken) { this.accessToken = accessToken; }
-        public String getIgUserId() { return igUserId; }
-        public void setIgUserId(String igUserId) { this.igUserId = igUserId; }
-        public Map<String, String> getRecipients() { return recipients; }
-        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
-    }
-
-    public static class WebhookEntry {
-        private String name;
-        private String url;
-        private String payloadTemplate;
-        private Map<String, String> headers = new LinkedHashMap<>();
-        private String method = "POST";
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-        public String getUrl() { return url; }
-        public void setUrl(String url) { this.url = url; }
-        public String getPayloadTemplate() { return payloadTemplate; }
-        public void setPayloadTemplate(String payloadTemplate) { this.payloadTemplate = payloadTemplate; }
-        public Map<String, String> getHeaders() { return headers; }
-        public void setHeaders(Map<String, String> headers) { this.headers = headers; }
-        public String getMethod() { return method; }
-        public void setMethod(String method) { this.method = method; }
-    }
+    // --- Non-channel feature config inner classes (kept here) ---
 
     public static class Retry {
         private int maxAttempts = 1;
@@ -500,92 +221,5 @@ public class NotifyProperties {
         private boolean enabled = false;
         public boolean isEnabled() { return enabled; }
         public void setEnabled(boolean enabled) { this.enabled = enabled; }
-    }
-
-    public static class SendGrid {
-        private String apiKey;
-        private String from;
-        private String fromName;
-        private boolean trackOpens = true;
-        private boolean trackClicks = true;
-        public String getApiKey() { return apiKey; }
-        public void setApiKey(String apiKey) { this.apiKey = apiKey; }
-        public String getFrom() { return from; }
-        public void setFrom(String from) { this.from = from; }
-        public String getFromName() { return fromName; }
-        public void setFromName(String fromName) { this.fromName = fromName; }
-        public boolean isTrackOpens() { return trackOpens; }
-        public void setTrackOpens(boolean trackOpens) { this.trackOpens = trackOpens; }
-        public boolean isTrackClicks() { return trackClicks; }
-        public void setTrackClicks(boolean trackClicks) { this.trackClicks = trackClicks; }
-    }
-
-    public static class TikTokShop {
-        private String appKey;
-        private String appSecret;
-        private String accessToken;
-        private String shopId;
-        private Map<String, String> recipients = new LinkedHashMap<>();
-        public String getAppKey() { return appKey; }
-        public void setAppKey(String appKey) { this.appKey = appKey; }
-        public String getAppSecret() { return appSecret; }
-        public void setAppSecret(String appSecret) { this.appSecret = appSecret; }
-        public String getAccessToken() { return accessToken; }
-        public void setAccessToken(String accessToken) { this.accessToken = accessToken; }
-        public String getShopId() { return shopId; }
-        public void setShopId(String shopId) { this.shopId = shopId; }
-        public Map<String, String> getRecipients() { return recipients; }
-        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
-    }
-
-    public static class Facebook {
-        private String pageAccessToken;
-        private String pageId;
-        private Map<String, String> recipients = new LinkedHashMap<>();
-        public String getPageAccessToken() { return pageAccessToken; }
-        public void setPageAccessToken(String pageAccessToken) { this.pageAccessToken = pageAccessToken; }
-        public String getPageId() { return pageId; }
-        public void setPageId(String pageId) { this.pageId = pageId; }
-        public Map<String, String> getRecipients() { return recipients; }
-        public void setRecipients(Map<String, String> recipients) { this.recipients = recipients; }
-    }
-
-    public static class AwsSns {
-        private String region;
-        private String accessKeyId;
-        private String secretAccessKey;
-        private String topicArn;
-        public String getRegion() { return region; }
-        public void setRegion(String region) { this.region = region; }
-        public String getAccessKeyId() { return accessKeyId; }
-        public void setAccessKeyId(String accessKeyId) { this.accessKeyId = accessKeyId; }
-        public String getSecretAccessKey() { return secretAccessKey; }
-        public void setSecretAccessKey(String secretAccessKey) { this.secretAccessKey = secretAccessKey; }
-        public String getTopicArn() { return topicArn; }
-        public void setTopicArn(String topicArn) { this.topicArn = topicArn; }
-    }
-
-    public static class Mailgun {
-        private String apiKey;
-        private String domain;
-        private String from;
-        private String region = "US";
-        public String getApiKey() { return apiKey; }
-        public void setApiKey(String apiKey) { this.apiKey = apiKey; }
-        public String getDomain() { return domain; }
-        public void setDomain(String domain) { this.domain = domain; }
-        public String getFrom() { return from; }
-        public void setFrom(String from) { this.from = from; }
-        public String getRegion() { return region; }
-        public void setRegion(String region) { this.region = region; }
-    }
-
-    public static class PagerDuty {
-        private String routingKey;
-        private String severity;
-        public String getRoutingKey() { return routingKey; }
-        public void setRoutingKey(String routingKey) { this.routingKey = routingKey; }
-        public String getSeverity() { return severity; }
-        public void setSeverity(String severity) { this.severity = severity; }
     }
 }

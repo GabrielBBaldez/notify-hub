@@ -2,6 +2,7 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.teams.TeamsChannel;
 import io.notifyhub.channel.teams.TeamsConfig;
+import io.notifyhub.spring.properties.TeamsProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -24,7 +25,7 @@ public class NotifyTeamsAutoConfiguration {
     @ConditionalOnProperty(prefix = "notify.channels.teams", name = "webhook-url")
     @ConditionalOnMissingBean(TeamsChannel.class)
     public TeamsChannel teamsChannel(NotifyProperties properties) {
-        NotifyProperties.Teams teams = properties.getChannels().getTeams();
+        TeamsProperties teams = properties.getChannels().getTeams();
         TeamsConfig config = TeamsConfig.builder()
                 .webhookUrl(teams.getWebhookUrl())
                 .recipients(teams.getRecipients())

@@ -2,6 +2,7 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.facebook.FacebookChannel;
 import io.notifyhub.channel.facebook.FacebookConfig;
+import io.notifyhub.spring.properties.FacebookProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -20,7 +21,7 @@ public class NotifyFacebookAutoConfiguration {
     @ConditionalOnProperty(prefix = "notify.channels.facebook", name = "page-access-token")
     @ConditionalOnMissingBean(FacebookChannel.class)
     public FacebookChannel facebookChannel(NotifyProperties properties) {
-        NotifyProperties.Facebook fb = properties.getChannels().getFacebook();
+        FacebookProperties fb = properties.getChannels().getFacebook();
         FacebookConfig config = FacebookConfig.builder()
                 .pageAccessToken(fb.getPageAccessToken())
                 .pageId(fb.getPageId())

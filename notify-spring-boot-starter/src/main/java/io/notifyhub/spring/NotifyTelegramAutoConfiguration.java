@@ -2,6 +2,7 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.telegram.TelegramChannel;
 import io.notifyhub.channel.telegram.TelegramConfig;
+import io.notifyhub.spring.properties.TelegramProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -24,7 +25,7 @@ public class NotifyTelegramAutoConfiguration {
     @ConditionalOnProperty(prefix = "notify.channels.telegram", name = "bot-token")
     @ConditionalOnMissingBean(TelegramChannel.class)
     public TelegramChannel telegramChannel(NotifyProperties properties) {
-        NotifyProperties.Telegram tg = properties.getChannels().getTelegram();
+        TelegramProperties tg = properties.getChannels().getTelegram();
         TelegramConfig.Builder builder = TelegramConfig.builder()
                 .botToken(tg.getBotToken())
                 .recipients(tg.getRecipients());

@@ -2,6 +2,7 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.whatsapp.WhatsAppCloudChannel;
 import io.notifyhub.channel.whatsapp.WhatsAppCloudConfig;
+import io.notifyhub.spring.properties.WhatsAppProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -20,7 +21,7 @@ public class NotifyWhatsAppCloudAutoConfiguration {
     @ConditionalOnProperty(prefix = "notify.channels.whatsapp", name = {"access-token", "phone-number-id"})
     @ConditionalOnMissingBean(name = {"twilioWhatsAppChannel", "whatsAppCloudChannel"})
     public WhatsAppCloudChannel whatsAppCloudChannel(NotifyProperties properties) {
-        NotifyProperties.WhatsApp wa = properties.getChannels().getWhatsapp();
+        WhatsAppProperties wa = properties.getChannels().getWhatsapp();
         WhatsAppCloudConfig.Builder builder = WhatsAppCloudConfig.builder()
                 .accessToken(wa.getAccessToken())
                 .phoneNumberId(wa.getPhoneNumberId())

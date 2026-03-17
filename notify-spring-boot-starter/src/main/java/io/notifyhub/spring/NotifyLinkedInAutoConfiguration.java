@@ -2,6 +2,7 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.linkedin.LinkedInChannel;
 import io.notifyhub.channel.linkedin.LinkedInConfig;
+import io.notifyhub.spring.properties.LinkedInProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -20,7 +21,7 @@ public class NotifyLinkedInAutoConfiguration {
     @ConditionalOnProperty(prefix = "notify.channels.linkedin", name = "access-token")
     @ConditionalOnMissingBean(LinkedInChannel.class)
     public LinkedInChannel linkedInChannel(NotifyProperties properties) {
-        NotifyProperties.LinkedIn li = properties.getChannels().getLinkedin();
+        LinkedInProperties li = properties.getChannels().getLinkedin();
         LinkedInConfig config = LinkedInConfig.builder()
                 .accessToken(li.getAccessToken())
                 .authorId(li.getAuthorId())

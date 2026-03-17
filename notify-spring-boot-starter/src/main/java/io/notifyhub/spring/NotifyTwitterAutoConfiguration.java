@@ -2,6 +2,7 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.twitter.TwitterChannel;
 import io.notifyhub.channel.twitter.TwitterConfig;
+import io.notifyhub.spring.properties.TwitterProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -20,7 +21,7 @@ public class NotifyTwitterAutoConfiguration {
     @ConditionalOnProperty(prefix = "notify.channels.twitter", name = "api-key")
     @ConditionalOnMissingBean(TwitterChannel.class)
     public TwitterChannel twitterChannel(NotifyProperties properties) {
-        NotifyProperties.Twitter tw = properties.getChannels().getTwitter();
+        TwitterProperties tw = properties.getChannels().getTwitter();
         TwitterConfig config = TwitterConfig.builder()
                 .apiKey(tw.getApiKey())
                 .apiSecret(tw.getApiSecret())

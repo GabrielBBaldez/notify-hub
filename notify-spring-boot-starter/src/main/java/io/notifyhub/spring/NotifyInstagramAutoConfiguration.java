@@ -2,6 +2,7 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.instagram.InstagramChannel;
 import io.notifyhub.channel.instagram.InstagramConfig;
+import io.notifyhub.spring.properties.InstagramProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -24,7 +25,7 @@ public class NotifyInstagramAutoConfiguration {
     @ConditionalOnProperty(prefix = "notify.channels.instagram", name = "access-token")
     @ConditionalOnMissingBean(InstagramChannel.class)
     public InstagramChannel instagramChannel(NotifyProperties properties) {
-        NotifyProperties.Instagram ig = properties.getChannels().getInstagram();
+        InstagramProperties ig = properties.getChannels().getInstagram();
         InstagramConfig.Builder builder = InstagramConfig.builder()
                 .accessToken(ig.getAccessToken())
                 .igUserId(ig.getIgUserId())

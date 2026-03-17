@@ -2,6 +2,7 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.push.firebase.FirebasePushChannel;
 import io.notifyhub.channel.push.firebase.FirebasePushConfig;
+import io.notifyhub.spring.properties.PushProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -24,7 +25,7 @@ public class NotifyFirebasePushAutoConfiguration {
     @ConditionalOnProperty(prefix = "notify.channels.push", name = "project-id")
     @ConditionalOnMissingBean(FirebasePushChannel.class)
     public FirebasePushChannel firebasePushChannel(NotifyProperties properties) {
-        NotifyProperties.Push push = properties.getChannels().getPush();
+        PushProperties push = properties.getChannels().getPush();
         FirebasePushConfig config = FirebasePushConfig.builder()
                 .projectId(push.getProjectId())
                 .serviceAccountJson(push.getServiceAccountJson())

@@ -2,6 +2,7 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.youtube.YouTubeChannel;
 import io.notifyhub.channel.youtube.YouTubeConfig;
+import io.notifyhub.spring.properties.YouTubeProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -20,7 +21,7 @@ public class NotifyYouTubeAutoConfiguration {
     @ConditionalOnProperty(prefix = "notify.channels.youtube", name = "access-token")
     @ConditionalOnMissingBean(YouTubeChannel.class)
     public YouTubeChannel youTubeChannel(NotifyProperties properties) {
-        NotifyProperties.YouTube yt = properties.getChannels().getYoutube();
+        YouTubeProperties yt = properties.getChannels().getYoutube();
         YouTubeConfig.Builder builder = YouTubeConfig.builder()
                 .accessToken(yt.getAccessToken());
         if (yt.getChannelId() != null) builder.channelId(yt.getChannelId());

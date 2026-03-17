@@ -2,6 +2,7 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.websocket.WebSocketChannel;
 import io.notifyhub.channel.websocket.WebSocketConfig;
+import io.notifyhub.spring.properties.WebSocketProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -24,7 +25,7 @@ public class NotifyWebSocketAutoConfiguration {
     @ConditionalOnProperty(prefix = "notify.channels.websocket", name = "uri")
     @ConditionalOnMissingBean(WebSocketChannel.class)
     public WebSocketChannel webSocketChannel(NotifyProperties properties) {
-        NotifyProperties.WebSocket ws = properties.getChannels().getWebsocket();
+        WebSocketProperties ws = properties.getChannels().getWebsocket();
         WebSocketConfig.Builder builder = WebSocketConfig.builder()
                 .uri(ws.getUri())
                 .timeoutMs(ws.getTimeoutMs())

@@ -2,6 +2,7 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.email.SmtpConfig;
 import io.notifyhub.channel.email.SmtpEmailChannel;
+import io.notifyhub.spring.properties.EmailProperties;
 import io.notifyhub.core.AuditLog;
 import io.notifyhub.core.AuditNotificationListener;
 import io.notifyhub.core.InMemoryAuditLog;
@@ -172,7 +173,7 @@ public class NotifyAutoConfiguration {
     @ConditionalOnProperty(prefix = "notify.channels.email", name = "host")
     @ConditionalOnMissingBean(name = {"smtpEmailChannel", "sendGridEmailChannel"})
     public SmtpEmailChannel smtpEmailChannel(NotifyProperties properties) {
-        NotifyProperties.Email email = properties.getChannels().getEmail();
+        EmailProperties email = properties.getChannels().getEmail();
         SmtpConfig config = SmtpConfig.builder()
                 .host(email.getHost())
                 .port(email.getPort())

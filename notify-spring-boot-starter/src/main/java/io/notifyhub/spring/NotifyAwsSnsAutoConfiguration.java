@@ -2,6 +2,7 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.sns.AwsSnsChannel;
 import io.notifyhub.channel.sns.AwsSnsConfig;
+import io.notifyhub.spring.properties.AwsSnsProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -24,7 +25,7 @@ public class NotifyAwsSnsAutoConfiguration {
     @ConditionalOnProperty(prefix = "notify.channels.aws-sns", name = "region")
     @ConditionalOnMissingBean(AwsSnsChannel.class)
     public AwsSnsChannel awsSnsChannel(NotifyProperties properties) {
-        NotifyProperties.AwsSns sns = properties.getChannels().getAwsSns();
+        AwsSnsProperties sns = properties.getChannels().getAwsSns();
         AwsSnsConfig.Builder builder = AwsSnsConfig.builder()
                 .region(sns.getRegion())
                 .accessKeyId(sns.getAccessKeyId())

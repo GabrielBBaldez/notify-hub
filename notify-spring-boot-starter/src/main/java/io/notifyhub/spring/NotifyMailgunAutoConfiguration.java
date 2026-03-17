@@ -2,6 +2,7 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.mailgun.MailgunChannel;
 import io.notifyhub.channel.mailgun.MailgunConfig;
+import io.notifyhub.spring.properties.MailgunProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -24,7 +25,7 @@ public class NotifyMailgunAutoConfiguration {
     @ConditionalOnProperty(prefix = "notify.channels.mailgun", name = "api-key")
     @ConditionalOnMissingBean(MailgunChannel.class)
     public MailgunChannel mailgunChannel(NotifyProperties properties) {
-        NotifyProperties.Mailgun mg = properties.getChannels().getMailgun();
+        MailgunProperties mg = properties.getChannels().getMailgun();
         MailgunConfig.Builder builder = MailgunConfig.builder()
                 .apiKey(mg.getApiKey())
                 .domain(mg.getDomain())

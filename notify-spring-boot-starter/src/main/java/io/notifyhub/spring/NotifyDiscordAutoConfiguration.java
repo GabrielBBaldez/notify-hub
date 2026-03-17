@@ -2,6 +2,7 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.discord.DiscordChannel;
 import io.notifyhub.channel.discord.DiscordConfig;
+import io.notifyhub.spring.properties.DiscordProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -24,7 +25,7 @@ public class NotifyDiscordAutoConfiguration {
     @ConditionalOnProperty(prefix = "notify.channels.discord", name = "webhook-url")
     @ConditionalOnMissingBean(DiscordChannel.class)
     public DiscordChannel discordChannel(NotifyProperties properties) {
-        NotifyProperties.Discord dc = properties.getChannels().getDiscord();
+        DiscordProperties dc = properties.getChannels().getDiscord();
         DiscordConfig.Builder builder = DiscordConfig.builder()
                 .webhookUrl(dc.getWebhookUrl())
                 .recipients(dc.getRecipients());

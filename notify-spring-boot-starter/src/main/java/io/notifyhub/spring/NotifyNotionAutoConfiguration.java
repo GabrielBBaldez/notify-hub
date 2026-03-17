@@ -2,6 +2,7 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.notion.NotionChannel;
 import io.notifyhub.channel.notion.NotionConfig;
+import io.notifyhub.spring.properties.NotionProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -20,7 +21,7 @@ public class NotifyNotionAutoConfiguration {
     @ConditionalOnProperty(prefix = "notify.channels.notion", name = "api-key")
     @ConditionalOnMissingBean(NotionChannel.class)
     public NotionChannel notionChannel(NotifyProperties properties) {
-        NotifyProperties.Notion nt = properties.getChannels().getNotion();
+        NotionProperties nt = properties.getChannels().getNotion();
         NotionConfig config = NotionConfig.builder()
                 .apiKey(nt.getApiKey())
                 .databaseId(nt.getDatabaseId())

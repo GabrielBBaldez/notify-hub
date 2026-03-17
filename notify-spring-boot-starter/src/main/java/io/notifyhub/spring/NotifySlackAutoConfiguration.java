@@ -2,6 +2,7 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.slack.SlackChannel;
 import io.notifyhub.channel.slack.SlackConfig;
+import io.notifyhub.spring.properties.SlackProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -24,7 +25,7 @@ public class NotifySlackAutoConfiguration {
     @ConditionalOnProperty(prefix = "notify.channels.slack", name = "webhook-url")
     @ConditionalOnMissingBean(SlackChannel.class)
     public SlackChannel slackChannel(NotifyProperties properties) {
-        NotifyProperties.Slack slack = properties.getChannels().getSlack();
+        SlackProperties slack = properties.getChannels().getSlack();
         SlackConfig.Builder builder = SlackConfig.builder()
                 .webhookUrl(slack.getWebhookUrl())
                 .recipients(slack.getRecipients());

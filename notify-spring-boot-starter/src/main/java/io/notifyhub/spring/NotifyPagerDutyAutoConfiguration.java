@@ -2,6 +2,7 @@ package io.notifyhub.spring;
 
 import io.notifyhub.channel.pagerduty.PagerDutyChannel;
 import io.notifyhub.channel.pagerduty.PagerDutyConfig;
+import io.notifyhub.spring.properties.PagerDutyProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -24,7 +25,7 @@ public class NotifyPagerDutyAutoConfiguration {
     @ConditionalOnProperty(prefix = "notify.channels.pagerduty", name = "routing-key")
     @ConditionalOnMissingBean(PagerDutyChannel.class)
     public PagerDutyChannel pagerDutyChannel(NotifyProperties properties) {
-        NotifyProperties.PagerDuty pd = properties.getChannels().getPagerduty();
+        PagerDutyProperties pd = properties.getChannels().getPagerduty();
         PagerDutyConfig.Builder builder = PagerDutyConfig.builder()
                 .routingKey(pd.getRoutingKey());
         if (pd.getSeverity() != null) {

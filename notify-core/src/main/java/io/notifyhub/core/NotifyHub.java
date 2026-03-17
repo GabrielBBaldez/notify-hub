@@ -69,8 +69,8 @@ public class NotifyHub {
     private NotifyHub(Builder builder) {
         this.channels = new ConcurrentHashMap<>(builder.channels);
 
-        // Build the event bus with legacy listener adapters
-        List<NotificationEventListener> eventListeners = new ArrayList<>();
+        // Build the event bus: new EventBus listeners first, then legacy listener adapters
+        List<NotificationEventListener> eventListeners = new ArrayList<>(builder.eventListeners);
         for (NotificationListener listener : builder.listeners) {
             eventListeners.add(new LegacyListenerAdapter(listener));
         }
@@ -345,6 +345,7 @@ public class NotifyHub {
         private TemplateEngine templateEngine;
         private RetryPolicy defaultRetryPolicy;
         private final List<NotificationListener> listeners = new ArrayList<>();
+        private final List<NotificationEventListener> eventListeners = new ArrayList<>();
         private ExecutorService executor;
         private ScheduledExecutorService scheduler;
         private NotificationTracker tracker;
@@ -381,6 +382,16 @@ public class NotifyHub {
 
         public Builder listener(NotificationListener listener) {
             this.listeners.add(listener);
+            return this;
+        }
+
+        /**
+         * Add an EventBus-based event listener.
+         * These listeners receive {@link io.notifyhub.core.event.NotificationEvent} objects
+         * and are called directly by the event bus (no adapter needed).
+         */
+        public Builder eventListener(NotificationEventListener listener) {
+            this.eventListeners.add(listener);
             return this;
         }
 

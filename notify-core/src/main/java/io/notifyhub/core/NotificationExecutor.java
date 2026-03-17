@@ -253,8 +253,12 @@ class NotificationExecutor {
     SendResult sendToChannel(String channelName, NotificationBuilder builder) {
         NotificationChannel channel = channels.get(channelName);
         if (channel == null) {
-            throw new NotificationSendException(channelName,
-                    "Channel '" + channelName + "' not registered. Available: " + channels.keySet());
+            String suggestion = suggestClosestChannel(channelName);
+            String message = "Channel '" + channelName + "' not registered. Available: " + channels.keySet();
+            if (suggestion != null) {
+                message += ". Did you mean '" + suggestion + "'?";
+            }
+            throw new NotificationSendException(channelName, message);
         }
 
         // Deduplication check (before rate limiting and sending)
@@ -374,6 +378,37 @@ class NotificationExecutor {
             throw lastException;
         }
         throw new NotificationSendException(channel.getName(), "All retry attempts failed");
+    }
+
+    // ===================== CHANNEL SUGGESTION =====================
+
+    private String suggestClosestChannel(String input) {
+        String closest = null;
+        int minDistance = Integer.MAX_VALUE;
+        for (String name : channels.keySet()) {
+            int distance = levenshteinDistance(input, name);
+            if (distance < minDistance && distance <= 2) {
+                minDistance = distance;
+                closest = name;
+            }
+        }
+        return closest;
+    }
+
+    private static int levenshteinDistance(String a, String b) {
+        int[][] dp = new int[a.length() + 1][b.length() + 1];
+        for (int i = 0; i <= a.length(); i++) dp[i][0] = i;
+        for (int j = 0; j <= b.length(); j++) dp[0][j] = j;
+        for (int i = 1; i <= a.length(); i++) {
+            for (int j = 1; j <= b.length(); j++) {
+                int cost = a.charAt(i - 1) == b.charAt(j - 1) ? 0 : 1;
+                dp[i][j] = Math.min(Math.min(
+                    dp[i - 1][j] + 1,
+                    dp[i][j - 1] + 1),
+                    dp[i - 1][j - 1] + cost);
+            }
+        }
+        return dp[a.length()][b.length()];
     }
 
     // ===================== ACCESSORS =====================

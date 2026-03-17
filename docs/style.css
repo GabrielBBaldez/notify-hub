@@ -62,13 +62,16 @@ nav {
     border: 1px solid rgba(255,255,255,0.08); color: var(--text) !important;
 }
 .nav-gh:hover { border-color: var(--accent); background: rgba(249,115,22,0.08) !important; }
-.nav-star {
-    background: linear-gradient(135deg, #2d1b69, #1a1a2e) !important;
-    padding: 6px 14px !important; border-radius: 6px;
-    border: 1px solid rgba(139,92,246,0.4) !important;
-    color: #e0d4ff !important; font-weight: 600;
+.nav-links a.nav-star {
+    background: linear-gradient(135deg, #7c3aed, #a855f7, #c026d3);
+    padding: 7px 16px; border-radius: 20px;
+    border: none;
+    color: #fff; font-weight: 700; font-size: 0.85rem;
+    gap: 6px; display: inline-flex; align-items: center;
+    box-shadow: 0 0 16px rgba(168,85,247,0.4);
+    transition: all 0.3s ease;
 }
-.nav-star:hover { border-color: rgba(139,92,246,0.8) !important; background: linear-gradient(135deg, #3d2b79, #2a2a3e) !important; }
+.nav-links a.nav-star:hover { background: linear-gradient(135deg, #6d28d9, #9333ea, #a21caf); box-shadow: 0 0 24px rgba(168,85,247,0.6); transform: scale(1.05); color: #fff; }
 .nav-docs {
     background: var(--accent) !important; padding: 6px 16px !important; border-radius: 6px;
     color: #fff !important; font-weight: 600;

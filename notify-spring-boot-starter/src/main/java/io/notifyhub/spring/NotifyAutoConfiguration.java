@@ -24,6 +24,8 @@ import io.notifyhub.core.retry.RetryPolicy;
 import io.notifyhub.core.template.MustacheTemplateEngine;
 import io.notifyhub.core.template.TemplateEngine;
 import io.notifyhub.spring.event.SpringEventNotificationListener;
+import io.notifyhub.core.event.NotificationEventListener;
+import io.notifyhub.spring.metrics.MetricsEventListener;
 import io.notifyhub.spring.metrics.MicrometerNotificationListener;
 import io.notifyhub.spring.metrics.TracingNotificationListener;
 import org.slf4j.Logger;
@@ -202,6 +204,16 @@ public class NotifyAutoConfiguration {
                     .info("NotifyHub: Micrometer metrics listener enabled");
             return new MicrometerNotificationListener(meterRegistry);
         }
+
+        @Bean
+        @ConditionalOnBean(type = "io.micrometer.core.instrument.MeterRegistry")
+        @ConditionalOnMissingBean(MetricsEventListener.class)
+        public MetricsEventListener metricsEventListener(
+                io.micrometer.core.instrument.MeterRegistry meterRegistry) {
+            LoggerFactory.getLogger(NotifyAutoConfiguration.class)
+                    .info("NotifyHub: EventBus metrics listener enabled");
+            return new MetricsEventListener(meterRegistry);
+        }
     }
 
     // ===================== OPENTELEMETRY TRACING (isolated to avoid ClassNotFound) =====================
@@ -326,6 +338,7 @@ public class NotifyAutoConfiguration {
             ObjectProvider<AuditLog> auditLogProvider,
             ObjectProvider<AudienceManager> audienceManagerProvider,
             ObjectProvider<RateLimiter> rateLimiterProvider,
+            ObjectProvider<List<NotificationEventListener>> eventListenersProvider,
             NotifyProperties properties) {
 
         NotifyHub.Builder builder = NotifyHub.builder()
@@ -341,6 +354,10 @@ public class NotifyAutoConfiguration {
         // Register all discovered listeners
         List<NotificationListener> listeners = listenersProvider.getIfAvailable(List::of);
         listeners.forEach(builder::listener);
+
+        // Register all discovered EventBus-based listeners
+        List<NotificationEventListener> eventListeners = eventListenersProvider.getIfAvailable(List::of);
+        eventListeners.forEach(builder::eventListener);
 
         // Configure retry policy
         NotifyProperties.Retry retry = properties.getRetry();

@@ -1,0 +1,36 @@
+{
+  "name": "notify-hub",
+  "description": "Unified notification MCP server — send messages across 23 channels (Email, SMS, Slack, Discord, Telegram, WhatsApp, Teams, Twitter/X, LinkedIn, Facebook, Instagram, and more) with 36 AI-ready tools. One API, zero boilerplate.",
+  "version": "1.1.0",
+  "author": {
+    "name": "Gabriel Baldez",
+    "email": "gabrielbaldez2009@gmail.com"
+  },
+  "homepage": "https://gabrielbbaldez.github.io/notify-hub/",
+  "repository": "https://github.com/GabrielBBaldez/notify-hub",
+  "license": "MIT",
+  "keywords": [
+    "notifications",
+    "email",
+    "sms",
+    "slack",
+    "discord",
+    "telegram",
+    "whatsapp",
+    "teams",
+    "twitter",
+    "linkedin",
+    "facebook",
+    "instagram",
+    "mcp",
+    "mcp-server",
+    "messaging",
+    "push-notifications",
+    "webhooks",
+    "pagerduty",
+    "sendgrid",
+    "mailgun",
+    "aws-sns"
+  ],
+  "mcpServers": ".mcp-plugin.json"
+}

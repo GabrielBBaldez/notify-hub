@@ -397,9 +397,9 @@
                         <extensions>true</extensions>
                         <configuration>
                             <publishingServerId>central</publishingServerId>
-                            <autoPublish>false</autoPublish>
-                            <waitUntil>validated</waitUntil>
-                            <deploymentName>v1.0.0</deploymentName>
+                            <autoPublish>true</autoPublish>
+                            <waitUntil>published</waitUntil>
+                            <deploymentName>v1.1.0</deploymentName>
                             <skipPublishing>false</skipPublishing>
                         </configuration>
                     </plugin>

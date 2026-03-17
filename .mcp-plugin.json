@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "notify-hub": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "ghcr.io/gabrielbbaldez/notify-hub:latest"],
+      "env": {}
+    }
+  }
+}

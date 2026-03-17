@@ -1,4 +1,4 @@
-package io.notifyhub.core;
+package io.notifyhub.core.attachment;
 
 import java.io.File;
 import java.io.IOException;

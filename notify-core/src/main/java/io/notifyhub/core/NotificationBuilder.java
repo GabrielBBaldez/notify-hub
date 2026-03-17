@@ -1,5 +1,6 @@
 package io.notifyhub.core;
 
+import io.notifyhub.core.attachment.Attachment;
 import io.notifyhub.core.retry.RetryPolicy;
 
 import java.io.File;

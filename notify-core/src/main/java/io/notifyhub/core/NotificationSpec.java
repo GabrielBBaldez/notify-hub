@@ -1,5 +1,7 @@
 package io.notifyhub.core;
 
+import io.notifyhub.core.attachment.Attachment;
+
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;

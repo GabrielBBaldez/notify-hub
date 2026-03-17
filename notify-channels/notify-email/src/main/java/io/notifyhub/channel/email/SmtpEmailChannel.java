@@ -1,6 +1,6 @@
 package io.notifyhub.channel.email;
 
-import io.notifyhub.core.Attachment;
+import io.notifyhub.core.attachment.Attachment;
 import io.notifyhub.core.Notification;
 import io.notifyhub.core.channel.NotificationChannel;
 import io.notifyhub.core.channel.NotificationSendException;

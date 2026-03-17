@@ -59,6 +59,7 @@
         <module>notify-channels/notify-aws-sns</module>
         <module>notify-channels/notify-mailgun</module>
         <module>notify-channels/notify-pagerduty</module>
+        <module>notify-channels/notify-channel-template</module>
         <module>notify-tracker-jpa</module>
         <module>notify-audit-jpa</module>
         <module>notify-spring-boot-starter</module>

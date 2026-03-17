@@ -9,6 +9,8 @@ import io.notifyhub.core.event.LegacyListenerAdapter;
 import io.notifyhub.core.event.NotificationEventBus;
 import io.notifyhub.core.event.NotificationEventListener;
 import io.notifyhub.core.ratelimit.RateLimiter;
+import io.notifyhub.core.resilience.BulkheadConfig;
+import io.notifyhub.core.resilience.CircuitBreakerConfig;
 import io.notifyhub.core.retry.RetryPolicy;
 import io.notifyhub.core.routing.NotificationRouter;
 import io.notifyhub.core.template.TemplateEngine;
@@ -61,6 +63,8 @@ public class NotifyHub {
     private final NotificationEventBus eventBus;
     private final AudienceManager audienceManager;
     private final AuditLog auditLog;
+    private final CircuitBreakerConfig circuitBreakerConfig;
+    private final BulkheadConfig bulkheadConfig;
 
     private NotifyHub(Builder builder) {
         this.channels = new ConcurrentHashMap<>(builder.channels);
@@ -100,6 +104,8 @@ public class NotifyHub {
 
         this.audienceManager = builder.audienceManager;
         this.auditLog = builder.auditLog;
+        this.circuitBreakerConfig = builder.circuitBreakerConfig;
+        this.bulkheadConfig = builder.bulkheadConfig;
     }
 
     // ===================== FLUENT API ENTRY POINTS =====================
@@ -232,6 +238,16 @@ public class NotifyHub {
         return audienceManager;
     }
 
+    /** Get the circuit breaker config, or null if not configured. */
+    public CircuitBreakerConfig getCircuitBreakerConfig() {
+        return circuitBreakerConfig;
+    }
+
+    /** Get the bulkhead config, or null if not configured. */
+    public BulkheadConfig getBulkheadConfig() {
+        return bulkheadConfig;
+    }
+
     /**
      * Send to a Notifiable, auto-routing through their preferred channels.
      * The first preferred channel is the primary, the rest are fallbacks.
@@ -338,6 +354,8 @@ public class NotifyHub {
         private DeduplicationStore deduplicationStore;
         private AuditLog auditLog;
         private AudienceManager audienceManager;
+        private CircuitBreakerConfig circuitBreakerConfig;
+        private BulkheadConfig bulkheadConfig;
 
         public Builder channel(NotificationChannel channel) {
             this.channels.put(channel.getName().toLowerCase(), channel);
@@ -449,6 +467,30 @@ public class NotifyHub {
          */
         public Builder audienceManager(AudienceManager audienceManager) {
             this.audienceManager = audienceManager;
+            return this;
+        }
+
+        /**
+         * Set the circuit breaker configuration for fault tolerance.
+         * When configured, channels are protected by a circuit breaker
+         * that opens after a threshold of failures.
+         *
+         * @see CircuitBreakerConfig
+         */
+        public Builder circuitBreaker(CircuitBreakerConfig config) {
+            this.circuitBreakerConfig = config;
+            return this;
+        }
+
+        /**
+         * Set the bulkhead configuration for per-channel concurrency limiting.
+         * When configured, limits the number of concurrent calls per channel
+         * to prevent resource exhaustion.
+         *
+         * @see BulkheadConfig
+         */
+        public Builder bulkhead(BulkheadConfig config) {
+            this.bulkheadConfig = config;
             return this;
         }
 

@@ -71,4 +71,20 @@ public interface Notifiable {
     default java.util.Locale getLocale() {
         return null;
     }
+
+    /**
+     * Channels this recipient has opted out of.
+     * Notifications to opted-out channels are silently skipped.
+     */
+    default java.util.Set<Channel> getOptedOutChannels() {
+        return java.util.Set.of();
+    }
+
+    /**
+     * Quiet hours for this recipient.
+     * During quiet hours, notifications are delayed until the next allowed time.
+     */
+    default QuietHours getQuietHours() {
+        return QuietHours.none();
+    }
 }

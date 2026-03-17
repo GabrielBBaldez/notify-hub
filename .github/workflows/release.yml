@@ -84,7 +84,7 @@ jobs:
             org.opencontainers.image.description=Unified notification MCP server — 36 tools, 23 channels
             org.opencontainers.image.version=${{ steps.version.outputs.VERSION }}
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-            io.modelcontextprotocol.server.name=io.github.gabrielbbaldez/notify-hub
+            io.modelcontextprotocol.server.name=io.github.GabrielBBaldez/notify-hub
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max

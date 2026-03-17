@@ -113,7 +113,9 @@ public class McpServerRunner implements CommandLineRunner {
         log.info("NotifyHub MCP Server ready — 36 tools registered");
 
         // Check for updates in background (non-blocking, max once per day)
-        Thread.ofVirtual().name("update-checker").start(this::checkForUpdatesQuietly);
+        Thread updateThread = new Thread(this::checkForUpdatesQuietly, "update-checker");
+        updateThread.setDaemon(true);
+        updateThread.start();
 
         // Keep the process alive — MCP STDIO transport needs the JVM running
         Runtime.getRuntime().addShutdownHook(new Thread(keepAlive::countDown));

@@ -7,7 +7,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/notify-hub
+  IMAGE_NAME: gabrielbbaldez/notify-hub
 
 jobs:
   # ── 1. Build, Test & Deploy to Maven Central ──────────────────
@@ -109,15 +109,15 @@ jobs:
         id: version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
-      - name: Rename JAR for release
-        run: mv ./artifacts/notify-mcp-*.jar ./artifacts/notify-mcp-${{ steps.version.outputs.VERSION }}.jar
+      - name: List downloaded artifacts
+        run: ls -la ./artifacts/
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           name: NotifyHub v${{ steps.version.outputs.VERSION }}
           generate_release_notes: true
-          files: ./artifacts/notify-mcp-${{ steps.version.outputs.VERSION }}.jar
+          files: ./artifacts/*.jar
           body: |
             ## NotifyHub v${{ steps.version.outputs.VERSION }}
 

@@ -2,7 +2,7 @@
 
 **Date:** 2026-03-17
 **Approach:** Inside-Out (core first, expand outward)
-**Constraint:** Zero breaking changes. Simplicity for MCP users and library consumers.
+**Constraint:** Minimal breaking changes (internal only). Simplicity for MCP users and library consumers.
 
 ---
 
@@ -33,14 +33,19 @@ Fields in `NotifyHub` after refactoring:
 ```java
 public class NotifyHub {
     private final Map<String, NotificationChannel> channels;
-    private final NotificationExecutor executor;
-    private final NotificationScheduler scheduler;
-    private final TemplateEngine templateEngine;
+    private final NotificationExecutor executor;      // owns: rateLimiter, deduplicationStore, deadLetterQueue, templateEngine, router
+    private final NotificationScheduler scheduler;     // owns: ScheduledExecutorService
+    private final NotificationEventBus eventBus;       // owns: listeners (legacy + new)
     private final AudienceManager audienceManager;
 }
 ```
 
-Builder stays on `NotifyHub` — it constructs `NotificationExecutor` and `NotificationScheduler` internally.
+**Dependency flow (no circular refs):**
+- `NotificationExecutor` receives `NotificationEventBus` to publish events
+- `NotificationScheduler` receives `NotificationExecutor` (to execute) and `NotificationEventBus` (to publish scheduled/cancelled events)
+- `NotificationEventBus` has no dependency on executor or scheduler
+
+Builder stays on `NotifyHub` — it constructs `NotificationEventBus`, `NotificationExecutor`, and `NotificationScheduler` internally in that order.
 
 ### 1.2 — NotifyProperties.java (590 → ~80 lines + separate files)
 
@@ -54,6 +59,12 @@ NotifyProperties.java          (~80 lines, top-level fields only)
 │   ├── SlackProperties.java
 │   └── ... (1 per channel)
 ```
+
+**Breaking change note:** Inner class types like `NotifyProperties.Email` change to `EmailProperties`.
+The `Channels` class still holds fields of the extracted types, so `props.getChannels().getEmail()`
+continues to work — only direct type references to inner classes break. This is acceptable as
+inner class types are not part of the documented public API. Add `@Deprecated` type aliases
+in the first release for a smooth transition if needed.
 
 ### 1.3 — DemoController.java (815 → multiple controllers)
 
@@ -76,7 +87,11 @@ interface SendHandler {
 }
 ```
 
-Pipeline order: Dedup → RateLimit → CircuitBreaker → Template → Send → Retry → DLQ
+Pipeline order: Dedup → RateLimit → CircuitBreaker → Template → Retry(Send) → DLQ
+
+**Note:** Retry wraps Send as a decorator, not a sequential step. The `RetrySendHandler`
+invokes the inner `ChannelSendHandler` up to N times with backoff. This preserves the
+current `sendWithRetry()` semantics where retry re-invokes `channel.sendWithResult()`.
 
 Assembled internally by `NotificationExecutor`. Developer does not need to know about the pipeline — same fluent API.
 
@@ -115,16 +130,25 @@ public class BulkheadConfig {
 
 ### 2.4 — Health Check
 
+Health checks stay in the Spring layer only (core stays Spring-free). The existing
+`NotificationChannel.isAvailable()` is sufficient for core.
+
+In `notify-spring-boot-starter`, enhance the existing `NotifyHubHealthIndicator` to:
+- Report per-channel health (UP/DOWN based on `isAvailable()`)
+- Include circuit breaker state when configured
+- Expose as Spring Actuator endpoint automatically
+
 ```java
-public interface NotificationChannel {
-    // Existing methods unchanged
-    default HealthStatus healthCheck() {
-        return isAvailable() ? HealthStatus.UP : HealthStatus.DOWN;
-    }
+// In notify-spring-boot-starter (NOT in core)
+@Component
+@ConditionalOnClass(HealthIndicator.class)
+public class NotifyHubHealthIndicator implements HealthIndicator {
+    // Iterates channels, calls isAvailable(), reports per-channel status
+    // Also reports circuit breaker state if configured
 }
 ```
 
-Integrates with Spring Actuator via auto-config.
+No changes to `NotificationChannel` interface.
 
 ---
 
@@ -150,14 +174,31 @@ public record NotificationEvent(
 
 ```java
 class NotificationEventBus {
+    // Thread-safe: listeners are set at construction time (immutable after build)
+    // CopyOnWriteArrayList used if runtime listener addition is needed
     private final List<NotificationEventListener> listeners;
-    void publish(NotificationEvent event) { ... }
+
+    void publish(NotificationEvent event) {
+        // Safe for concurrent calls from multiple threads
+        for (var listener : listeners) {
+            try {
+                listener.onEvent(event);
+            } catch (Exception e) {
+                // Log and continue — one listener failure doesn't block others
+            }
+        }
+    }
 }
 
 public interface NotificationEventListener {
     void onEvent(NotificationEvent event);
 }
 ```
+
+**Thread-safety:** The `NotificationEventBus` is constructed once during `NotifyHub.build()` with
+all listeners. The list is wrapped as `Collections.unmodifiableList()`. If runtime listener
+addition is needed (unlikely), switch to `CopyOnWriteArrayList`. All `publish()` calls are
+safe for concurrent invocation from `sendToChannel`, `executeScheduled`, and async paths.
 
 Consumers:
 - `NotificationTracker` — records `DeliveryReceipt`
@@ -241,6 +282,15 @@ notify.to(user)
 New `OrchestrationBuilder` — does not pollute existing `NotificationBuilder`.
 Requires `NotificationTracker` to check open status.
 
+**Fallback for channels that don't report opens:** Most channels (Slack, Telegram, SMS, Push, etc.)
+never fire an OPENED webhook. For these channels, `ifNoOpen(duration)` behaves as `ifNoDeliveryConfirmation(duration)`:
+- If the channel reports DELIVERED → consider "opened" (skip escalation)
+- If the channel reports nothing after the timeout → escalate to next step
+- If the channel reports FAILED → escalate immediately
+
+This means orchestration works across all 24 channels, not just email providers with open tracking.
+The `OrchestrationBuilder` will document this behavior clearly in javadoc.
+
 ### 5.2 — Notification Preferences per Recipient
 
 ```java
@@ -249,9 +299,27 @@ public interface Notifiable {
     default Set<Channel> getOptedOutChannels() { return Set.of(); }
     default QuietHours getQuietHours() { return QuietHours.none(); }
 }
+
+/**
+ * Quiet hours configuration. Respects recipient's timezone.
+ * During quiet hours, notifications are queued and delivered at the next allowed time.
+ */
+public class QuietHours {
+    private final LocalTime start;      // e.g., 22:00
+    private final LocalTime end;        // e.g., 08:00
+    private final ZoneId timezone;      // e.g., America/Sao_Paulo
+
+    public static QuietHours none() { return NONE; }
+    public static QuietHours between(LocalTime start, LocalTime end, ZoneId tz) { ... }
+
+    /** Returns the next Instant when delivery is allowed, or now if not in quiet period. */
+    public Instant nextAllowedTime(Instant now) { ... }
+}
 ```
 
-Pipeline respects automatically: opt-out skips to fallback, quiet hours delays to next allowed time.
+Pipeline respects automatically:
+- **Opt-out:** If the channel is in `getOptedOutChannels()`, skip to fallback channel. If no fallback, skip silently (no error).
+- **Quiet hours:** If current time is within quiet hours, the notification is scheduled via `NotificationScheduler` for `nextAllowedTime()`. Uses the recipient's timezone. Returns a `ScheduledNotification` instead of sending immediately.
 
 ### 5.3 — A/B Testing
 
@@ -276,13 +344,16 @@ notify.to("team@company.com").via(EMAIL)
     .send();
 ```
 
-Uses extracted `NotificationScheduler`.
+Uses extracted `NotificationScheduler`. Cron parsing via a lightweight internal parser
+supporting standard 5-field expressions (minute, hour, day-of-month, month, day-of-week).
+No external dependency needed — the parser only needs to compute "next fire time" from
+a cron expression, which is ~100 lines of code.
 
 ---
 
 ## Cross-Cutting Principles
 
-1. **Zero breaking changes** — all new features are opt-in
+1. **Minimal breaking changes** — all new features are opt-in; only internal type references (e.g., `NotifyProperties.Email` → `EmailProperties`) may change; public fluent API is untouched
 2. **Simplicity preserved** — `notify.to().via().send()` never changes
 3. **MCP compatibility** — all new features exposed as MCP tools
 4. **Default methods** on interfaces for backwards compatibility

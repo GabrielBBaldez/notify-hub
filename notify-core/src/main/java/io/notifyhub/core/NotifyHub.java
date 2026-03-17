@@ -3,22 +3,19 @@ package io.notifyhub.core;
 import io.notifyhub.core.audience.AudienceManager;
 import io.notifyhub.core.audience.Contact;
 import io.notifyhub.core.channel.NotificationChannel;
-import io.notifyhub.core.channel.NotificationSendException;
-import io.notifyhub.core.channel.SendResult;
 import io.notifyhub.core.dedup.DeduplicationStore;
-import io.notifyhub.core.dlq.DeadLetter;
 import io.notifyhub.core.dlq.DeadLetterQueue;
-import io.notifyhub.core.ratelimit.RateLimitExceededException;
+import io.notifyhub.core.event.LegacyListenerAdapter;
+import io.notifyhub.core.event.NotificationEventBus;
+import io.notifyhub.core.event.NotificationEventListener;
 import io.notifyhub.core.ratelimit.RateLimiter;
-import io.notifyhub.core.routing.NotificationRouter;
 import io.notifyhub.core.retry.RetryPolicy;
+import io.notifyhub.core.routing.NotificationRouter;
 import io.notifyhub.core.template.TemplateEngine;
-import io.notifyhub.core.template.VersionedTemplateEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -59,36 +56,50 @@ public class NotifyHub {
     private static final Logger log = LoggerFactory.getLogger(NotifyHub.class);
 
     private final Map<String, NotificationChannel> channels;
-    private final TemplateEngine templateEngine;
-    private final RetryPolicy defaultRetryPolicy;
-    private final List<NotificationListener> listeners;
-    private final ExecutorService executor;
-    private final ScheduledExecutorService scheduler;
-    private final NotificationTracker tracker;
-    private final RateLimiter rateLimiter;
-    private final DeadLetterQueue deadLetterQueue;
-    private volatile ScheduledExecutorService defaultScheduler;
-    private final NotificationRouter router;
-    private final DeduplicationStore deduplicationStore;
-    private final AuditLog auditLog;
+    private final NotificationExecutor executor;
+    private final NotificationScheduler scheduler;
+    private final NotificationEventBus eventBus;
     private final AudienceManager audienceManager;
+    private final AuditLog auditLog;
 
     private NotifyHub(Builder builder) {
         this.channels = new ConcurrentHashMap<>(builder.channels);
-        this.templateEngine = builder.templateEngine;
-        this.defaultRetryPolicy = builder.defaultRetryPolicy != null
+
+        // Build the event bus with legacy listener adapters
+        List<NotificationEventListener> eventListeners = new ArrayList<>();
+        for (NotificationListener listener : builder.listeners) {
+            eventListeners.add(new LegacyListenerAdapter(listener));
+        }
+        this.eventBus = new NotificationEventBus(eventListeners);
+
+        // Resolve default retry policy
+        RetryPolicy retryPolicy = builder.defaultRetryPolicy != null
                 ? builder.defaultRetryPolicy
                 : RetryPolicy.none();
-        this.listeners = new ArrayList<>(builder.listeners);
-        this.executor = builder.executor;
-        this.scheduler = builder.scheduler;
-        this.tracker = builder.tracker;
-        this.rateLimiter = builder.rateLimiter;
-        this.deadLetterQueue = builder.deadLetterQueue;
-        this.router = builder.router;
-        this.deduplicationStore = builder.deduplicationStore;
-        this.auditLog = builder.auditLog;
+
+        // Create the executor with all dependencies
+        this.executor = new NotificationExecutor(
+                this.channels,
+                builder.templateEngine,
+                retryPolicy,
+                this.eventBus,
+                builder.deduplicationStore,
+                builder.rateLimiter,
+                builder.deadLetterQueue,
+                builder.tracker,
+                builder.executor
+        );
+
+        // Create the scheduler with executor and event bus
+        this.scheduler = new NotificationScheduler(
+                this.executor,
+                this.eventBus,
+                builder.scheduler,
+                builder.tracker
+        );
+
         this.audienceManager = builder.audienceManager;
+        this.auditLog = builder.auditLog;
     }
 
     // ===================== FLUENT API ENTRY POINTS =====================
@@ -203,12 +214,12 @@ public class NotifyHub {
 
     /** Get the notification tracker (if configured). */
     public NotificationTracker getTracker() {
-        return tracker;
+        return executor.getTracker();
     }
 
     /** Get the dead letter queue (if configured). */
     public DeadLetterQueue getDeadLetterQueue() {
-        return deadLetterQueue;
+        return executor.getDeadLetterQueue();
     }
 
     /** Get the audit log, or null if not configured. */
@@ -245,36 +256,14 @@ public class NotifyHub {
         return builder;
     }
 
-    // ===================== EXECUTION =====================
+    // ===================== EXECUTION (delegation to NotificationExecutor) =====================
 
     /**
      * Execute notification: send through first channel, try fallbacks on failure.
      * Called internally by NotificationBuilder.send().
      */
     void execute(NotificationBuilder builder) {
-        List<String> allChannels = new ArrayList<>(builder.getChannels());
-        allChannels.addAll(builder.getFallbackChannels());
-
-        NotificationSendException lastException = null;
-
-        for (String channelName : allChannels) {
-            try {
-                sendToChannel(channelName, builder);
-                return; // success — stop trying
-            } catch (NotificationSendException e) {
-                lastException = e;
-                log.warn("Channel '{}' failed: {}. Trying next fallback...",
-                        channelName, e.getMessage());
-                notifyListeners(channelName, builder, e);
-            }
-        }
-
-        // All channels failed
-        if (lastException != null) {
-            log.error("All channels failed for notification. Template: '{}', Recipient channels tried: {}",
-                    builder.getTemplateName(), allChannels);
-            throw lastException;
-        }
+        executor.execute(builder);
     }
 
     /**
@@ -282,23 +271,7 @@ public class NotifyHub {
      * Called internally by NotificationBuilder.sendAll().
      */
     void executeAll(NotificationBuilder builder) {
-        List<String> channelNames = builder.getChannels();
-        List<NotificationSendException> failures = new ArrayList<>();
-
-        for (String channelName : channelNames) {
-            try {
-                sendToChannel(channelName, builder);
-            } catch (NotificationSendException e) {
-                failures.add(e);
-                log.warn("Channel '{}' failed during sendAll: {}", channelName, e.getMessage());
-                notifyListeners(channelName, builder, e);
-            }
-        }
-
-        if (failures.size() == channelNames.size()) {
-            throw new NotificationSendException("all",
-                    "All " + failures.size() + " channels failed");
-        }
+        executor.executeAll(builder);
     }
 
     /**
@@ -306,7 +279,7 @@ public class NotifyHub {
      * Called internally by NotificationBuilder.sendAsync().
      */
     CompletableFuture<Void> executeAsync(NotificationBuilder builder) {
-        return CompletableFuture.runAsync(() -> execute(builder), getExecutor());
+        return executor.executeAsync(builder);
     }
 
     /**
@@ -314,67 +287,17 @@ public class NotifyHub {
      * Called internally by NotificationBuilder.sendAllAsync().
      */
     CompletableFuture<Void> executeAllAsync(NotificationBuilder builder) {
-        return CompletableFuture.runAsync(() -> executeAll(builder), getExecutor());
+        return executor.executeAllAsync(builder);
     }
 
-    // ===================== TRACKED EXECUTION =====================
+    // ===================== TRACKED EXECUTION (delegation to NotificationExecutor) =====================
 
     /**
      * Execute and return a delivery receipt for each channel.
      * Called internally by NotificationBuilder.sendTracked().
      */
     DeliveryReceipt executeTracked(NotificationBuilder builder) {
-        List<String> allChannels = new ArrayList<>(builder.getChannels());
-        allChannels.addAll(builder.getFallbackChannels());
-
-        NotificationSendException lastException = null;
-        String lastChannelName = allChannels.isEmpty() ? "unknown" : allChannels.get(0);
-        String recipient = null;
-
-        for (String channelName : allChannels) {
-            lastChannelName = channelName;
-            try {
-                recipient = builder.resolveRecipient(channelName);
-                SendResult result = sendToChannel(channelName, builder);
-
-                // Success — create receipt with optional provider message ID
-                DeliveryReceipt receipt = DeliveryReceipt.builder()
-                        .channelName(channelName)
-                        .recipient(recipient)
-                        .status(DeliveryStatus.SENT)
-                        .templateName(builder.getTemplateName())
-                        .providerMessageId(result != null ? result.getProviderMessageId() : null)
-                        .build();
-
-                if (tracker != null) {
-                    tracker.record(receipt);
-                }
-                return receipt;
-            } catch (NotificationSendException e) {
-                lastException = e;
-                log.warn("Channel '{}' failed: {}. Trying next fallback...",
-                        channelName, e.getMessage());
-                notifyListeners(channelName, builder, e);
-            }
-        }
-
-        // All failed — create failed receipt
-        DeliveryReceipt failedReceipt = DeliveryReceipt.builder()
-                .channelName(lastChannelName)
-                .recipient(recipient)
-                .status(DeliveryStatus.FAILED)
-                .templateName(builder.getTemplateName())
-                .errorMessage(lastException != null ? lastException.getMessage() : "Unknown error")
-                .build();
-
-        if (tracker != null) {
-            tracker.record(failedReceipt);
-        }
-
-        if (lastException != null) {
-            throw lastException;
-        }
-        throw new NotificationSendException("unknown", "All channels failed to send notification");
+        return executor.executeTracked(builder);
     }
 
     /**
@@ -382,318 +305,17 @@ public class NotifyHub {
      * Called internally by NotificationBuilder.sendAllTracked().
      */
     List<DeliveryReceipt> executeAllTracked(NotificationBuilder builder) {
-        List<String> channelNames = builder.getChannels();
-        List<DeliveryReceipt> receipts = new ArrayList<>();
-        List<NotificationSendException> failures = new ArrayList<>();
-
-        for (String channelName : channelNames) {
-            String recipient = builder.resolveRecipient(channelName);
-            try {
-                SendResult result = sendToChannel(channelName, builder);
-
-                DeliveryReceipt receipt = DeliveryReceipt.builder()
-                        .channelName(channelName)
-                        .recipient(recipient)
-                        .status(DeliveryStatus.SENT)
-                        .templateName(builder.getTemplateName())
-                        .providerMessageId(result != null ? result.getProviderMessageId() : null)
-                        .build();
-
-                receipts.add(receipt);
-                if (tracker != null) {
-                    tracker.record(receipt);
-                }
-            } catch (NotificationSendException e) {
-                failures.add(e);
-                log.warn("Channel '{}' failed during sendAllTracked: {}", channelName, e.getMessage());
-                notifyListeners(channelName, builder, e);
-
-                DeliveryReceipt failedReceipt = DeliveryReceipt.builder()
-                        .channelName(channelName)
-                        .recipient(recipient)
-                        .status(DeliveryStatus.FAILED)
-                        .templateName(builder.getTemplateName())
-                        .errorMessage(e.getMessage())
-                        .build();
-
-                receipts.add(failedReceipt);
-                if (tracker != null) {
-                    tracker.record(failedReceipt);
-                }
-            }
-        }
-
-        if (failures.size() == channelNames.size()) {
-            throw new NotificationSendException("all",
-                    "All " + failures.size() + " channels failed");
-        }
-
-        return Collections.unmodifiableList(receipts);
+        return executor.executeAllTracked(builder);
     }
 
-    // ===================== SCHEDULED EXECUTION =====================
+    // ===================== SCHEDULED EXECUTION (delegation to NotificationScheduler) =====================
 
     /**
      * Schedule a notification for future delivery.
      * Called internally by NotificationBuilder.schedule().
      */
     ScheduledNotification executeScheduled(NotificationBuilder builder, Duration delay) {
-        ScheduledExecutorService sched = getScheduler();
-        String primaryChannel = builder.getChannels().get(0);
-        String recipient = builder.resolveRecipient(primaryChannel);
-        Instant scheduledTime = Instant.now().plus(delay);
-
-        // Use AtomicReference to share the ScheduledNotification between caller and scheduled task
-        var ref = new java.util.concurrent.atomic.AtomicReference<ScheduledNotification>();
-
-        // Schedule the actual execution
-        ScheduledFuture<?> future = sched.schedule(() -> {
-            ScheduledNotification sn = ref.get();
-            try {
-                execute(builder);
-                if (sn != null) sn.markSent();
-
-                // Update tracker with SENT status
-                if (tracker != null && sn != null) {
-                    DeliveryReceipt sentReceipt = DeliveryReceipt.builder()
-                            .id(sn.getId() + "-sent")
-                            .channelName(primaryChannel)
-                            .recipient(recipient)
-                            .status(DeliveryStatus.SENT)
-                            .templateName(builder.getTemplateName())
-                            .build();
-                    tracker.record(sentReceipt);
-                }
-            } catch (Exception e) {
-                if (sn != null) sn.markFailed();
-                log.error("Scheduled notification failed: {}", e.getMessage());
-
-                // Update tracker with FAILED status
-                if (tracker != null && sn != null) {
-                    DeliveryReceipt failedReceipt = DeliveryReceipt.builder()
-                            .id(sn.getId() + "-failed")
-                            .channelName(primaryChannel)
-                            .recipient(recipient)
-                            .status(DeliveryStatus.FAILED)
-                            .templateName(builder.getTemplateName())
-                            .errorMessage(e.getMessage())
-                            .build();
-                    tracker.record(failedReceipt);
-                }
-            }
-        }, delay.toMillis(), TimeUnit.MILLISECONDS);
-
-        // Create the ScheduledNotification with the actual future and share it
-        ScheduledNotification scheduled = new ScheduledNotification(
-                future, scheduledTime, primaryChannel, recipient
-        );
-        ref.set(scheduled);
-
-        // Record as SCHEDULED in tracker
-        if (tracker != null) {
-            DeliveryReceipt scheduledReceipt = DeliveryReceipt.builder()
-                    .id(scheduled.getId())
-                    .channelName(primaryChannel)
-                    .recipient(recipient)
-                    .status(DeliveryStatus.SCHEDULED)
-                    .templateName(builder.getTemplateName())
-                    .build();
-            tracker.record(scheduledReceipt);
-        }
-
-        // Wire cancel callback to notify listeners
-        scheduled.setCancelCallback(() -> {
-            for (NotificationListener listener : listeners) {
-                try {
-                    listener.onCancelled(primaryChannel, recipient);
-                } catch (Exception e) {
-                    log.warn("Listener error on cancelled: {}", e.getMessage());
-                }
-            }
-        });
-
-        // Notify listeners
-        for (NotificationListener listener : listeners) {
-            try {
-                listener.onScheduled(primaryChannel, recipient, delay);
-            } catch (Exception e) {
-                log.warn("Listener error on scheduled: {}", e.getMessage());
-            }
-        }
-
-        return scheduled;
-    }
-
-    // ===================== INTERNAL =====================
-
-    private ExecutorService getExecutor() {
-        return executor != null ? executor : ForkJoinPool.commonPool();
-    }
-
-    private ScheduledExecutorService getScheduler() {
-        if (scheduler != null) {
-            return scheduler;
-        }
-        if (defaultScheduler == null) {
-            synchronized (this) {
-                if (defaultScheduler == null) {
-                    defaultScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
-                        Thread t = new Thread(r, "notifyhub-scheduler");
-                        t.setDaemon(true);
-                        return t;
-                    });
-                }
-            }
-        }
-        return defaultScheduler;
-    }
-
-    private SendResult sendToChannel(String channelName, NotificationBuilder builder) {
-        NotificationChannel channel = channels.get(channelName);
-        if (channel == null) {
-            throw new NotificationSendException(channelName,
-                    "Channel '" + channelName + "' not registered. Available: " + channels.keySet());
-        }
-
-        // Deduplication check (before rate limiting and sending)
-        if (deduplicationStore != null) {
-            String dedupKey = builder.getDeduplicationKey() != null
-                    ? builder.getDeduplicationKey()
-                    : builder.computeDeduplicationHash();
-            if (deduplicationStore.isDuplicate(dedupKey)) {
-                log.info("Duplicate notification skipped for channel '{}' (key: {})", channelName, dedupKey);
-                return null;
-            }
-        }
-
-        // Rate limiting (URGENT bypasses)
-        if (rateLimiter != null && builder.getPriority() != Priority.URGENT) {
-            if (!rateLimiter.tryAcquire(channelName)) {
-                throw new RateLimitExceededException(channelName);
-            }
-        }
-
-        String recipient = builder.resolveRecipient(channelName);
-        if (recipient == null || recipient.isBlank()) {
-            throw new NotificationSendException(channelName,
-                    "No recipient address available for channel '" + channelName + "'");
-        }
-
-        // Render template (with optional version support)
-        String renderedContent = null;
-        if (builder.getTemplateName() != null && templateEngine != null) {
-            String variant = channelName.equals("email") ? "html" : "txt";
-            if (builder.getTemplateVersion() != null && templateEngine instanceof VersionedTemplateEngine vte) {
-                renderedContent = vte.render(
-                        builder.getTemplateName(), builder.getTemplateVersion(),
-                        variant, builder.getParams(), builder.getLocale());
-            } else {
-                renderedContent = templateEngine.render(
-                        builder.getTemplateName(), variant, builder.getParams(), builder.getLocale());
-            }
-        }
-
-        // Build notification object
-        Notification notification = new Notification(
-                recipient, channelName, builder.getSubject(),
-                builder.getTemplateName(), builder.getRawContent(),
-                builder.getParams(), builder.getAttachments(),
-                builder.getPriority(), builder.getImageUrl()
-        );
-        if (renderedContent != null) {
-            notification = notification.withRenderedContent(renderedContent);
-        }
-
-        // Send with retry
-        RetryPolicy policy = builder.getRetryPolicy() != null
-                ? builder.getRetryPolicy()
-                : defaultRetryPolicy;
-
-        SendResult result = sendWithRetry(channel, notification, policy);
-
-        // Mark as sent in dedup store after successful delivery
-        if (deduplicationStore != null) {
-            String dedupKey = builder.getDeduplicationKey() != null
-                    ? builder.getDeduplicationKey()
-                    : builder.computeDeduplicationHash();
-            deduplicationStore.markSent(dedupKey);
-        }
-
-        log.info("Notification sent via '{}' to '{}'", channelName, recipient);
-        notifyListenersSuccess(channelName, builder);
-        return result;
-    }
-
-    private SendResult sendWithRetry(NotificationChannel channel, Notification notification,
-                                RetryPolicy policy) {
-        int attempts = policy.getMaxAttempts();
-        NotificationSendException lastException = null;
-
-        for (int i = 0; i < attempts; i++) {
-            try {
-                if (i > 0) {
-                    long delayMs = policy.getDelayForAttempt(i - 1).toMillis();
-                    log.debug("Retry attempt {}/{} for channel '{}' after {}ms",
-                            i + 1, attempts, channel.getName(), delayMs);
-                    Thread.sleep(delayMs);
-                }
-                return channel.sendWithResult(notification); // success — return provider metadata
-            } catch (NotificationSendException e) {
-                lastException = e;
-                log.warn("Attempt {}/{} failed for channel '{}': {}",
-                        i + 1, attempts, channel.getName(), e.getMessage());
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new NotificationSendException(channel.getName(),
-                        "Retry interrupted", e);
-            } catch (Exception e) {
-                lastException = new NotificationSendException(channel.getName(),
-                        "Unexpected error: " + e.getMessage(), e);
-            }
-        }
-
-        // All retries exhausted — enqueue to DLQ if configured
-        if (deadLetterQueue != null) {
-            DeadLetter dl = DeadLetter.builder()
-                    .channelName(channel.getName())
-                    .recipient(notification.getRecipient())
-                    .subject(notification.getSubject())
-                    .content(notification.getRenderedContent())
-                    .templateName(notification.getTemplateName())
-                    .errorMessage(lastException != null ? lastException.getMessage() : "Unknown error")
-                    .attemptCount(attempts)
-                    .build();
-            deadLetterQueue.enqueue(dl);
-            log.warn("Notification moved to DLQ after {} failed attempts for channel '{}'",
-                    attempts, channel.getName());
-        }
-
-        if (lastException != null) {
-            throw lastException;
-        }
-        throw new NotificationSendException(channel.getName(), "All retry attempts failed");
-    }
-
-    // ===================== LISTENERS =====================
-
-    private void notifyListeners(String channelName, NotificationBuilder builder, Exception error) {
-        for (NotificationListener listener : listeners) {
-            try {
-                listener.onFailure(channelName, builder.getTemplateName(), error);
-            } catch (Exception e) {
-                log.warn("Listener error: {}", e.getMessage());
-            }
-        }
-    }
-
-    private void notifyListenersSuccess(String channelName, NotificationBuilder builder) {
-        for (NotificationListener listener : listeners) {
-            try {
-                listener.onSuccess(channelName, builder.getTemplateName());
-            } catch (Exception e) {
-                log.warn("Listener error: {}", e.getMessage());
-            }
-        }
+        return scheduler.schedule(builder, delay);
     }
 
     // ===================== BUILDER =====================

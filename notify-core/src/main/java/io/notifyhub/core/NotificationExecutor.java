@@ -376,6 +376,16 @@ class NotificationExecutor {
         throw new NotificationSendException(channel.getName(), "All retry attempts failed");
     }
 
+    // ===================== ACCESSORS =====================
+
+    NotificationTracker getTracker() {
+        return tracker;
+    }
+
+    DeadLetterQueue getDeadLetterQueue() {
+        return deadLetterQueue;
+    }
+
     // ===================== EVENT PUBLISHING =====================
 
     private void publishFailedEvent(String channelName, NotificationBuilder builder, Exception error) {

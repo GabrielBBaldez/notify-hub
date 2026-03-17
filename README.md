@@ -27,7 +27,7 @@
 
 ---
 
-Stop writing different code for each notification channel. NotifyHub gives you a single fluent API to send notifications via **Email, SMS, WhatsApp, Slack, Telegram, Discord, Microsoft Teams, Firebase Push, Webhooks, WebSocket, Google Chat, Twitter/X, LinkedIn, Notion, Twitch, YouTube, Instagram** — or any custom channel you create.
+Stop writing different code for each notification channel. NotifyHub gives you a single fluent API to send notifications via **Email, SMS, WhatsApp, Slack, Telegram, Discord, Microsoft Teams, Firebase Push, Webhooks, WebSocket, Google Chat, Twitter/X, LinkedIn, Notion, Twitch, YouTube, Instagram, SendGrid, TikTok Shop, Facebook, AWS SNS, Mailgun, PagerDuty** — or any custom channel you create.
 
 ```java
 notify.to(user)
@@ -64,6 +64,12 @@ notify.to(user)
 | <img src="https://cdn.simpleicons.org/twitch" width="16"> | Twitch | OAuth 2.0, Twitch API setup | `.via(TWITCH)` |
 | <img src="https://cdn.simpleicons.org/youtube" width="16"> | YouTube | YouTube Data API v3 setup | `.via(YOUTUBE)` |
 | <img src="https://cdn.simpleicons.org/instagram" width="16"> | Instagram | Meta Graph API setup | `.via(INSTAGRAM)` |
+| <img src="https://cdn.simpleicons.org/sendgrid" width="16"> | SendGrid | SendGrid API, webhook tracking | `.via(Channel.custom("sendgrid"))` |
+| <img src="https://cdn.simpleicons.org/tiktok/EE1D52" width="16"> | TikTok Shop | HMAC-SHA256, Shop API | `.via(TIKTOK_SHOP)` |
+| <img src="https://cdn.simpleicons.org/facebook" width="16"> | Facebook | Graph API, Page tokens | `.via(FACEBOOK)` |
+| <img src="https://cdn.simpleicons.org/amazonaws" width="16"> | AWS SNS | AWS SDK, credentials, ARN | `.via(Channel.custom("aws-sns"))` |
+| <img src="https://cdn.simpleicons.org/mailgun" width="16"> | Mailgun | Mailgun API, domain setup | `.via(Channel.custom("mailgun"))` |
+| <img src="https://cdn.simpleicons.org/pagerduty" width="16"> | PagerDuty | Events API v2, routing key | `.via(Channel.custom("pagerduty"))` |
 | | Multiple channels | Completely different code for each | Same fluent API |
 | Fallback | Manual try/catch chain | `.fallback(SMS)` |
 | Retry | Implement yourself | Built-in exponential backoff |
@@ -131,7 +137,7 @@ notify.to(user)
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-spring-boot-starter</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -141,21 +147,21 @@ notify.to(user)
 > <dependency>
 >     <groupId>io.github.gabrielbbaldez</groupId>
 >     <artifactId>notify-sms</artifactId>
->     <version>0.9.0</version>
+>     <version>1.0.0</version>
 > </dependency>
 >
 > <!-- Slack / Telegram / Discord / Teams / Firebase Push / Webhook -->
 > <dependency>
 >     <groupId>io.github.gabrielbbaldez</groupId>
 >     <artifactId>notify-slack</artifactId>
->     <version>0.9.0</version>
+>     <version>1.0.0</version>
 > </dependency>
 >
 > <!-- WebSocket / Google Chat -->
 > <dependency>
 >     <groupId>io.github.gabrielbbaldez</groupId>
 >     <artifactId>notify-websocket</artifactId>
->     <version>0.9.0</version>
+>     <version>1.0.0</version>
 > </dependency>
 > ```
 
@@ -451,7 +457,7 @@ For database persistence, add the JPA tracker module:
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-tracker-jpa</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -793,7 +799,7 @@ Decouple notification sending with async message queues. NotifyHub provides two 
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-queue-rabbitmq</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -832,7 +838,7 @@ producer.enqueue(QueuedNotification.builder()
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-queue-kafka</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -888,6 +894,10 @@ Both modules support: templates, priority, deduplication keys, delivery tracking
 | 📧 | **SendGrid** | SendGrid API (delivery tracking) | `notify-sendgrid` |
 | <img src="https://cdn.simpleicons.org/tiktok/EE1D52" width="18"> | **TikTok Shop** | TikTok Shop API (HMAC-SHA256) | `notify-tiktok-shop` |
 | <img src="https://cdn.simpleicons.org/facebook" width="18"> | **Facebook** | Graph API (Page + Messenger) | `notify-facebook` |
+| <img src="https://cdn.simpleicons.org/whatsapp" width="18"> | **WhatsApp Cloud** | Meta Cloud API (direct, no Twilio) | `notify-whatsapp` |
+| <img src="https://cdn.simpleicons.org/amazonaws" width="18"> | **AWS SNS** | AWS SDK v2 | `notify-aws-sns` |
+| <img src="https://cdn.simpleicons.org/mailgun" width="18"> | **Mailgun** | Mailgun REST API | `notify-mailgun` |
+| <img src="https://cdn.simpleicons.org/pagerduty" width="18"> | **PagerDuty** | Events API v2 | `notify-pagerduty` |
 | ➕ | **Custom** | Any — implement one interface | `notify-core` |
 
 ---
@@ -906,7 +916,7 @@ notify:
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-admin</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -974,7 +984,7 @@ GET /actuator/info
 ```json
 {
   "notifyhub": {
-    "version": "0.9.0",
+    "version": "1.0.0",
     "channels": ["email", "slack", "teams"],
     "tracking.enabled": true,
     "dlq.enabled": true
@@ -1262,7 +1272,7 @@ mvn clean package -pl notify-mcp -am -DskipTests
   "mcpServers": {
     "notify-hub": {
       "command": "java",
-      "args": ["-jar", "path/to/notify-mcp-0.9.0.jar"],
+      "args": ["-jar", "path/to/notify-mcp-1.0.0.jar"],
       "env": {
         "NOTIFY_CHANNELS_EMAIL_HOST": "smtp.gmail.com",
         "NOTIFY_CHANNELS_EMAIL_PORT": "587",
@@ -1283,7 +1293,7 @@ mvn clean package -pl notify-mcp -am -DskipTests
   "mcpServers": {
     "notify-hub": {
       "command": "java",
-      "args": ["-jar", "path/to/notify-mcp-0.9.0.jar"],
+      "args": ["-jar", "path/to/notify-mcp-1.0.0.jar"],
       "env": {
         "NOTIFY_CHANNELS_DISCORD_WEBHOOK_URL": "https://discord.com/api/webhooks/..."
       }
@@ -1546,7 +1556,14 @@ notify-hub/
 │   ├── notify-google-chat/              # Google Chat webhooks (JDK HttpClient)
 │   ├── notify-twitch/                   # Twitch chat + polls via Helix API (JDK HttpClient)
 │   ├── notify-youtube/                  # YouTube live chat via Data API v3 (JDK HttpClient)
-│   └── notify-instagram/               # Instagram DM + feed via Meta Graph API (JDK HttpClient)
+│   ├── notify-instagram/               # Instagram DM + feed via Meta Graph API (JDK HttpClient)
+│   ├── notify-sendgrid/                # SendGrid email with delivery tracking (JDK HttpClient)
+│   ├── notify-tiktok-shop/             # TikTok Shop API (HMAC-SHA256, JDK HttpClient)
+│   ├── notify-facebook/                # Facebook Graph API (Page + Messenger)
+│   ├── notify-whatsapp/                # WhatsApp Cloud API (Meta Graph API, no Twilio)
+│   ├── notify-aws-sns/                 # AWS SNS (AWS SDK v2)
+│   ├── notify-mailgun/                 # Mailgun transactional email (JDK HttpClient)
+│   └── notify-pagerduty/              # PagerDuty Events API v2 (JDK HttpClient)
 │
 ├── notify-tracker-jpa/                   # JPA-backed delivery tracker
 │
@@ -1604,7 +1621,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-spring-boot-starter</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1620,7 +1637,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-core</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1636,7 +1653,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-email</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1652,7 +1669,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-sms</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1668,7 +1685,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-slack</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1684,7 +1701,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-telegram</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1700,7 +1717,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-discord</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1716,7 +1733,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-teams</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1732,7 +1749,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-push-firebase</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1748,7 +1765,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-webhook</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1764,7 +1781,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-websocket</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1780,7 +1797,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-google-chat</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1796,7 +1813,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-twitch</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1812,7 +1829,135 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-youtube</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-instagram` — Instagram Channel
+
+**What it does:** Sends DMs and feed posts via the Meta Graph API (Instagram Graph API). Uses the JDK `HttpClient` — no external SDK needed.
+
+**When to use:** You want to send notifications via Instagram. Requires a Facebook Developer account with Instagram Graph API access.
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-instagram</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-sendgrid` — SendGrid Email Channel
+
+**What it does:** Sends transactional emails via SendGrid API with built-in delivery event tracking (delivered, opened, clicked, bounced). Uses the JDK `HttpClient` — no external SDK needed.
+
+**When to use:** You want email delivery tracking beyond basic SMTP, or you already use SendGrid as your email provider.
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-sendgrid</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-tiktok-shop` — TikTok Shop Channel
+
+**What it does:** Sends messages to TikTok Shop sellers via the TikTok Shop API. Handles HMAC-SHA256 request signing automatically. Uses the JDK `HttpClient`.
+
+**When to use:** You want to send notifications to TikTok Shop sellers (order updates, customer messages).
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-tiktok-shop</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-facebook` — Facebook Channel
+
+**What it does:** Sends Facebook Page posts and Messenger messages via the Graph API. Uses the JDK `HttpClient` — no external SDK needed.
+
+**When to use:** You want to post to Facebook Pages or send Messenger messages.
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-facebook</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-whatsapp` — WhatsApp Cloud API Channel
+
+**What it does:** Sends WhatsApp messages directly via Meta's Cloud API (no Twilio needed). Uses the JDK `HttpClient` — zero external dependencies.
+
+**When to use:** You want to send WhatsApp messages using Meta's official Cloud API instead of Twilio.
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-whatsapp</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-aws-sns` — AWS SNS Channel
+
+**What it does:** Publishes messages to AWS SNS topics or sends direct SMS via AWS Simple Notification Service. Uses AWS SDK v2.
+
+**When to use:** You're already in the AWS ecosystem and want to use SNS for notifications.
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-aws-sns</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-mailgun` — Mailgun Channel
+
+**What it does:** Sends transactional emails via Mailgun REST API. Uses the JDK `HttpClient` — no external SDK needed.
+
+**When to use:** You use Mailgun as your email provider.
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-mailgun</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+---
+
+#### `notify-pagerduty` — PagerDuty Channel
+
+**What it does:** Creates PagerDuty incidents via the Events API v2. Uses the JDK `HttpClient` — no external SDK needed.
+
+**When to use:** You want to trigger PagerDuty alerts/incidents from your notification pipeline.
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-pagerduty</artifactId>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1828,7 +1973,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-tracker-jpa</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1844,7 +1989,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-admin</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1860,7 +2005,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-queue-rabbitmq</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1876,7 +2021,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-queue-kafka</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1892,7 +2037,7 @@ Below is every module, what it does, when you need it, and how to add it.
 <dependency>
     <groupId>io.github.gabrielbbaldez</groupId>
     <artifactId>notify-mcp</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -1914,6 +2059,14 @@ Below is every module, what it does, when you need it, and how to add it.
 | Send to Google Chat | `notify-spring-boot-starter` + `notify-google-chat` |
 | Send to Twitch chat | `notify-spring-boot-starter` + `notify-twitch` |
 | Send to YouTube live chat | `notify-spring-boot-starter` + `notify-youtube` |
+| Send to Instagram | `notify-spring-boot-starter` + `notify-instagram` |
+| Send via SendGrid (with tracking) | `notify-spring-boot-starter` + `notify-sendgrid` |
+| Send to TikTok Shop | `notify-spring-boot-starter` + `notify-tiktok-shop` |
+| Send to Facebook Page/Messenger | `notify-spring-boot-starter` + `notify-facebook` |
+| Send WhatsApp via Cloud API | `notify-spring-boot-starter` + `notify-whatsapp` |
+| Send via AWS SNS | `notify-spring-boot-starter` + `notify-aws-sns` |
+| Send via Mailgun | `notify-spring-boot-starter` + `notify-mailgun` |
+| Create PagerDuty incidents | `notify-spring-boot-starter` + `notify-pagerduty` |
 | Prevent duplicate sends | `notify-spring-boot-starter` (built-in, config-driven) |
 | A/B test templates | `notify-spring-boot-starter` (built-in, use `.templateVersion()`) |
 | Persist tracking to database | `notify-spring-boot-starter` + `notify-tracker-jpa` |
@@ -1938,6 +2091,7 @@ Below is every module, what it does, when you need it, and how to add it.
 - [x] **v0.8.0** — Twitch, YouTube channels, admin dashboard redesign (16 channels, 18 MCP tools, 24 modules)
 - [x] **v0.9.0** — MCP advanced tools: audiences, contacts, batch send, DLQ, analytics (16 channels, 26 MCP tools)
 - [x] **v0.10.0** — Instagram channel: DMs and feed posts via Meta Graph API (17 channels, 27 MCP tools, 25 modules)
+- [x] **v1.0.0** — SendGrid, TikTok Shop, Facebook, WhatsApp Cloud API, AWS SNS, Mailgun, PagerDuty channels, scheduled notifications MCP tools, JaCoCo coverage (24 channels, 36 MCP tools, 27 modules)
 
 ---
 

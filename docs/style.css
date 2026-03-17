@@ -62,6 +62,13 @@ nav {
     border: 1px solid rgba(255,255,255,0.08); color: var(--text) !important;
 }
 .nav-gh:hover { border-color: var(--accent); background: rgba(249,115,22,0.08) !important; }
+.nav-star {
+    background: linear-gradient(135deg, #2d1b69, #1a1a2e) !important;
+    padding: 6px 14px !important; border-radius: 6px;
+    border: 1px solid rgba(139,92,246,0.4) !important;
+    color: #e0d4ff !important; font-weight: 600;
+}
+.nav-star:hover { border-color: rgba(139,92,246,0.8) !important; background: linear-gradient(135deg, #3d2b79, #2a2a3e) !important; }
 .nav-docs {
     background: var(--accent) !important; padding: 6px 16px !important; border-radius: 6px;
     color: #fff !important; font-weight: 600;

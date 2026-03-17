@@ -1,0 +1,7 @@
+package io.notifyhub.core.event;
+
+public enum EventType {
+    SENT, FAILED, RETRIED, RATE_LIMITED, DEDUPED,
+    CIRCUIT_OPENED, CIRCUIT_CLOSED, CIRCUIT_HALF_OPEN,
+    SCHEDULED, CANCELLED
+}

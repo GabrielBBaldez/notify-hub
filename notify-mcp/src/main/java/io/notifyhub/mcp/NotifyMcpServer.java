@@ -11,7 +11,7 @@ import java.io.PrintStream;
 @SpringBootApplication
 public class NotifyMcpServer {
 
-    public static final String VERSION = "0.9.0";
+    public static final String VERSION = "1.1.0";
 
     // Saved before redirect so McpServerRunner can restore it for MCP STDIO transport
     public static final PrintStream ORIGINAL_STDOUT = System.out;

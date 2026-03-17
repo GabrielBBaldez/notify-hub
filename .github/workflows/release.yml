@@ -1,12 +1,17 @@
-name: Release to Maven Central
+name: Release — Maven Central + Docker + MCP Registry
 
 on:
   push:
     tags:
       - 'v*'
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/notify-hub
+
 jobs:
-  release:
+  # ── 1. Build, Test & Deploy to Maven Central ──────────────────
+  maven-release:
     runs-on: ubuntu-latest
 
     steps:
@@ -33,3 +38,154 @@ jobs:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Upload MCP fat JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: notify-mcp-jar
+          path: notify-mcp/target/notify-mcp-*.jar
+          if-no-files-found: error
+
+  # ── 2. Build & Push Docker Image to GHCR ──────────────────────
+  docker-publish:
+    runs-on: ubuntu-latest
+    needs: maven-release
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.VERSION }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          labels: |
+            org.opencontainers.image.title=NotifyHub MCP Server
+            org.opencontainers.image.description=Unified notification MCP server — 36 tools, 23 channels
+            org.opencontainers.image.version=${{ steps.version.outputs.VERSION }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            io.modelcontextprotocol.server.name=io.github.gabrielbbaldez/notify-hub
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ── 3. Create GitHub Release with fat JAR ─────────────────────
+  github-release:
+    runs-on: ubuntu-latest
+    needs: maven-release
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download MCP fat JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: notify-mcp-jar
+          path: ./artifacts
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Rename JAR for release
+        run: mv ./artifacts/notify-mcp-*.jar ./artifacts/notify-mcp-${{ steps.version.outputs.VERSION }}.jar
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: NotifyHub v${{ steps.version.outputs.VERSION }}
+          generate_release_notes: true
+          files: ./artifacts/notify-mcp-${{ steps.version.outputs.VERSION }}.jar
+          body: |
+            ## NotifyHub v${{ steps.version.outputs.VERSION }}
+
+            ### Install
+
+            **Docker (recommended):**
+            ```bash
+            docker pull ghcr.io/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.VERSION }}
+            ```
+
+            **Fat JAR:**
+            ```bash
+            java -jar notify-mcp-${{ steps.version.outputs.VERSION }}.jar
+            ```
+
+            **Maven:**
+            ```xml
+            <dependency>
+              <groupId>io.github.gabrielbbaldez</groupId>
+              <artifactId>notify-spring-boot-starter</artifactId>
+              <version>${{ steps.version.outputs.VERSION }}</version>
+            </dependency>
+            ```
+
+            ### MCP Server Configuration
+
+            Add to your MCP client config (Claude Desktop, Cursor, etc.):
+            ```json
+            {
+              "mcpServers": {
+                "notify-hub": {
+                  "command": "docker",
+                  "args": ["run", "-i", "--rm", "ghcr.io/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.VERSION }}"],
+                  "env": {}
+                }
+              }
+            }
+            ```
+
+  # ── 4. Publish to MCP Registry ────────────────────────────────
+  mcp-registry:
+    runs-on: ubuntu-latest
+    needs: docker-publish
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Update server.json version
+        run: |
+          VERSION=${{ steps.version.outputs.VERSION }}
+          jq --arg v "$VERSION" \
+             --arg img "ghcr.io/${{ env.IMAGE_NAME }}:$VERSION" \
+             '.version = $v | .packages[0].identifier = $img' \
+             server.json > server.tmp && mv server.tmp server.json
+
+      - name: Install mcp-publisher
+        run: |
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+
+      - name: Authenticate to MCP Registry
+        run: ./mcp-publisher login github-oidc
+
+      - name: Publish to MCP Registry
+        run: ./mcp-publisher publish

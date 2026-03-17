@@ -1,0 +1,372 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.gabrielbbaldez/notify-hub",
+  "title": "NotifyHub — Unified Notification MCP Server",
+  "description": "Send notifications across 23 channels (Email, SMS, Slack, Discord, Telegram, WhatsApp, Teams, Push, Twitter/X, LinkedIn, Facebook, Instagram, YouTube, Twitch, TikTok Shop, Notion, Google Chat, AWS SNS, SendGrid, Mailgun, PagerDuty, and more) with 36 AI-ready tools. One fluent API, zero boilerplate.",
+  "repository": {
+    "url": "https://github.com/GabrielBBaldez/notify-hub",
+    "source": "github"
+  },
+  "version": "1.1.0",
+  "packages": [
+    {
+      "registryType": "oci",
+      "identifier": "ghcr.io/gabrielbbaldez/notify-hub:1.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "NOTIFY_CHANNELS_EMAIL_HOST",
+          "description": "SMTP server host for email notifications",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        },
+        {
+          "name": "NOTIFY_CHANNELS_EMAIL_PORT",
+          "description": "SMTP server port",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        },
+        {
+          "name": "NOTIFY_CHANNELS_EMAIL_USERNAME",
+          "description": "SMTP authentication username",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_EMAIL_PASSWORD",
+          "description": "SMTP authentication password",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_EMAIL_FROM",
+          "description": "Default sender email address",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        },
+        {
+          "name": "NOTIFY_CHANNELS_SMS_ACCOUNTSID",
+          "description": "Twilio Account SID for SMS",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_SMS_AUTHTOKEN",
+          "description": "Twilio Auth Token for SMS",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_SMS_FROMNUMBER",
+          "description": "Twilio sender phone number",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        },
+        {
+          "name": "NOTIFY_CHANNELS_SLACK_WEBHOOKURL",
+          "description": "Slack incoming webhook URL",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_TELEGRAM_BOTTOKEN",
+          "description": "Telegram Bot API token",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_TELEGRAM_CHATID",
+          "description": "Telegram chat/group ID",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        },
+        {
+          "name": "NOTIFY_CHANNELS_DISCORD_WEBHOOKURL",
+          "description": "Discord webhook URL",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_TEAMS_WEBHOOKURL",
+          "description": "Microsoft Teams webhook URL",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_GOOGLECHAT_WEBHOOKURL",
+          "description": "Google Chat webhook URL",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_TWITTER_APIKEY",
+          "description": "Twitter/X API key",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_TWITTER_APISECRET",
+          "description": "Twitter/X API secret",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_TWITTER_ACCESSTOKEN",
+          "description": "Twitter/X access token",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_TWITTER_ACCESSTOKENSECRET",
+          "description": "Twitter/X access token secret",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_LINKEDIN_ACCESSTOKEN",
+          "description": "LinkedIn OAuth2 access token",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_LINKEDIN_ORGANIZATIONID",
+          "description": "LinkedIn organization/company ID",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        },
+        {
+          "name": "NOTIFY_CHANNELS_WHATSAPP_ACCOUNTSID",
+          "description": "Twilio Account SID for WhatsApp",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_WHATSAPP_AUTHTOKEN",
+          "description": "Twilio Auth Token for WhatsApp",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_WHATSAPP_FROMNUMBER",
+          "description": "WhatsApp sender number (with whatsapp: prefix)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        },
+        {
+          "name": "NOTIFY_CHANNELS_PUSH_FIREBASECREDENTIALS",
+          "description": "Firebase Cloud Messaging credentials JSON (base64 or path)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_NOTION_APIKEY",
+          "description": "Notion integration API key",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_NOTION_DATABASEID",
+          "description": "Notion database ID",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        },
+        {
+          "name": "NOTIFY_CHANNELS_TWITCH_CLIENTID",
+          "description": "Twitch application client ID",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_TWITCH_CLIENTSECRET",
+          "description": "Twitch application client secret",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_TWITCH_BROADCASTERID",
+          "description": "Twitch broadcaster/channel ID",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        },
+        {
+          "name": "NOTIFY_CHANNELS_YOUTUBE_CLIENTID",
+          "description": "YouTube/Google OAuth2 client ID",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_YOUTUBE_CLIENTSECRET",
+          "description": "YouTube/Google OAuth2 client secret",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_YOUTUBE_REFRESHTOKEN",
+          "description": "YouTube/Google OAuth2 refresh token",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_YOUTUBE_LIVECHATID",
+          "description": "YouTube Live Chat ID",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        },
+        {
+          "name": "NOTIFY_CHANNELS_INSTAGRAM_ACCESSTOKEN",
+          "description": "Instagram Graph API access token",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_INSTAGRAM_USERID",
+          "description": "Instagram Business account user ID",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        },
+        {
+          "name": "NOTIFY_CHANNELS_SENDGRID_APIKEY",
+          "description": "SendGrid API key for email delivery with tracking",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_SENDGRID_FROMEMAIL",
+          "description": "SendGrid sender email address",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        },
+        {
+          "name": "NOTIFY_CHANNELS_TIKTOKSHOP_APPKEY",
+          "description": "TikTok Shop application key",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_TIKTOKSHOP_APPSECRET",
+          "description": "TikTok Shop application secret",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_TIKTOKSHOP_ACCESSTOKEN",
+          "description": "TikTok Shop access token",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_TIKTOKSHOP_SHOPID",
+          "description": "TikTok Shop ID",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        },
+        {
+          "name": "NOTIFY_CHANNELS_FACEBOOK_PAGEACCESSTOKEN",
+          "description": "Facebook Page access token",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_FACEBOOK_PAGEID",
+          "description": "Facebook Page ID",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        },
+        {
+          "name": "NOTIFY_CHANNELS_AWSSNS_ACCESSKEYID",
+          "description": "AWS access key ID for SNS",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_AWSSNS_SECRETACCESSKEY",
+          "description": "AWS secret access key for SNS",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_AWSSNS_REGION",
+          "description": "AWS region for SNS (e.g., us-east-1)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        },
+        {
+          "name": "NOTIFY_CHANNELS_MAILGUN_APIKEY",
+          "description": "Mailgun API key",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_MAILGUN_DOMAIN",
+          "description": "Mailgun sending domain",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        },
+        {
+          "name": "NOTIFY_CHANNELS_MAILGUN_FROMEMAIL",
+          "description": "Mailgun sender email address",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        },
+        {
+          "name": "NOTIFY_CHANNELS_PAGERDUTY_APIKEY",
+          "description": "PagerDuty Events API v2 integration key",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}

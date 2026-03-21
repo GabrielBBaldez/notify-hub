@@ -1,7 +1,7 @@
 # CLAUDE.md — NotifyHub
 
 > Unified notification library for Java 17+ and Spring Boot 3.x.
-> One fluent API, 23 channels, zero boilerplate.
+> One fluent API, 24 channels, zero boilerplate.
 
 ## Quick Reference
 
@@ -41,7 +41,7 @@ mvn test -pl notify-mcp -Dtest="SendEmailToolTest"
 ```
 notify-hub/
 ├── notify-core/                    # Core API — zero Spring dependency
-├── notify-channels/                # One module per channel (22 total)
+├── notify-channels/                # One module per channel (23 total)
 │   ├── notify-email/               #   SMTP (Jakarta Mail)
 │   ├── notify-sms/                 #   Twilio SMS
 │   ├── notify-slack/               #   Slack webhooks
@@ -63,7 +63,8 @@ notify-hub/
 │   ├── notify-facebook/            #   Facebook Graph API (Page + Messenger)
 │   ├── notify-aws-sns/             #   Amazon SNS (SMS, push, topics)
 │   ├── notify-mailgun/             #   Mailgun Email API
-│   └── notify-pagerduty/           #   PagerDuty Events API v2
+│   ├── notify-pagerduty/           #   PagerDuty Events API v2
+│   └── notify-kick/               #   Kick Public API
 ├── notify-spring-boot-starter/     # Auto-configuration + properties
 ├── notify-tracker-jpa/             # JPA delivery tracking (optional)
 ├── notify-audit-jpa/               # JPA audit logging (optional)
@@ -71,7 +72,7 @@ notify-hub/
 ├── notify-queue-rabbitmq/          # RabbitMQ integration (optional)
 ├── notify-queue-kafka/             # Kafka integration (optional)
 ├── notify-demo/                    # Demo Spring Boot app
-├── notify-mcp/                     # MCP Server for AI agents (36 tools)
+├── notify-mcp/                     # MCP Server for AI agents (37 tools)
 └── docs/                           # Static landing page (GitHub Pages)
 ```
 
@@ -85,7 +86,7 @@ notify-hub/
 | `NotificationBuilder` | Fluent API chain (`.to().via().content().send()`) |
 | `Notification` | Immutable notification data object |
 | `NotificationChannel` | Interface all channels implement (`getName`, `send`, `isAvailable`) |
-| `Channel` | Enum: EMAIL, SMS, WHATSAPP, SLACK, TELEGRAM, DISCORD, TEAMS, PUSH, WEBSOCKET, GOOGLE_CHAT, TWITTER, LINKEDIN, NOTION, TWITCH, YOUTUBE, INSTAGRAM, TIKTOK_SHOP, FACEBOOK, AWS_SNS, MAILGUN, PAGERDUTY |
+| `Channel` | Enum: EMAIL, SMS, WHATSAPP, SLACK, TELEGRAM, DISCORD, TEAMS, PUSH, WEBSOCKET, GOOGLE_CHAT, TWITTER, LINKEDIN, NOTION, TWITCH, YOUTUBE, INSTAGRAM, TIKTOK_SHOP, FACEBOOK, AWS_SNS, MAILGUN, PAGERDUTY, KICK |
 | `Priority` | Enum: URGENT (bypasses rate limits), HIGH, NORMAL, LOW |
 | `DeliveryReceipt` | Immutable tracking receipt (id, status, timestamp) |
 | `DeliveryStatus` | Enum: PENDING, SCHEDULED, SENT, FAILED, CANCELLED, DELIVERED, OPENED, CLICKED, BOUNCED, SPAM_COMPLAINT, DROPPED, DEFERRED |
@@ -198,6 +199,7 @@ All properties under `notify.*`:
 - `notify.channels.aws-sns.*` — Amazon SNS
 - `notify.channels.mailgun.*` — Mailgun Email API
 - `notify.channels.pagerduty.*` — PagerDuty Events API
+- `notify.channels.kick.*` — Kick Public API
 - `notify.retry.*` — Retry policy
 - `notify.rate-limit.*` — Rate limiting
 - `notify.tracking.*` — Delivery tracking
@@ -256,7 +258,7 @@ mvn test -pl notify-mcp -Dtest="SendEmailToolTest"  # Single class
 
 ## MCP Server (notify-mcp)
 
-- 36 tools for AI agent integration
+- 37 tools for AI agent integration
 - STDIO transport (JSON-RPC)
 - Built as fat JAR: `java -jar notify-mcp-0.9.0.jar`
 - Each tool is a class in `io.notifyhub.mcp.tools/`

@@ -7,9 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ## [0.9.0] - 2026-03-16
 
 ### Added
-- 23 notification channels: Email (SMTP), SMS (Twilio), WhatsApp (Cloud API + Twilio), Slack, Telegram, Discord, Microsoft Teams, Firebase Push (FCM v1), Webhook, WebSocket, Google Chat, Twitter/X, LinkedIn, Notion, Twitch, YouTube, Instagram, SendGrid, TikTok Shop, Facebook, AWS SNS, Mailgun, PagerDuty
+- 24 notification channels: Email (SMTP), SMS (Twilio), WhatsApp (Cloud API + Twilio), Slack, Telegram, Discord, Microsoft Teams, Firebase Push (FCM v1), Webhook, WebSocket, Google Chat, Twitter/X, LinkedIn, Notion, Twitch, YouTube, Instagram, SendGrid, TikTok Shop, Facebook, AWS SNS, Mailgun, PagerDuty, Kick
 - Fluent API: `.to().via().content().send()` with builder pattern
-- MCP Server with 36 tools for AI agent integration (STDIO transport)
+- MCP Server with 37 tools for AI agent integration (STDIO transport)
 - Spring Boot 3.x auto-configuration with per-channel activation via `@ConditionalOnProperty`
 - Retry policies: none, fixed, exponential backoff
 - Token bucket rate limiting with per-channel presets

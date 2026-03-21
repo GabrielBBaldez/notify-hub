@@ -30,7 +30,7 @@
 
 ---
 
-Stop writing different code for each notification channel. NotifyHub gives you a single fluent API to send notifications via **Email, SMS, WhatsApp, Slack, Telegram, Discord, Microsoft Teams, Firebase Push, Webhooks, WebSocket, Google Chat, Twitter/X, LinkedIn, Notion, Twitch, YouTube, Instagram, SendGrid, TikTok Shop, Facebook, AWS SNS, Mailgun, PagerDuty** — or any custom channel you create.
+Stop writing different code for each notification channel. NotifyHub gives you a single fluent API to send notifications via **Email, SMS, WhatsApp, Slack, Telegram, Discord, Microsoft Teams, Firebase Push, Webhooks, WebSocket, Google Chat, Twitter/X, LinkedIn, Notion, Twitch, YouTube, Instagram, SendGrid, TikTok Shop, Facebook, AWS SNS, Mailgun, PagerDuty, Kick** — or any custom channel you create.
 
 ```java
 notify.to(user)
@@ -73,6 +73,7 @@ notify.to(user)
 | ☁️ | AWS SNS | AWS SDK, credentials, ARN | `.via(Channel.custom("aws-sns"))` |
 | <img src="https://cdn.simpleicons.org/mailgun/F06B66" width="16"> | Mailgun | Mailgun API, domain setup | `.via(Channel.custom("mailgun"))` |
 | <img src="https://cdn.simpleicons.org/pagerduty/06AC38" width="16"> | PagerDuty | Events API v2, routing key | `.via(Channel.custom("pagerduty"))` |
+| <img src="https://cdn.simpleicons.org/kick" width="16"> | Kick | Public API, OAuth 2.1 | `.via(KICK)` |
 | | Multiple channels | Completely different code for each | Same fluent API |
 | Fallback | Manual try/catch chain | `.fallback(SMS)` |
 | Retry | Implement yourself | Built-in exponential backoff |
@@ -1053,6 +1054,7 @@ No mocking needed — `TestNotifyHub` captures all notifications in memory for a
 | ☁️ | **AWS SNS** | AWS SDK v2 | `notify-aws-sns` |
 | <img src="https://cdn.simpleicons.org/mailgun/F06B66" width="18"> | **Mailgun** | Mailgun REST API | `notify-mailgun` |
 | <img src="https://cdn.simpleicons.org/pagerduty/06AC38" width="18"> | **PagerDuty** | Events API v2 | `notify-pagerduty` |
+| <img src="https://cdn.simpleicons.org/kick" width="18"> | **Kick** | Public API | `notify-kick` |
 | ➕ | **Custom** | Any — implement one interface | `notify-core` |
 
 ---
@@ -1756,6 +1758,7 @@ notify-hub/
 │   ├── notify-aws-sns/                 # AWS SNS (AWS SDK v2)
 │   ├── notify-mailgun/                 # Mailgun transactional email (JDK HttpClient)
 │   ├── notify-pagerduty/              # PagerDuty Events API v2 (JDK HttpClient)
+│   └── notify-kick/                  # Kick Public API (JDK HttpClient)
 │   └── notify-channel-template/       # Template/archetype for creating new channels
 │
 ├── notify-tracker-jpa/                   # JPA-backed delivery tracker
@@ -2171,6 +2174,22 @@ Below is every module, what it does, when you need it, and how to add it.
 
 ---
 
+#### `notify-kick` — Kick Channel
+
+**What it does:** Sends chat messages to Kick channels via the Kick Public API. Supports bot and user message types with OAuth 2.1 authentication and token refresh.
+
+**When to use:** You want to send chat messages to Kick streaming channels from your notification pipeline.
+
+```xml
+<dependency>
+    <groupId>io.github.gabrielbbaldez</groupId>
+    <artifactId>notify-kick</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+---
+
 #### `notify-tracker-jpa` — JPA Delivery Tracker
 
 **What it does:** Persists delivery receipts to a relational database (MySQL, PostgreSQL, H2, etc.) using Spring Data JPA. Stores notification ID, channel, recipient, status, timestamp, and error messages. Provides query methods for filtering and counting.
@@ -2275,6 +2294,7 @@ Below is every module, what it does, when you need it, and how to add it.
 | Send via AWS SNS | `notify-spring-boot-starter` + `notify-aws-sns` |
 | Send via Mailgun | `notify-spring-boot-starter` + `notify-mailgun` |
 | Create PagerDuty incidents | `notify-spring-boot-starter` + `notify-pagerduty` |
+| Send Kick chat messages | `notify-spring-boot-starter` + `notify-kick` |
 | Prevent duplicate sends | `notify-spring-boot-starter` (built-in, config-driven) |
 | A/B test templates | `notify-spring-boot-starter` (built-in, use `.templateVersion()`) |
 | Persist tracking to database | `notify-spring-boot-starter` + `notify-tracker-jpa` |
@@ -2299,7 +2319,7 @@ Below is every module, what it does, when you need it, and how to add it.
 - [x] **v0.8.0** — Twitch, YouTube channels, admin dashboard redesign (16 channels, 18 MCP tools, 24 modules)
 - [x] **v0.9.0** — MCP advanced tools: audiences, contacts, batch send, DLQ, analytics (16 channels, 26 MCP tools)
 - [x] **v0.10.0** — Instagram channel: DMs and feed posts via Meta Graph API (17 channels, 27 MCP tools, 25 modules)
-- [x] **v1.0.0** — SendGrid, TikTok Shop, Facebook, WhatsApp Cloud API, AWS SNS, Mailgun, PagerDuty channels, scheduled notifications MCP tools, JaCoCo coverage (24 channels, 36 MCP tools, 27 modules)
+- [x] **v1.0.0** — SendGrid, TikTok Shop, Facebook, WhatsApp Cloud API, AWS SNS, Mailgun, PagerDuty channels, scheduled notifications MCP tools, JaCoCo coverage (25 channels, 37 MCP tools, 28 modules)
 - [x] **v1.1.0** — Architecture improvements: resilience pipeline (circuit breaker, bulkhead, handler chain), unified event system (NotificationEventBus, EventType, MetricsEventListener), god object refactoring (NotificationExecutor, NotificationScheduler extracted from NotifyHub), multi-channel orchestration, built-in A/B testing, cron scheduling, quiet hours, TestNotifyHub test utility, channel template module, Levenshtein error suggestions, enhanced health indicator with circuit breaker status
 
 ---

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Documentation — NotifyHub</title>
-    <meta name="description" content="Complete documentation for NotifyHub — unified notification library for Java 17+ and Spring Boot 3.x. All 23 channels, fluent API, configs, templates, and more.">
+    <meta name="description" content="Complete documentation for NotifyHub — unified notification library for Java 17+ and Spring Boot 3.x. All 24 channels, fluent API, configs, templates, and more.">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="docs.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
@@ -64,7 +64,7 @@
         <div class="sidebar-section">
             <span class="sidebar-label">Channels</span>
             <details open>
-                <summary>All 23 Channels</summary>
+                <summary>All 24 Channels</summary>
                 <div class="sub-links">
                     <a href="#ch-email">Email (SMTP)</a>
                     <a href="#ch-sms">SMS (Twilio)</a>
@@ -89,6 +89,7 @@
                     <a href="#ch-aws-sns">AWS SNS</a>
                     <a href="#ch-mailgun">Mailgun</a>
                     <a href="#ch-pagerduty">PagerDuty</a>
+                    <a href="#ch-kick">Kick</a>
                 </div>
             </details>
             <a href="#custom-channels">Custom Channels</a>
@@ -1590,6 +1591,67 @@ notify.to("sre-team")
     .send();</code></pre>
             </div>
             <div class="callout callout-info"><strong>Note:</strong> The <code>recipient</code> field is informational for PagerDuty — routing is determined by the <code>routing-key</code> which maps to a specific PagerDuty service.</div>
+        </section>
+
+        <section id="ch-kick">
+            <div class="ch-doc-header">
+                <img src="https://cdn.simpleicons.org/kick" width="24" height="24" alt="Kick">
+                <h3>Kick</h3>
+            </div>
+            <p>Send chat messages to Kick channels via the official Kick Public API. Supports bot and user message types with OAuth 2.1 authentication.</p>
+            <p><strong>Module:</strong> <code>notify-kick</code></p>
+            <div class="code-block">
+                <div class="code-header">application.yml</div>
+<pre><code>notify:
+  channels:
+    kick:
+      client-id: ${KICK_CLIENT_ID}
+      access-token: ${KICK_ACCESS_TOKEN}
+      broadcaster-id: ${KICK_BROADCASTER_ID}
+      message-type: bot  # bot (default) or user</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Java (Standalone)</div>
+<pre><code>KickConfig config = KickConfig.builder()
+    .clientId("your-client-id")
+    .accessToken("your-oauth-access-token")
+    .broadcasterId("12345678")
+    .messageType("bot")  // optional, defaults to "bot"
+    .build();</code></pre>
+            </div>
+            <h4>Getting Credentials</h4>
+            <ol>
+                <li>Go to <a href="https://kick.com/settings/developer" target="_blank">kick.com/settings/developer</a> and register your application</li>
+                <li>Enable <strong>Two-Factor Authentication (2FA)</strong> on your Kick account if not already enabled (required for API access)</li>
+                <li>Copy your <strong>Client ID</strong> and <strong>Client Secret</strong> from the developer settings</li>
+                <li>Generate an OAuth 2.1 access token with the <strong><code>chat:write</code></strong> scope</li>
+                <li>Find your <strong>Broadcaster ID</strong> via the Kick API or your channel settings</li>
+            </ol>
+            <div class="callout callout-tip"><strong>Tip:</strong> NotifyHub supports automatic OAuth token refresh for Kick. Store your <code>client-id</code>, <code>client-secret</code>, and <code>refresh-token</code> and the channel will handle re-authentication transparently.</div>
+            <h4>API Details</h4>
+            <ul>
+                <li>Endpoint: <code>POST https://api.kick.com/public/v1/chat</code></li>
+                <li>Maximum message length: <strong>500 characters</strong> (messages are automatically truncated)</li>
+                <li>Message types: <code>bot</code> (sent as bot/app) or <code>user</code> (sent as the authenticated user)</li>
+            </ul>
+            <h4>Usage</h4>
+            <div class="code-block">
+                <div class="code-header">Java</div>
+<pre><code>// Send a chat message to your Kick channel
+notify.to("my-kick-channel")
+    .via(Channel.KICK)
+    .body("Stream is going live in 5 minutes! 🎮")
+    .send();
+
+// With template
+notify.to("my-kick-channel")
+    .via(Channel.KICK)
+    .template("stream-alert")
+    .param("game", "Minecraft")
+    .param("viewers", "1234")
+    .send();</code></pre>
+            </div>
+            <div class="callout callout-info"><strong>Note:</strong> The <code>recipient</code> field is used as a label for routing purposes — the actual target channel is determined by the <code>broadcaster-id</code> configured in your Kick settings.</div>
         </section>
 
         <!-- ============================================ -->

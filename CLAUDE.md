@@ -33,7 +33,7 @@ mvn test -pl notify-mcp -Dtest="SendEmailToolTest"
 - **Java**: 17+ (source & target)
 - **Spring Boot**: 3.2.5 (optional — core works standalone)
 - **License**: MIT
-- **Build**: Maven multi-module (33 modules)
+- **Build**: Maven multi-module (34 modules)
 - **Repo**: https://github.com/GabrielBBaldez/notify-hub
 
 ## Module Map

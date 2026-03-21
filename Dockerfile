@@ -20,7 +20,7 @@ RUN mvn clean package -pl notify-mcp -am -DskipTests -B -q
 FROM eclipse-temurin:17-jre-jammy
 
 LABEL org.opencontainers.image.title="NotifyHub MCP Server" \
-      org.opencontainers.image.description="Unified notification MCP server — 36 tools, 23 channels, one API" \
+      org.opencontainers.image.description="Unified notification MCP server — 37 tools, 24 channels, one API" \
       org.opencontainers.image.url="https://github.com/GabrielBBaldez/notify-hub" \
       org.opencontainers.image.source="https://github.com/GabrielBBaldez/notify-hub" \
       org.opencontainers.image.licenses="MIT" \

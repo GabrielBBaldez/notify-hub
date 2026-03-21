@@ -81,7 +81,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           labels: |
             org.opencontainers.image.title=NotifyHub MCP Server
-            org.opencontainers.image.description=Unified notification MCP server — 36 tools, 23 channels
+            org.opencontainers.image.description=Unified notification MCP server — 37 tools, 24 channels
             org.opencontainers.image.version=${{ steps.version.outputs.VERSION }}
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             io.modelcontextprotocol.server.name=io.github.GabrielBBaldez/notify-hub

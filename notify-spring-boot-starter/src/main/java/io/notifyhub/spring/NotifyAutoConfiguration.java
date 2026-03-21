@@ -73,7 +73,8 @@ import java.util.concurrent.ScheduledExecutorService;
     NotifyWhatsAppCloudAutoConfiguration.class,
     NotifyAwsSnsAutoConfiguration.class,
     NotifyMailgunAutoConfiguration.class,
-    NotifyPagerDutyAutoConfiguration.class
+    NotifyPagerDutyAutoConfiguration.class,
+    NotifyKickAutoConfiguration.class
 })
 public class NotifyAutoConfiguration {
 

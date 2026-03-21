@@ -67,6 +67,7 @@ public class NotifyProperties {
         private AwsSnsProperties awsSns;
         private MailgunProperties mailgun;
         private PagerDutyProperties pagerduty;
+        private KickProperties kick;
 
         public EmailProperties getEmail() { return email; }
         public void setEmail(EmailProperties email) { this.email = email; }
@@ -114,6 +115,8 @@ public class NotifyProperties {
         public void setMailgun(MailgunProperties mailgun) { this.mailgun = mailgun; }
         public PagerDutyProperties getPagerduty() { return pagerduty; }
         public void setPagerduty(PagerDutyProperties pagerduty) { this.pagerduty = pagerduty; }
+        public KickProperties getKick() { return kick; }
+        public void setKick(KickProperties kick) { this.kick = kick; }
     }
 
     // --- Non-channel feature config inner classes (kept here) ---

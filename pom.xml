@@ -211,6 +211,11 @@
             </dependency>
             <dependency>
                 <groupId>io.github.gabrielbbaldez</groupId>
+                <artifactId>notify-kick</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.gabrielbbaldez</groupId>
                 <artifactId>notify-tracker-jpa</artifactId>
                 <version>${project.version}</version>
             </dependency>

@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.GabrielBBaldez/notify-hub",
   "title": "NotifyHub — Unified Notification MCP Server",
-  "description": "Send notifications across 23 channels with 36 AI-ready tools. One API, zero boilerplate.",
+  "description": "Send notifications across 24 channels with 37 AI-ready tools. One API, zero boilerplate.",
   "repository": {
     "url": "https://github.com/GabrielBBaldez/notify-hub",
     "source": "github"
@@ -365,6 +365,41 @@
           "isRequired": false,
           "format": "string",
           "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_KICK_CLIENTID",
+          "description": "Kick application client ID",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_KICK_CLIENTSECRET",
+          "description": "Kick application client secret",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_KICK_ACCESSTOKEN",
+          "description": "Kick OAuth2 access token with chat:write scope",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_KICK_REFRESHTOKEN",
+          "description": "Kick OAuth2 refresh token for automatic token renewal",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "NOTIFY_CHANNELS_KICK_BROADCASTERID",
+          "description": "Kick broadcaster/channel user ID",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
         }
       ]
     }

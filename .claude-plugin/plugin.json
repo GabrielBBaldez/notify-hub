@@ -1,6 +1,6 @@
 {
   "name": "notify-hub",
-  "description": "Unified notification MCP server — send messages across 23 channels (Email, SMS, Slack, Discord, Telegram, WhatsApp, Teams, Twitter/X, LinkedIn, Facebook, Instagram, and more) with 36 AI-ready tools. One API, zero boilerplate.",
+  "description": "Unified notification MCP server — send messages across 24 channels (Email, SMS, Slack, Discord, Telegram, WhatsApp, Teams, Twitter/X, LinkedIn, Facebook, Instagram, and more) with 37 AI-ready tools. One API, zero boilerplate.",
   "version": "1.1.0",
   "author": {
     "name": "Gabriel Baldez",
@@ -28,6 +28,7 @@
     "push-notifications",
     "webhooks",
     "pagerduty",
+    "kick",
     "sendgrid",
     "mailgun",
     "aws-sns"

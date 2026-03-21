@@ -5,14 +5,14 @@
     "email": "gabrielbaldez2009@gmail.com"
   },
   "metadata": {
-    "description": "Unified notification MCP server — 23 channels, 36 tools, one API",
+    "description": "Unified notification MCP server — 24 channels, 37 tools, one API",
     "version": "1.1.0"
   },
   "plugins": [
     {
       "name": "notify-hub",
       "source": ".",
-      "description": "Send notifications across 23 channels (Email, SMS, Slack, Discord, Telegram, WhatsApp, Teams, Twitter/X, LinkedIn, and more) with 36 AI-ready tools.",
+      "description": "Send notifications across 24 channels (Email, SMS, Slack, Discord, Telegram, WhatsApp, Teams, Twitter/X, LinkedIn, and more) with 37 AI-ready tools.",
       "version": "1.1.0",
       "author": {
         "name": "Gabriel Baldez"
@@ -21,7 +21,7 @@
       "repository": "https://github.com/GabrielBBaldez/notify-hub",
       "license": "MIT",
       "category": "messaging",
-      "tags": ["notifications", "email", "sms", "slack", "discord", "telegram", "mcp-server"],
+      "tags": ["notifications", "email", "sms", "slack", "discord", "telegram", "kick", "mcp-server"],
       "keywords": ["notifications", "messaging", "mcp", "email", "slack", "discord", "telegram"]
     }
   ]

@@ -26,7 +26,8 @@ public enum Channel {
     FACEBOOK,
     AWS_SNS,
     MAILGUN,
-    PAGERDUTY;
+    PAGERDUTY,
+    KICK;
 
     /**
      * Creates a reference to a custom channel by name.

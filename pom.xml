@@ -82,7 +82,7 @@
         <jakarta-mail.version>2.1.2</jakarta-mail.version>
         <twilio.version>10.1.0</twilio.version>
         <slf4j.version>2.0.12</slf4j.version>
-        <junit.version>5.10.2</junit.version>
+        <junit.version>6.0.3</junit.version>
         <mockito.version>5.11.0</mockito.version>
     </properties>
 

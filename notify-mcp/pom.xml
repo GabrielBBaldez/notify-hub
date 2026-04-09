@@ -15,7 +15,7 @@
     <description>MCP server exposing NotifyHub notification tools for AI assistants (Claude, Cursor, etc.).</description>
 
     <properties>
-        <mcp-sdk.version>0.18.1</mcp-sdk.version>
+        <mcp-sdk.version>1.1.0</mcp-sdk.version>
         <maven.deploy.skip>false</maven.deploy.skip>
     </properties>
 
